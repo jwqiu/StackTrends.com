@@ -1,0 +1,15 @@
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/bin/Debug/net8.0/JobStackMatch
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/bin/Debug/net8.0/JobStackMatch.deps.json
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/bin/Debug/net8.0/JobStackMatch.runtimeconfig.json
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/bin/Debug/net8.0/JobStackMatch.dll
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/bin/Debug/net8.0/JobStackMatch.pdb
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.GeneratedMSBuildEditorConfig.editorconfig
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.AssemblyInfoInputs.cache
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.AssemblyInfo.cs
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.csproj.CoreCompileInputs.cache
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.sourcelink.json
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.dll
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/refint/JobStackMatch.dll
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.pdb
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/JobStackMatch.genruntimeconfig.cache
+/Users/chenyuqi/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Code/JobStackMatch/obj/Debug/net8.0/ref/JobStackMatch.dll
