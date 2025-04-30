@@ -1,5 +1,5 @@
 .DS_Store
-obj/Debug/net8.0/JobStackMatch.AssemblyInfo.cs
-obj/Debug/net8.0/JobStackMatch.AssemblyInfoInputs.cache
-obj/Debug/net8.0/JobStackMatch.AssemblyInfoInputs.cache
-obj/Debug/net8.0/JobStackMatch.AssemblyInfo.cs
+
+# .NET build artifacts
+bin/
+obj/
