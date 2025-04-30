@@ -6,17 +6,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <nav class="bg-white shadow p-4">
+  <body class="bg-gray-100">
+    <nav class="bg-white shadow p-4 shadow-lg">
       <div class="text-xl font-bold text-blue-600">StackTrends</div>
     </nav>
-    <div class="p-8">
-      <div class="w-full md:w-1/2 lg:w-1/3">
-        <h1 class="text-2xl mb-4">Tech Stack Popularity</h1>
-        <p>We collected 430 open job positions during this period</p>
+    <div class="p-8 mx-auto max-w-7xl">
+      <div class="w-full md:w-2/3  mx-auto bg-white shadow-lg rounded-lg p-8 mb-8">
+        <h1 class="text-xl font-bold">Most In-Demand Tech Stacks</h1>
+        <p class="text-gray-600 text-sm mb-0">Among 430 Open Jobs</p> 
+        <!-- <p>We collected 430 open job positions during this period</p> -->
         <canvas id="myChart" width="400" height="200"></canvas>
       </div>
-      <table class="table-auto border border-gray-300 w-full text-sm md:w-1/2 lg:w-1/3 text-left mt-4">
+      <table class="table-auto border border-gray-300 w-full text-sm md:w-2/3 text-left mt-4 mx-auto">
         <thead class="bg-gray-100">
           <tr>
             <th class="border px-4 py-2">Technology</th>
@@ -32,7 +33,7 @@
             <td class="border px-4 py-2">148</td>
             <td class="border px-4 py-2">34%</td>
           </tr>
-          <tr class="bg-gray-50">
+          <tr class="bg-white">
             <td class="border px-4 py-2">Aws</td>
             <td class="border px-4 py-2">Cloud Platform</td>
             <td class="border px-4 py-2">129</td>
@@ -44,13 +45,13 @@
             <td class="border px-4 py-2">125</td>
             <td class="border px-4 py-2">29%</td>
           </tr>
-          <tr class="bg-gray-50">
+          <tr class="bg-white">
             <td class="border px-4 py-2">C#</td>
             <td class="border px-4 py-2">Backend</td>
             <td class="border px-4 py-2">123</td>
             <td class="border px-4 py-2">28%</td>
           </tr>
-          <tr class="bg-gray-50">
+          <tr class="bg-white">
             <td class="border px-4 py-2">Javascript</td>
             <td class="border px-4 py-2">Frontend</td>
             <td class="border px-4 py-2">123</td>
@@ -60,7 +61,11 @@
       </table>
     </div>
     
-    
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script>
+      // 确保 ChartDataLabels 已经加载
+      Chart.register(ChartDataLabels);
+    </script>
     <script src="home.js"></script>
   </body>
 </html>
