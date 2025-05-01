@@ -1,5 +1,6 @@
-const ctx = document.getElementById('myChart').getContext('2d');
+import { mockData } from './mockData.js';
 
+const ctx = document.getElementById('myChart').getContext('2d');
 const myChart = new Chart(ctx, {
   type: 'bar',
   data: {
@@ -107,4 +108,58 @@ const myChart = new Chart(ctx, {
   
 });
 
+// Function to add event listeners to filter buttons
+function addFilterEventListeners() {
+  document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const filterValue = this.getAttribute('data-filter').toLowerCase();
+      filterTable(filterValue);
+    });
+  });
+}
 
+// Function to filter the table
+function filterTable(filterValue) {
+  const rows = document.querySelectorAll('#techTable tr');
+
+  rows.forEach(row => {
+    const category = row.cells[1].textContent.toLowerCase();
+    if (filterValue === 'all' || category === filterValue) {
+      row.style.display = ''; // Show row
+    } else {
+      row.style.display = 'none'; // Hide row
+    }
+  });
+
+  // Highlight the active filter button
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('bg-blue-500', 'text-white'));
+  const activeButton = document.querySelector(`.filter-btn[data-filter="${filterValue}"]`);
+  if (activeButton) {
+    activeButton.classList.add('bg-blue-500', 'text-white');
+  }
+}
+
+function populateTable(data) {
+  const tableBody = document.getElementById('techTable');
+  tableBody.innerHTML = ''; // Clear existing rows
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.className = 'bg-white hover:bg-gray-100';
+
+    tr.innerHTML = `
+      <td class="border px-4 py-2">${row.technology}</td>
+      <td class="border px-4 py-2">${row.category}</td>
+      <td class="border px-4 py-2">${row.mentions}</td>
+      <td class="border px-4 py-2">${row.percentage}</td>
+    `;
+
+    tableBody.appendChild(tr);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateTable(mockData);
+  addFilterEventListeners(); // Attach event listeners to filter buttons
+
+});

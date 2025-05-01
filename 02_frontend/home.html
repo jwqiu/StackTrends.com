@@ -17,46 +17,212 @@
         <!-- <p>We collected 430 open job positions during this period</p> -->
         <canvas id="myChart" width="400" height="200"></canvas>
       </div>
-      <table class="table-auto border border-gray-300 w-full text-sm md:w-2/3 text-left mt-4 mx-auto">
-        <thead class="bg-gray-100">
+      <div class="w-full md:w-2/3 mx-auto flex-wrap flex gap-4 mb-8">
+        <div class="flex items-center">
+          <label for="">Filter By :</label>
+        </div>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="all">All</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Cloud Platform">Cloud Platform</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Frontend">Frontend</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Backend">Backend</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="DevOps">DevOps</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Database">Database</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Version Control">Version Control</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="API">API</button>
+        <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300" data-filter="Operating System">Operating System</button>
+      </div>
+      <table class="table-auto border border-gray-300 w-full text-sm md:w-2/3 text-left mt-4 mx-auto rounded-lg overflow-hidden shadow-lg">
+        <thead class="bg-blue-600 text-white">
           <tr>
-            <th class="border px-4 py-2">Technology</th>
-            <th class="border px-4 py-2">Category</th>
-            <th class="border px-4 py-2">Mentions</th>
-            <th class="border px-4 py-2">Percentage</th>
+            <th class="border px-4 py-2 font-semibold">Technology</th>
+            <th class="border px-4 py-2 font-semibold">
+              Category
+            </th>
+            <th class="border px-4 py-2 font-semibold">Mentions</th>
+            <th class="border px-4 py-2 font-semibold">Percentage</th>
           </tr>
         </thead>
-        <tbody>
-          <tr class="bg-white">
+        <tbody id="techTable">
+          <!-- <tr class="bg-white hover:bg-gray-100">
             <td class="border px-4 py-2">Azure</td>
             <td class="border px-4 py-2">Cloud Platform</td>
             <td class="border px-4 py-2">148</td>
-            <td class="border px-4 py-2">34%</td>
+            <td class="border px-4 py-2">34.42%</td>
           </tr>
-          <tr class="bg-white">
-            <td class="border px-4 py-2">Aws</td>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">AWS</td>
             <td class="border px-4 py-2">Cloud Platform</td>
             <td class="border px-4 py-2">129</td>
-            <td class="border px-4 py-2">30%</td>
+            <td class="border px-4 py-2">30.00%</td>
           </tr>
-          <tr class="bg-white">
+          <tr class="bg-white hover:bg-gray-100">
             <td class="border px-4 py-2">React</td>
             <td class="border px-4 py-2">Frontend</td>
             <td class="border px-4 py-2">125</td>
-            <td class="border px-4 py-2">29%</td>
+            <td class="border px-4 py-2">29.07%</td>
           </tr>
-          <tr class="bg-white">
+          <tr class="bg-gray-50 hover:bg-gray-100">
             <td class="border px-4 py-2">C#</td>
             <td class="border px-4 py-2">Backend</td>
             <td class="border px-4 py-2">123</td>
-            <td class="border px-4 py-2">28%</td>
+            <td class="border px-4 py-2">28.60%</td>
           </tr>
-          <tr class="bg-white">
-            <td class="border px-4 py-2">Javascript</td>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">JavaScript</td>
             <td class="border px-4 py-2">Frontend</td>
             <td class="border px-4 py-2">123</td>
-            <td class="border px-4 py-2">28%</td>
+            <td class="border px-4 py-2">28.60%</td>
           </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">.NET</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">122</td>
+            <td class="border px-4 py-2">28.37%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">TypeScript</td>
+            <td class="border px-4 py-2">Frontend</td>
+            <td class="border px-4 py-2">89</td>
+            <td class="border px-4 py-2">20.70%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">Python</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">84</td>
+            <td class="border px-4 py-2">19.53%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Git</td>
+            <td class="border px-4 py-2">Version Control</td>
+            <td class="border px-4 py-2">76</td>
+            <td class="border px-4 py-2">17.67%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">CSS</td>
+            <td class="border px-4 py-2">Frontend</td>
+            <td class="border px-4 py-2">74</td>
+            <td class="border px-4 py-2">17.21%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Java</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">63</td>
+            <td class="border px-4 py-2">14.65%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">HTML</td>
+            <td class="border px-4 py-2">Frontend</td>
+            <td class="border px-4 py-2">62</td>
+            <td class="border px-4 py-2">14.42%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Angular</td>
+            <td class="border px-4 py-2">Frontend</td>
+            <td class="border px-4 py-2">60</td>
+            <td class="border px-4 py-2">13.95%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">RESTful</td>
+            <td class="border px-4 py-2">API</td>
+            <td class="border px-4 py-2">55</td>
+            <td class="border px-4 py-2">12.79%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Docker</td>
+            <td class="border px-4 py-2">DevOps</td>
+            <td class="border px-4 py-2">50</td>
+            <td class="border px-4 py-2">11.63%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">PostgreSQL</td>
+            <td class="border px-4 py-2">Database</td>
+            <td class="border px-4 py-2">49</td>
+            <td class="border px-4 py-2">11.40%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Kubernetes</td>
+            <td class="border px-4 py-2">DevOps</td>
+            <td class="border px-4 py-2">47</td>
+            <td class="border px-4 py-2">10.93%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">Terraform</td>
+            <td class="border px-4 py-2">DevOps</td>
+            <td class="border px-4 py-2">45</td>
+            <td class="border px-4 py-2">10.47%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Go</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">40</td>
+            <td class="border px-4 py-2">9.30%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">GitHub</td>
+            <td class="border px-4 py-2">Version Control</td>
+            <td class="border px-4 py-2">40</td>
+            <td class="border px-4 py-2">9.30%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Vue</td>
+            <td class="border px-4 py-2">Frontend</td>
+            <td class="border px-4 py-2">40</td>
+            <td class="border px-4 py-2">9.30%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">SQL Server</td>
+            <td class="border px-4 py-2">Database</td>
+            <td class="border px-4 py-2">39</td>
+            <td class="border px-4 py-2">9.07%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">PHP</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">39</td>
+            <td class="border px-4 py-2">9.07%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">Linux</td>
+            <td class="border px-4 py-2">Operating System</td>
+            <td class="border px-4 py-2">36</td>
+            <td class="border px-4 py-2">8.37%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">Node.js</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">34</td>
+            <td class="border px-4 py-2">7.91%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">Azure DevOps</td>
+            <td class="border px-4 py-2">DevOps</td>
+            <td class="border px-4 py-2">32</td>
+            <td class="border px-4 py-2">7.44%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">MySQL</td>
+            <td class="border px-4 py-2">Database</td>
+            <td class="border px-4 py-2">28</td>
+            <td class="border px-4 py-2">6.51%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">API Management</td>
+            <td class="border px-4 py-2">API</td>
+            <td class="border px-4 py-2">27</td>
+            <td class="border px-4 py-2">6.28%</td>
+          </tr>
+          <tr class="bg-white hover:bg-gray-100">
+            <td class="border px-4 py-2">C++</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">22</td>
+            <td class="border px-4 py-2">5.12%</td>
+          </tr>
+          <tr class="bg-gray-50 hover:bg-gray-100">
+            <td class="border px-4 py-2">ASP.NET</td>
+            <td class="border px-4 py-2">Backend</td>
+            <td class="border px-4 py-2">21</td>
+            <td class="border px-4 py-2">4.88%</td>
+          </tr> -->
         </tbody>
       </table>
     </div>
@@ -66,6 +232,7 @@
       // 确保 ChartDataLabels 已经加载
       Chart.register(ChartDataLabels);
     </script>
-    <script src="home.js"></script>
+    <!-- <script type="module" src="mockData.js"></script> -->
+    <script type="module" src="home.js"></script>
   </body>
 </html>
