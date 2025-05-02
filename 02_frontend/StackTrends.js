@@ -108,19 +108,36 @@ const myChart = new Chart(ctx, {
   
 });
 
+
+// window.removeTag = function(button) {
+//   button.parentElement.remove();
+// };
+
+// Event listener for filter buttons
+document.addEventListener('click', function (event) {
+  if (event.target.classList.contains('filter-btn')) {
+    const filterValue = event.target.getAttribute('data-filter').toLowerCase();
+    filterTable(filterValue, event.target);
+  }
+});
+
+
+
 // Function to add event listeners to filter buttons
-function addFilterEventListeners() {
-  document.querySelectorAll('.filter-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const filterValue = this.getAttribute('data-filter').toLowerCase();
-      filterTable(filterValue);
-    });
-  });
-}
+// function addFilterEventListeners() {
+//   document.querySelectorAll('.filter-btn').forEach(button => {
+//     button.addEventListener('click', function () {
+//       const filterValue = this.getAttribute('data-filter').toLowerCase();
+//       const clickedButton = this;
+//       filterTable(filterValue,clickedButton);
+//     });
+//   });
+// }
 
 // Function to filter the table
-function filterTable(filterValue) {
+function filterTable(filterValue,clickedButton) {
   const rows = document.querySelectorAll('#techTable tr');
+  
 
   rows.forEach(row => {
     const category = row.cells[1].textContent.toLowerCase();
@@ -131,12 +148,14 @@ function filterTable(filterValue) {
     }
   });
 
-  // Highlight the active filter button
-  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('bg-blue-500', 'text-white'));
-  const activeButton = document.querySelector(`.filter-btn[data-filter="${filterValue}"]`);
-  if (activeButton) {
-    activeButton.classList.add('bg-blue-500', 'text-white');
-  }
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('bg-blue-500','text-white');
+    b.classList.add('bg-gray-200','text-gray-700');
+  });
+
+  // —— 再去掉当前按钮的灰底灰字，加上高亮 ——  
+  clickedButton.classList.remove('bg-gray-200','text-gray-700');
+  clickedButton.classList.add('bg-blue-500','text-white');
 }
 
 function populateTable(data) {
@@ -152,6 +171,8 @@ function populateTable(data) {
       <td class="border px-4 py-2">${row.category}</td>
       <td class="border px-4 py-2">${row.mentions}</td>
       <td class="border px-4 py-2">${row.percentage}</td>
+      <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
+
     `;
 
     tableBody.appendChild(tr);
