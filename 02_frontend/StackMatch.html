@@ -25,8 +25,8 @@
             </div>
         </nav>
         <div class="flex justify-center gap-8 mt-8  ">
-            <div class=" w-1/4">
-                <div class="p-8 rounded-lg shadow-lg bg-white mb-8">
+            <div class="w-1/4 space-y-8">
+                <div class="p-8 rounded-lg shadow-lg bg-white">
                     <h1 class="font-bold text-xl">Select Tech Stacks</h1>
                     <input type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack...">
                     <button class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-600 mt-4">
@@ -49,7 +49,27 @@
                                 &times;
                             </button>
                         </div>
-                        
+                    </div>
+                </div>
+                <div class="p-8 rounded-lg shadow-lg bg-white">
+                    <h1 class="font-bold text-xl">Top Tech Stacks by Category</h1>
+                        <!-- Each selected item -->
+                    <div class="flex items-center gap-x-1 mt-2 ">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                        </svg>
+                        <label for="" class="text-sm text-gray-600">02/05/2025</label>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-3 mt-4 mb-4">
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">ALL</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Cloud Platform">Cloud Platform</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Frontend">Frontend</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Backend">Backend</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="DevOps">DevOps</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Database">Database</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Version Control">Version Control</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="API">API</button>
+                        <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="API">Operating System</button>
                     </div>
                 </div>
             </div>
@@ -64,7 +84,6 @@
                         <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="medium">Medium</button>
                         <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="junior">Junior</button>
                         <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Intern">Intern</button>
-    
                     </div>
                     <div class="flex items-center gap-x-2 mt-4mb-4">
                         <label for="" class="text-sm text-nowrap">Posted date:</label>
