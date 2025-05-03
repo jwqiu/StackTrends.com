@@ -43,13 +43,37 @@
                                 &times;
                             </button>
                         </div>
+                        <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                            AWS
+                            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
+                                &times;
+                            </button>
+                        </div>
                         
                     </div>
                 </div>
             </div>
-            <div class="border w-2/4 p-8 rounded-lg shadow-lg bg-white">
+            <div class="border w-2/4 p-8 rounded-lg shadow-lg bg-white mb-8">
 
                 <h1 class="font-bold text-xl">Matching Job Listings</h1>
+                <div class="2xl:flex 2xl:gap-x-4">
+                    <div class="flex items-center gap-x-2 mt-4 mb-4">
+                        <label for="" class="text-sm text-nowrap">Experience level:</label>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">ALL</button>
+                        <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Senior">Senior</button>
+                        <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="medium">Medium</button>
+                        <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="junior">Junior</button>
+                        <button class="filter bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Intern">Intern</button>
+    
+                    </div>
+                    <div class="flex items-center gap-x-2 mt-4mb-4">
+                        <label for="" class="text-sm text-nowrap">Posted date:</label>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Past week</button>
+                        <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Past month">Past month</button>
+                        <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Past 6 months">Past 6 months</button>
+                    </div>
+                </div>
+
                 <div class="space-y-4 mt-4">
                     <div class="p-4 bg-gray-50 rounded shadow flex">
                         <div>
@@ -78,6 +102,39 @@
                             <p class="text-sm text-gray-600">Company: CloudWorks · Location: Christchurch · Hybrid</p>
                             <p class="required-tech-stacks text-sm mt-1">
                                 <strong>Required Tech Stacks:</strong> Python, Django, PostgreSQL
+                            </p>
+                        </div>
+                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded shadow flex">
+                        <div>
+                            <h3 class="font-semibold text-lg text-blue-700">Data Scientist</h3>
+                            <p class="text-sm text-gray-600">Company: DataInsights · Location: Sydney · Remote</p>
+                            <p class="required-tech-stacks text-sm mt-1">
+                                <strong>Required Tech Stacks:</strong> Python, Pandas, NumPy, TensorFlow
+                            </p>
+                        </div>
+                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded shadow flex">
+                        <div>
+                            <h3 class="font-semibold text-lg text-blue-700">DevOps Engineer</h3>
+                            <p class="text-sm text-gray-600">Company: CloudOps · Location: Melbourne · On-site</p>
+                            <p class="required-tech-stacks text-sm mt-1">
+                                <strong>Required Tech Stacks:</strong> Docker, Kubernetes, AWS, Jenkins
+                            </p>
+                        </div>
+                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded shadow flex">
+                        <div>
+                            <h3 class="font-semibold text-lg text-blue-700">Mobile App Developer</h3>
+                            <p class="text-sm text-gray-600">Company: AppMasters · Location: Brisbane · Hybrid</p>
+                            <p class="required-tech-stacks text-sm mt-1">
+                                <strong>Required Tech Stacks:</strong> Flutter, Dart, Firebase
                             </p>
                         </div>
                         <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">

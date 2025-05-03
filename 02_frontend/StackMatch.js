@@ -26,16 +26,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const stacksText = element.textContent.replace("Required Tech Stacks:", "").trim();
         const stacks = stacksText.split(",").map((stack) => stack.trim());
 
-        // Step 3: Highlight matching tech stacks
-        stacks.forEach((stack) => {
-        if (selectedStacks.includes(stack)) {
-            // Find the matching stack in the element and wrap it in a span
-            const regex = new RegExp(`\\b${stack}\\b`, "g");
-            element.innerHTML = element.innerHTML.replace(
-            regex,
-            `<span style="color: red;">${stack}</span>`
-            );
-        }
-        });
+        const matchingStacks = stacks.filter((stack) => selectedStacks.includes(stack));
+        const nonMatchingStacks = stacks.filter((stack) => !selectedStacks.includes(stack));
+
+        element.innerHTML = `<strong>Required Tech Stacks: </strong><span class="text-red-600">${matchingStacks.join(", ")}</span>, ${nonMatchingStacks.join(", ")}`;
+
+
+
+        // stacks.forEach((stack) => {
+        // if (selectedStacks.includes(stack)) {
+        //     const regex = new RegExp(`\\b${stack}\\b`, "g");
+        //     element.innerHTML = element.innerHTML.replace(
+        //     regex,
+        //     `<span style="color: red;">${stack}</span>`
+        //     );
+        // }
+        // });
     });
 });
