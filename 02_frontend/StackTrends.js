@@ -179,8 +179,35 @@ function populateTable(data) {
   });
 }
 
+async function loadTechTable() {
+  try {
+    const response = await fetch('https://localhost:5001/frequency_count');
+    const data = await response.json();
+
+    const tbody = document.getElementById('techTable');
+    tbody.innerHTML = ''; // Clear previous rows
+
+    data.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${item.technology ?? item.Technology}</td>
+        <td class="border px-4 py-2">${item.category ?? item.Category}</td>
+        <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
+        <td class="border px-4 py-2">${item.percentage ?? item.Percentage}</td>
+        <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Failed to load tech stack data:', err);
+  }
+}
+
+// // Call the function when the page loads
+// window.addEventListener('DOMContentLoaded', loadTechTable);
+
 document.addEventListener('DOMContentLoaded', () => {
   populateTable(mockData);
-  addFilterEventListeners(); // Attach event listeners to filter buttons
+  loadTechTable(); // Load the tech table data
 
 });
