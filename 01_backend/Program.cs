@@ -19,7 +19,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
@@ -28,6 +28,7 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("AllowAll"); // 指定策略名
 app.MapControllers();
 app.Run();
+
