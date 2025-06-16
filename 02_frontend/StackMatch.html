@@ -28,8 +28,12 @@
             <div class="w-1/4 space-y-8">
                 <div class="p-8 rounded-lg shadow-lg bg-white">
                     <h1 class="font-bold text-xl">Select Tech Stacks</h1>
-                    <input type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack...">
-                    <button class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-600 mt-4">
+                    <!-- <input type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack..."> -->
+                    <div class="relative">
+                        <input id="techstack-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack...">
+                        <ul id="suggest-list" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
+                    </div>
+                    <button id="add-btn" class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-600 mt-4">
                         Add
                     </button>
                 </div>
@@ -37,18 +41,18 @@
                     <h1 class="font-bold text-xl">Your Tech Stacks</h1>
                     <div class="your-tech-stacks flex flex-wrap gap-2 mt-4">
                         <!-- Each selected item -->
-                        <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                            Python
+                        <!-- <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                            python
                             <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
                                 &times;
                             </button>
                         </div>
                         <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                            AWS
+                            aws
                             <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
                                 &times;
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="p-8 rounded-lg shadow-lg bg-white">
@@ -120,71 +124,11 @@
                 </div>
 
                 <div class="space-y-4 mt-4" id="job-list">
-                    <!-- <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">Full Stack Developer</h3>
-                            <p class="text-sm text-gray-600">Company: TechNova Ltd · Location: Auckland · Remote</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> Python, Flask, MySQL, JavaScript
-                            </p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div>
-                  
-                    <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">Frontend Developer</h3>
-                            <p class="text-sm text-gray-600">Company: BrightPixel · Location: Wellington</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> HTML, CSS, JS, React</p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div>
-                  
-                    <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">Backend Developer</h3>
-                            <p class="text-sm text-gray-600">Company: CloudWorks · Location: Christchurch · Hybrid</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> Python, Django, PostgreSQL
-                            </p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div>
 
-                    <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">Data Scientist</h3>
-                            <p class="text-sm text-gray-600">Company: DataInsights · Location: Sydney · Remote</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> Python, Pandas, NumPy, TensorFlow
-                            </p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div>
-
-                    <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">DevOps Engineer</h3>
-                            <p class="text-sm text-gray-600">Company: CloudOps · Location: Melbourne · On-site</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> Docker, Kubernetes, AWS, Jenkins
-                            </p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div>
-
-                    <div class="p-4 bg-gray-50 rounded shadow flex">
-                        <div>
-                            <h3 class="font-semibold text-lg text-blue-700">Mobile App Developer</h3>
-                            <p class="text-sm text-gray-600">Company: AppMasters · Location: Brisbane · Hybrid</p>
-                            <p class="required-tech-stacks text-sm mt-1">
-                                <strong>Required Tech Stacks:</strong> Flutter, Dart, Firebase
-                            </p>
-                        </div>
-                        <img src="/image.png" alt="" class="w-16 h-16 rounded-full ms-auto">
-                    </div> -->
                 </div>
+                <button id="load-more-btn" class="bg-white border border-blue-200 text-grey-500 px-4 py-2 mt-4 rounded hover:bg-blue-100 w-full">
+                    Load More
+                </button>
                   
             </div>
         </div>
