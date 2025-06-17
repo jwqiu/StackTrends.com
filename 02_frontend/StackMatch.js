@@ -74,7 +74,7 @@ function renderJobs() {
               Company: ${job.companyName ?? ''} 
             </p>
           </div>
-          <img src="/image.png" alt="" class="w-10 h-10 rounded-full ms-auto">
+          <img src="./static/images/seeklogo.png" alt="" class="w-10 h-10 rounded-full ms-auto">        
         </div>
         <p class="text-sm py-1 text-gray-600">
           ${job.jobUrl ? ` <a href="${job.jobUrl}" class="underline text-blue-500" target="_blank">Check Job detail>> </a>` : ''}
