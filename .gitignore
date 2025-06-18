@@ -5,3 +5,5 @@
 **/obj/
 
 *.xlsx
+
+connect.py
