@@ -1,72 +1,113 @@
 import pandas as pd
 import re
 from collections import Counter
+import psycopg2
+from connect import get_conn
 
 
-tech_keywords = [
-    # 编程语言
-    'python', 'java', 'c#', 'javascript', 'typescript', 'go', 'ruby', 'golang',
-    'c sharp', 'c-sharp', 'c# .net', 'c++', 'php', 'kotlin', 'swift', 'objectivec', 'bash', 'powershell',  # ← 新增
+def load_keywords():
+    """
+    从数据库加载技术关键词
+    """
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT stack_name,keyword_alias FROM tech_stacks_list")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
 
-    # 前端框架
-    'react', 'vue', 'angular', 'next.js', 'flutter', 'vue.js', 'nextjs', 'vuejs', 'xamarin', 'angularjs', 'angular.js', 'html', 'css',
-    'reactjs', 'react native', 'svelte', 'sveltekit', 'tailwind', 'redux', 'leaflet', 'graphql', 'jquery',  # ← 新增
+    tech_keywords = set()
+    keyword_aliases = {}
 
-    # 后端框架
-    'flask', 'django', 'spring', 'express', 'fastapi',
-    '.net', 'node.js', '.net core', '.net 5', '.net 6', '.net 7', '.net 8', 'asp.net',
-    'spring boot', 'azure functions', 'api management', 'laravel', 'databricks',  # ← 新增
+    for stack, alias in rows:
+        if stack:
+            tech_keywords.add(stack.strip().lower())
+        if alias and alias.strip().lower() != stack.strip().lower():
+            keyword_aliases[stack.strip().lower()] = alias.strip().lower()
 
-    # 云平台
-    'aws', 'azure', 'gcp', 'google cloud', 'alibaba cloud',
-    'terraform', 'cloudformation', 'aws cdk', 'azure devops',  # ← 新增
+    return tech_keywords, keyword_aliases
 
-    # 数据库
-    'mysql', 'postgresql', 'oracle', 'mongodb', 'redis', 'sqlite', 'postgres',
-    'sql server', 'mssql', 'nosql', 'snowflake', 'cosmos db', 'cassandra', 'databricks lakehouse', 'fabric', 'dbt', 'streamsets',  # ← 新增
+tech_keywords, keyword_aliases = load_keywords()
 
-    # DevOps / 工具
-    'docker', 'kubernetes', 'jenkins', 'git', 'github', 'gitlab',
-    'ci/cd', 'linux', 'observability', 'event-driven architecture', 'junit', 'cypress', 'playwright',  # ← 新增
+# tech_keywords = [
+#     # Frontend 框架
+#     'angular', 'angular.js', 'angularjs', 'css', 'flutter', 'html', 'jquery', 'leaflet',
+#     'next.js', 'nextjs', 'react', 'react native', 'reactjs', 'redux', 'svelte', 'sveltekit', 'tailwind',
+#     'vue', 'vue.js', 'vuejs', 'xamarin', 'javascript', 'typescript', 'html5', 'css3', 'bootstrap', 'material ui', 'ant design', 'element ui',
 
-    # 其他技术
-    'graphql', 'restful', 'kafka', 'spark',
-    'power bi', 'power apps', 'power automate', 'azure data factory', 'ai tools', 'tensorflow', 'langchain',  # ← 新增
-]
+#     # Backend 框架
+#     '.net', '.net 5', '.net 6', '.net 7', '.net 8', '.net core', 'asp.net',
+#     'django', 'express', 'fastapi', 'flask', 'laravel', 'node.js',
+#     'spring', 'spring boot', 'c#', 'python', 'java', 'go', 'golang', 'c sharp', 'c-sharp', 'c# .net', 'c++', 'php', 'kotlin', 'swift', 'objectivec', 'objective-c',
+#     'nodejs', 'node', 'graphql', 'ruby',
 
-# 关键词归一化映射（变体 → 标准关键词）
-keyword_aliases = {
-    'c sharp': 'c#',
-    'c-sharp': 'c#',
-    'c# .net': 'c#',
-    'vue.js': 'vue',
-    'vuejs': 'vue',
-    'nextjs': 'next.js',
-    'reactjs': 'react',
-    'angularjs': 'angular',
-    'angular.js': 'angular',
-    'postgres': 'postgresql',
-    'mssql': 'sql server',
-    'golang': 'go',
-    'objectivec': 'objective-c',
-    'ci/cd': 'cicd',
-    'nodejs': 'node.js',     # 反向归一（可选）
-    'html5': 'html',         # 可选向前归一
-    'css3': 'css',           # 同上
-    'react native': 'react',  # 如果你想合并统计 React，可开启此行
-    '.net core': '.net',
-    '.net 5': '.net',
-    '.net 6': '.net',
-    '.net 7': '.net',
-    '.net 8': '.net',
+#     # Cloud_Platforms
+#     'alibaba cloud', 'aws', 'aws cdk', 'azure', 'azure devops', 'cloudformation', 'gcp', 'google cloud', 'terraform', 'azure functions', 'azure data factory',
 
-}
+#     # Database / 数据库
+#     'cassandra', 'cosmos db', 'databricks lakehouse', 'dbt', 'mongodb', 'mssql', 'mysql',
+#     'nosql', 'oracle', 'postgres', 'postgresql', 'redis', 'snowflake', 'sql server', 'sqlite', 'spark',
+
+#     # DevOps_tools
+#     'ci/cd', 'cicd', 'cypress', 'docker', 'event-driven architecture', 'git', 'github', 'gitlab', 'jenkins',
+#     'junit', 'kubernetes', 'linux', 'observability', 'playwright', 'powershell', 'bash', 'leaflet', 'streamsets'
+
+#     # API
+#     'api management', 'graphql', 'restful',
+
+#     # Version_Control
+#     'git', 'github', 'gitlab',
+
+#     # Operating_System
+#     'linux',
+
+#     # Other
+#     'ai tools', 'langchain', 'power apps', 'power automate', 'power bi', 'tensorflow', 'kafka', 'fabric'
+# ]
 
 
+# # 关键词归一化映射（变体 → 标准关键词）
+# keyword_aliases = {
+#     'c sharp': 'c#',
+#     'c-sharp': 'c#',
+#     'c# .net': 'c#',
+#     'vue.js': 'vue',
+#     'vuejs': 'vue',
+#     'nextjs': 'next.js',
+#     'reactjs': 'react',
+#     'angularjs': 'angular',
+#     'angular.js': 'angular',
+#     'postgres': 'postgresql',
+#     'mssql': 'sql server',
+#     'golang': 'go',
+#     'objectivec': 'objective-c',
+#     'ci/cd': 'cicd',
+#     'nodejs': 'node.js',     # 反向归一（可选）
+#     'html5': 'html',         # 可选向前归一
+#     'css3': 'css',           # 同上
+#     'react native': 'react',  # 如果你想合并统计 React，可开启此行
+#     '.net core': '.net',
+#     '.net 5': '.net',
+#     '.net 6': '.net',
+#     '.net 7': '.net',
+#     '.net 8': '.net',
+
+# }
+
+def load_job_data():
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM jobs")
+    rows = cursor.fetchall()
+    colnames = [desc[0] for desc in cursor.description]  # 获取列名
+    cursor.close()
+    conn.close()
+    return pd.DataFrame(rows, columns=colnames) 
 
 # 读取 Excel
-df = pd.read_excel('job_list_with_details.xlsx')  # 假设有 'Job Description' 列
+# df = pd.read_excel('job_list_with_details.xlsx')  # 假设有 'Job Description' 列
 
+df=load_job_data()
 # 统一小写处理、去除空值
 df['job_des'] = df['job_des'].fillna('').str.lower()
 
@@ -101,11 +142,31 @@ for desc in df['job_des']:
 # 加入标签列
 df['Tech Tags'] = job_labels
 
+
+
 # 排序并打印统计
-sorted_tech = tech_counter.most_common()
-print("技术关键词出现频率：")
-for tech, count in sorted_tech:
-    print(f"{tech}: {count}")
+# sorted_tech = tech_counter.most_common()
+# print("技术关键词出现频率：")
+# for tech, count in sorted_tech:
+#     print(f"{tech}: {count}")
 
 # 保存新的 Excel 文件
-df.to_excel('jobs_with_tech_tags.xlsx', index=False)
+# df.to_excel('jobs_with_tech_tags.xlsx', index=False)
+
+def update_tech_tags(df):
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    for _, row in df.iterrows():
+        job_id = row['job_id']
+        tech_tags = row['Tech Tags']
+        cursor.execute(
+            "UPDATE jobs SET tech_tags = %s WHERE job_id = %s",
+            (tech_tags, job_id)
+        )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+update_tech_tags(df)
