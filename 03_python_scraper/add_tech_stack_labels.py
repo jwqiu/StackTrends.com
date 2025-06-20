@@ -11,23 +11,23 @@ def load_keywords():
     """
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT stack_name,keyword_alias FROM tech_stacks_list")
+    cursor.execute("SELECT raw_keyword,normalized_keyword FROM tech_stacks_list")
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    tech_keywords = set()
-    keyword_aliases = {}
+    raw_keywords = set()
+    normalized_keywords = {}
 
-    for stack, alias in rows:
-        if stack:
-            tech_keywords.add(stack.strip().lower())
-        if alias and alias.strip().lower() != stack.strip().lower():
-            keyword_aliases[stack.strip().lower()] = alias.strip().lower()
+    for raw_kw, normalized_kw in rows:
+        if raw_kw:
+            raw_keywords.add(raw_kw.strip().lower())
+        if normalized_kw and normalized_kw.strip().lower() != raw_kw.strip().lower():
+            normalized_keywords[raw_kw.strip().lower()] = normalized_kw.strip().lower()
 
-    return tech_keywords, keyword_aliases
+    return raw_keywords, normalized_keywords
 
-tech_keywords, keyword_aliases = load_keywords()
+raw_keywords, normalized_keywords = load_keywords()
 
 # tech_keywords = [
 #     # Frontend 框架
@@ -118,7 +118,7 @@ job_labels = []
 # 遍历每条 job description
 for desc in df['job_des']:
     found = []
-    for keyword in tech_keywords:
+    for keyword in raw_keywords:
         match_found = False
 
         # 判断是否是需要特殊处理的符号关键词（如 .net、c#）
@@ -132,11 +132,11 @@ for desc in df['job_des']:
                 match_found = True
 
         if match_found:
-            normalized_keyword = keyword_aliases.get(keyword, keyword)
+            final_keyword = normalized_keywords.get(keyword, keyword)
 
-            if normalized_keyword not in found:
-                found.append(normalized_keyword)
-                tech_counter[normalized_keyword] += 1
+            if final_keyword not in found:
+                found.append(final_keyword)
+                tech_counter[final_keyword] += 1
 
     job_labels.append(', '.join(found))
 # 加入标签列
