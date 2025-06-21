@@ -40,8 +40,9 @@ public class JobController : ControllerBase
 
         var sql = @"
             SELECT 
-                company_id, company_name, job_id, job_title, job_url, sub_id, sub_name, ""Tech Tags"" as required_stacks
-            FROM job_list_0415";
+                company_id, company_name, job_id, job_title, job_url, sub_id, sub_name, tech_tags as required_stacks,
+                listed_date
+            FROM jobs";
 
         await using var cmd = new NpgsqlCommand(sql, _conn);
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -51,24 +52,43 @@ public class JobController : ControllerBase
             var job = new Job
             {
                 JobId = Convert.ToInt32(reader["job_id"]), // 必须有值
-                JobTitle = reader["job_title"].ToString(), // 必须有值
+                JobTitle = Convert.ToString(reader["job_title"]) ?? "",
 
                 CompanyId = reader["company_id"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["company_id"]),
                 CompanyName = reader["company_name"] == DBNull.Value ? null : reader["company_name"].ToString(),
                 JobUrl = reader["job_url"] == DBNull.Value ? null : reader["job_url"].ToString(),
                 SubId = reader["sub_id"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["sub_id"]),
                 SubName = reader["sub_name"] == DBNull.Value ? null : reader["sub_name"].ToString(),
-                RequiredStacks = (reader["required_stacks"] == DBNull.Value ? "" : reader["required_stacks"].ToString())
+                RequiredStacks = (Convert.ToString(reader["required_stacks"]) ?? "")
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim())
-                    .ToList()
+                    .ToList(),
+                ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"])
             };
 
             jobs.Add(job);
         }
 
         await _conn.CloseAsync();
-        return Ok(jobs);
+
+        var sortedJobs = jobs
+        .OrderByDescending(j => j.ListedDate ?? DateTime.MinValue)
+        .ToList();
+
+        return Ok(sortedJobs);
+    }
+
+    [HttpGet("count")]
+    public async Task<IActionResult> JobsCount()
+    {
+        await _conn.OpenAsync();
+
+        var sql = "SELECT COUNT(*) FROM jobs";
+        await using var cmd = new NpgsqlCommand(sql, _conn);
+        var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+
+        await _conn.CloseAsync();
+        return Ok(new { count });
     }
 }
 

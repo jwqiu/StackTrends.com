@@ -5,7 +5,7 @@ namespace StackTrends.Models
     public class Job
     {
         public int JobId { get; set; }
-        public string JobTitle { get; set; }
+        public required string JobTitle { get; set; }
 
         public int? CompanyId { get; set; }
         public string? CompanyName { get; set; }
@@ -20,6 +20,8 @@ namespace StackTrends.Models
 
         public int? SubId { get; set; }
         public string? SubName { get; set; }
+
+        public DateTime? ListedDate { get; set; } // 可选，可能不需要
     }
 
 	

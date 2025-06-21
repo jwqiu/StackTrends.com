@@ -19,7 +19,7 @@ graphql_url = "https://www.seek.co.nz/graphql"
 # ws=wb.active
 
 # title=['company_id','company_name','job_id','job_title', 'job_url', 'job_des_origin','job_des','sub_id', 'sub_name','location','listed_date','collected_date','listing_year_month']
-# ws.append(title)
+
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -67,12 +67,15 @@ def clean_html(raw_html):
     return soup.get_text(separator=" ", strip=True)
 
 def clean_cell(cell):
+    if cell is None:
+        return None
     s = str(cell)
     # 移除不可见ASCII控制字符
     s = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', s)
     # 移除Unicode高位代理区间（极少见，但保险）
     s = re.sub(r'[\uD800-\uDFFF]', '', s)
     return s
+
 
 def to_nz_time(utc_str):
     if utc_str == "NA":
@@ -122,8 +125,16 @@ while True:
                 continue
             seen_job_ids.add(job_id)
             job=[]
-            
-            job.append(job_data['advertiser']['id'])
+
+
+            raw_id = job_data.get('advertiser', {}).get('id')
+            try:
+                company_id = int(raw_id)
+            except (TypeError, ValueError):
+                company_id = None
+
+            job.append(company_id)
+
             job.append(job_data.get('companyName', "NA"))
             job.append(job_data['id'])
             job.append(job_data['title'])
@@ -179,17 +190,18 @@ conn = get_conn()
 cur = conn.cursor()
 create_sql = """
 CREATE TABLE IF NOT EXISTS jobs (
-    company_id TEXT,
+    company_id INTEGER,
     company_name TEXT,
-    job_id TEXT PRIMARY KEY,
+    job_id INTEGER PRIMARY KEY,
     job_title TEXT,
     job_url TEXT,
-    sub_id TEXT,
+    sub_id INTEGER,
     sub_name TEXT,
     location TEXT,
-    listed_date TEXT,
-    collected_date TEXT,
+    listed_date Timestamp,
+    collected_date Timestamp,
     listing_year_month TEXT,
+    tech_tags TEXT,         
     job_des_origin TEXT,
     job_des TEXT
 );

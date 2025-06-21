@@ -28,9 +28,9 @@ function initChart(labels, data) {
     options: {
       scales: {
         y: {
-          beginAtZero: false,  // 关闭自动从0开始
-          min: 50,             // 强制从10开始
-          max: 170,
+          beginAtZero: true,  // 关闭自动从0开始
+          // min: 0,             
+          // max: 0.5,
           grid: {
             display: false,
             // ↓ 确保“轴线”也不画
@@ -77,7 +77,13 @@ function initChart(labels, data) {
           titleColor: '#fff',
           bodyColor: '#f9fafb',
           cornerRadius: 4,
-          padding: 8
+          padding: 8,
+          callbacks: {
+            label: function(context) {
+              const value = context.raw;
+              return `${(value * 100).toFixed(2)}%`;
+            }
+          }
         },
         datalabels: {
           anchor: 'end',
@@ -85,7 +91,10 @@ function initChart(labels, data) {
           font: {
             size: 12
           },
-          color: '#374151' // text-gray-800
+          color: '#374151', // text-gray-800
+          formatter: function(value) {
+            return `${(value * 100).toFixed(2)}%`;
+          }
         }
       },
       elements: {
@@ -99,117 +108,11 @@ function initChart(labels, data) {
   });
 }
 
-// const ctx = document.getElementById('myChart').getContext('2d');
-// const myChart = new Chart(ctx, {
-//   type: 'bar',
-//   data: {
-//     labels: [
-//       'Azure',
-//       'AWS',
-//       'React',
-//       'C#',
-//       'JavaScript',
-//       '.NET',
-//       'TypeScript',
-//       'Python',
-//       'Git',
-//       'CSS'
-//     ],
-//     datasets: [{
-//       data: [148, 129, 125, 123, 123, 122, 89, 84, 76, 74],
-//       borderWidth: 1,
-//       backgroundColor: [
-//         '#60a5fa', // Azure - 深蓝
-//         '#93c5fd', // AWS - 中深蓝
-//         '#bfdbfe', // React - 中蓝
-//         '#dbeafe', // C# - 浅蓝
-//         '#e0f2fe', // JavaScript - 最浅蓝
-//         '#e5e7eb', // .NET - 浅灰
-//         '#e5e7eb', // TypeScript - 浅灰
-//         '#e5e7eb', // Python - 浅灰
-//         '#e5e7eb', // Git - 浅灰
-//         '#e5e7eb'  // CSS - 浅灰
-//       ]
-//     }]
-//   },
-//   options: {
-
-//     scales: {
-//       y: {
-//         beginAtZero: false,  // 关闭自动从0开始
-//         min: 50,             // 强制从10开始
-//         max: 170,
-//         grid: {
-//           display: false,
-//           // ↓ 确保“轴线”也不画
-//           drawBorder: false,
-//           // （可选）彻底透明
-//           borderColor: 'transparent',
-//         },
-//         // ② 刻度值 & 刻度小线 关闭
-//         ticks: {
-//           display: false,
-//           drawTicks: false
-//         },
-//         // ③ 也要把轴本身的 border 关掉
-//         border: {
-//           display: false
-//         }
-//       },
-//       x: {
-//         // ① 网格线 (竖线) 关闭
-//         grid: {
-//           display: false,
-//           drawBorder: false,
-//           borderColor: 'transparent',
-//         },
-//         // ② 刻度值 & 刻度小线 关闭
-//         ticks: {
-//           display: true,      // ✅ 显示标签
-//           drawTicks: false,   // ❌ 不画刻度小线
-//           font: { size: 12 },
-//           color: '#4b5563'
-//         },
-//         // ③ 也把 X 轴的主边框线关掉
-//         border: {
-//           display: false
-//         }
-//       }
-//     },
-//     plugins: {
-//       legend: {
-//         display: false
-//       },
-//       tooltip: {
-//         backgroundColor: '#1e3a8a', // 深蓝色背景
-//         titleColor: '#fff',
-//         bodyColor: '#f9fafb',
-//         cornerRadius: 4,
-//         padding: 8
-//       },
-//       datalabels: {
-//         anchor: 'end',
-//         align: 'top',
-//         font: {
-//           size: 12
-//         },
-//         color: '#374151' // text-gray-800
-//       }
-//     },
-//     elements: {
-//       bar: {
-//         borderRadius: 6, // ✅ 圆角柱状条
-//         borderSkipped: false,
-//         barThickness: 28 // 控制柱子宽度
-//       }
-//     }
-//   }
-  
-// });
 
 document.addEventListener('DOMContentLoaded', () => {
   // populateTable(mockData);
-  loadTechTable(); // Load the tech table data
+  loadTechRank(); // Load the tech table data
+  updateJobCount()
 
 });
 
@@ -221,17 +124,32 @@ document.addEventListener('click', function (event) {
 });
 
 
-function filterTable(filterValue,clickedButton) {
-  const rows = document.querySelectorAll('#techTable tr');
-  
-  rows.forEach(row => {
-    const category = row.cells[1].textContent.toLowerCase();
-    if (filterValue === 'all' || category === filterValue) {
-      row.style.display = ''; // Show row
-    } else {
-      row.style.display = 'none'; // Hide row
-    }
-  });
+function filterTable(filterValue,clickedButton) {  
+  if (filterValue === 'all') {
+    renderTechTableRows(allData,20);
+    showMoreBtn.style.display = allData.length > 20 ? '' : 'none';
+  }else {
+    renderTechTableRows(allData); // 先渲染全部数据
+    const rows = document.querySelectorAll('#techTable tr');
+    showMoreBtn.style.display = 'none'; // 隐藏“显示更多”按钮
+    rows.forEach(row => {
+      const category = row.cells[1].textContent.toLowerCase();
+      if (category === filterValue) {
+        row.style.display = ''; // Show row
+      } else {    
+        row.style.display = 'none'; // Hide row
+      }
+    });
+  }
+
+  // rows.forEach(row => {
+  //   const category = row.cells[1].textContent.toLowerCase();
+  //   if (filterValue === 'all' || category === filterValue) {
+  //     row.style.display = ''; // Show row
+  //   } else {
+  //     row.style.display = 'none'; // Hide row
+  //   }
+  // });
 
   document.querySelectorAll('.filter-btn').forEach(b => {
     b.classList.remove('bg-blue-500','text-white');
@@ -245,13 +163,13 @@ function filterTable(filterValue,clickedButton) {
 
 let allData = []; // 全部数据
 
-async function loadTechTable() {
+async function loadTechRank() {
   try {
     const response = await fetch('https://localhost:5001/frequency_count');
     const data = await response.json();
-    allData = data; // 保存全部数据
-    renderCategoryTags(data);
-    renderTechTableRows(data, 20); // 初始渲染20条
+    allData = [...data].sort((a, b) => (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage));
+    renderCategoryTags(allData);
+    renderTechTableRows(allData, 20); // 初始渲染20条
     
     const showMoreBtn = document.getElementById('showMoreBtn');
     showMoreBtn.style.display = data.length > 20 ? '' : 'none';
@@ -267,9 +185,10 @@ async function loadTechTable() {
     // const tbody = document.getElementById('techTable');
     // tbody.innerHTML = ''; // Clear previous rows
 
-    const top10= data.slice(0, 10); // Get top 10 items
-    const labels = top10.map(item => item.technology ?? item.Technology);
-    const counts = top10.map(item => item.mentions ?? item.Mentions);
+    const top10= allData.slice(0, 10); // Get top 10 items
+    let labels = top10.map(item => item.technology ?? item.Technology);
+    labels = labels.map(label => label.charAt(0).toUpperCase() + label.slice(1));
+    const counts = top10.map(item => item.percentage ?? item.Percentage);
 
     if (!topChart) {
       initChart(labels, counts);
@@ -279,17 +198,6 @@ async function loadTechTable() {
       topChart.update();
     }
 
-    // data.forEach(item => {
-    //   const tr = document.createElement('tr');
-    //   tr.innerHTML = `
-    //     <td class="border px-4 py-2">${item.technology ?? item.Technology}</td>
-    //     <td class="border px-4 py-2">${item.category ?? item.Category}</td>
-    //     <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
-    //     <td class="border px-4 py-2">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
-    //     <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
-    //   `;
-    //   tbody.appendChild(tr);
-    // });
   } catch (err) {
     console.error('Failed to load tech stack data:', err);
   }
@@ -301,7 +209,10 @@ function renderTechTableRows(data, limit) {
   (limit ? data.slice(0, limit) : data).forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="border px-4 py-2">${item.technology ?? item.Technology}</td>
+      <td class="border px-4 py-2">${
+        (item.technology ?? item.Technology)
+          .charAt(0).toUpperCase() + (item.technology ?? item.Technology).slice(1)
+      }</td>
       <td class="border px-4 py-2">${item.category ?? item.Category}</td>
       <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
       <td class="border px-4 py-2">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
@@ -334,14 +245,14 @@ function renderTechTableRows(data, limit) {
 
 function renderCategoryTags(data) {
   const categoryOrder = [
-    "Cloud Platform",
+    "Cloud_Platform",
     "Frontend",
     "Backend",
-    "DevOps",
+    "DevOps_tools",
     "Database",
-    "Version Control",
+    "Version_Control",
     "API",
-    "Operating System"
+    "Operating_System"
   ];
 
   // 分组
@@ -383,4 +294,11 @@ function renderCategoryTags(data) {
   });
 }
 
-
+function updateJobCount() {
+  fetch('https://localhost:5001/api/job/count')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("job-count").textContent = data.count;
+    })
+    .catch(err => console.error("Job count fetch failed:", err));
+}

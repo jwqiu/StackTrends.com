@@ -24,7 +24,7 @@ namespace StackTrends.Controllers
             // var cmd = new NpgsqlCommand();
             // var reader = await cmd.ExecuteReaderAsync();
 
-            await using var cmd = new NpgsqlCommand("SELECT * FROM tech_stacks_frequency_count_0415", _conn);
+            await using var cmd = new NpgsqlCommand("SELECT * FROM tech_stacks_frequency_count", _conn);
             await using var reader = await cmd.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
