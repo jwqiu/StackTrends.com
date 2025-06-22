@@ -112,7 +112,8 @@ function initChart(labels, data) {
 document.addEventListener('DOMContentLoaded', () => {
   // populateTable(mockData);
   loadTechRank(); // Load the tech table data
-  updateJobCount()
+  updateJobCount();
+  drawExperiencePie();
 
 });
 
@@ -165,7 +166,7 @@ let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
-    const response = await fetch('https://localhost:5001/frequency_count');
+    const response = await fetch('https://localhost:5001/count/tech_stacks');
     const data = await response.json();
     allData = [...data].sort((a, b) => (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage));
     renderCategoryTags(allData);
@@ -302,3 +303,68 @@ function updateJobCount() {
     })
     .catch(err => console.error("Job count fetch failed:", err));
 }
+
+async function drawExperiencePie() {
+  // 1. 请求后端接口
+  const res  = await fetch('https://localhost:5001/count/experience_level');
+  const data = await res.json(); 
+
+  // 2. 准备标签和数据
+  const labels   = data.map(d => d.level);
+  const percents = data.map(d => d.percentage);
+
+  // 3. 绘制饼图
+  const ctx = document.getElementById('experiencePie').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data: percents,
+        backgroundColor: [
+          '#60a5fa', // Senior
+          '#93c5fd', // Intermediate
+          '#bfdbfe', // Junior
+          '#e5e7eb'  // Other
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      layout: {
+        padding: { left: 0, right: 0, top: 0, bottom: 0 }
+      },
+
+      plugins: {
+        legend: {
+          position: 'left',
+          fullSize: false,
+          align: 'center',
+          padding: 0,
+          labels: {
+            font: {
+              size: 18     // 图例文字大小（比如18px，可随意调大）
+            },
+            boxWidth: 24,   // 色块大小，默认大约为40，数值越大色块越大
+            padding: 16     // 文字与色块之间的间距，也可以调整
+          }
+        },
+        datalabels: {
+          formatter: (value, ctx) => value.toFixed(2) + '%', // 变成百分比
+          color: '#444',
+          font: {
+            size: 16
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: ${ctx.parsed.toFixed(2)}%`
+          }
+        }
+      }
+    }
+  });
+}
+

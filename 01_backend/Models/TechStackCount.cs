@@ -7,4 +7,11 @@ namespace StackTrends.Models
         public int Mentions { get; set; }
         public double Percentage { get; set; }
     }
+
+    public class ExperienceLevelCount
+    {
+        public string  Level      { get; set; } = default!;
+        public int     Mentions   { get; set; }
+        public double  Percentage { get; set; }
+    }
 }

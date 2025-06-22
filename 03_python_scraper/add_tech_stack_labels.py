@@ -153,20 +153,41 @@ df['Tech Tags'] = job_labels
 # 保存新的 Excel 文件
 # df.to_excel('jobs_with_tech_tags.xlsx', index=False)
 
-def update_tech_tags(df):
+def label_job_level(title):
+    title = title.lower() if isinstance(title, str) else ''
+    if 'senior' in title:
+        return 'Senior'
+    elif 'intermediate' in title:
+        return 'Intermediate'
+    elif 'junior' in title:
+        return 'Junior'
+    else:
+        return 'Other'
+
+df['job_level'] = df['job_title'].apply(label_job_level)
+
+def update_tech_tags_and_levels(df):
     conn = get_conn()
     cursor = conn.cursor()
 
     for _, row in df.iterrows():
-        job_id = row['job_id']
+        job_id    = row['job_id']
         tech_tags = row['Tech Tags']
+        job_level = row['job_level']
+
         cursor.execute(
-            "UPDATE jobs SET tech_tags = %s WHERE job_id = %s",
-            (tech_tags, job_id)
+            """
+            UPDATE jobs
+               SET tech_tags = %s,
+                   job_level = %s
+             WHERE job_id = %s
+            """,
+            (tech_tags, job_level, job_id)
         )
 
     conn.commit()
     cursor.close()
     conn.close()
 
-update_tech_tags(df)
+# 最后调用
+update_tech_tags_and_levels(df)

@@ -24,95 +24,93 @@
       </div>
     </nav>
     <div class="p-8 mx-auto max-w-8xl">
-      
-      <div class="w-full lg:w-3/4 mx-auto">
-        <div class="flex items-center gap-x-2 mb-4">
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 align-middle">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
-          </svg> -->
-          <div class="ms-1">
+      <div class="">
+        <!-- 第一个模块 -->
+        <div>
+          <!-- 首个小标题 -->
+          <div class="mb-4">
             <h1 class="text-xl font-bold mb-0">Most Requested Tech Stacks</h1>
             <p class="text-gray-600 text-sm mb-0">Based on <span class="text-blue-600 font-bold text-md" id="job-count">#</span> jobs collected since April 2025</p> 
           </div>
-        </div>
-        <!-- <p>We collected 430 open job positions during this period</p> -->
-        <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
-          <div class="flex items-center gap-x-2 mb-0">
-            <label for="" class="text-sm text-nowrap">Filter By :</label>
-            <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Past day</button>
-            <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="all">Past year</button>
-            <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Past 6 months">Past 6 months</button>
-            <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Past month">Past month</button>
-          </div>
-          <canvas id="myChart" width="400" height="200" class="ms-0"></canvas>
-        </div>
-      </div>
-      <div class="w-full lg:w-3/4 mx-auto mt-8">
-        <div class="flex items-center justify-between gap-x-2 mb-4">
-          <div class="ms-1">
-            <h1 class="text-xl font-bold mb-0">All Tracked Tech Stacks </h1>            
-            <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
-          </div>
-          <div class="flex items-center gap-x-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-600">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
-            <label for="" class="text-sm text-gray-600">02/05/2025</label>
-          </div>
-        </div>
-        <div class="w-full bg-white shadow-lg rounded-lg p-8 mb-6">
-          <div class="w-full mx-auto flex-wrap flex gap-3 mb-6">
-            <div class="flex items-center">
-              <label for="" class="text-sm text-nowrap">Filter By :</label>
+          <!-- 筛选项 -->
+          <div class="">
+            <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
+              <div class="w-full mx-auto flex-wrap flex gap-3 ">
+                <div class="flex items-center">
+                  <label for="" class="text-sm text-nowrap">Filter By :</label>
+                </div>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Frontend">Frontend</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Backend">Backend</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="DevOps_tools">DevOps</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Database">Database</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Version_Control">Version Control </button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="API">API</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Operating_System">Operating System</button>
+              </div>
+              <!-- 图表 -->
+              <canvas id="myChart" width="400" height="200" class="ms-0"></canvas>
             </div>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Frontend">Frontend</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Backend">Backend</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="DevOps_tools">DevOps</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Database">Database</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Version_Control">Version Control </button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="API">API</button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Operating_System">Operating System</button>
           </div>
-          <table class="table-auto border border-gray-300 w-full text-sm text-left mx-auto rounded-lg overflow-hidden shadow-lg">
-            <thead class="bg-blue-600 text-white">
-              <tr>
-                <th class="border px-4 py-2 font-semibold">Technology</th>
-                <th class="border px-4 py-2 font-semibold">
-                  Category
-                </th>
-                <th class="border px-4 py-2 font-semibold">Mentions</th>
-                <th class="border px-4 py-2 font-semibold">Percentage</th>
-                <th class="border px-4 py-2 font-semibold">Action</th>
-
-              </tr>
-            </thead>
-            <tbody id="techTable" >
-    
-            </tbody>
-
-          </table>
-          <div class="flex justify-center mt-4">
-              <button id="showMoreBtn" class="px-2 py-1 rounded border border-blue-500 bg-white text-blue-500">Show ALL</button>
+        </div>
+        <!-- 第二个模块 -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between gap-x-2 mb-4">
+            <!-- 第二个小标题 -->
+            <div class="ms-1">
+              <h1 class="text-xl font-bold mb-0">All Tracked Tech Stacks </h1>            
+              <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
+            </div>
           </div>
+          <!-- 表格和show all -->
+          <div class="">
+            <table class="table-auto border border-gray-300 w-full text-sm text-left mx-auto rounded-lg overflow-hidden shadow-lg">
+              <thead class="bg-blue-600 text-white">
+                <tr>
+                  <th class="border px-4 py-2 font-semibold">Technology</th>
+                  <th class="border px-4 py-2 font-semibold">
+                    Category
+                  </th>
+                  <th class="border px-4 py-2 font-semibold">Mentions</th>
+                  <th class="border px-4 py-2 font-semibold">Percentage</th>
+                  <th class="border px-4 py-2 font-semibold">Action</th>
 
+                </tr>
+              </thead>
+              <tbody id="techTable" >
+      
+              </tbody>
 
+            </table>
+            <div class="flex justify-center mt-4">
+                <button id="showMoreBtn" class="px-2 py-1 rounded border border-blue-500 bg-white text-blue-500">Show ALL</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="w-full lg:w-3/4 mx-auto mt-8">
+      <!-- 第三个模块 -->
+      <div>
+        <div class="mb-4">
+          <h1 class="text-xl font-bold mb-0">Percentage of Jobs by Experience Level</h1>            
+          <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
+        </div>
+        <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
+          <div class="bg-white mt-0 mb-6 max-w-md mx-auto" >
+            <canvas style="width: 400px; height: 250px;" id="experiencePie"></canvas>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- 第四个模块 -->
+      <div class="">
         <div class="flex items-center justify-between gap-x-2 mb-4">
           <div class="ms-1">
             <h1 class="text-xl font-bold mb-0">Expected Tech Stacks by Experience Level</h1>            
             <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
           </div>
-          <div class="flex items-center gap-x-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-600">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
-            <label for="" class="text-sm text-gray-600">02/05/2025</label>
-          </div>
+          
         </div>
         <div class="w-full bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
           <div class="flex items-center  justify-center mb-0 "> 
@@ -127,63 +125,6 @@
               </div>
             </div>
             <div class="space-y-4" id="dynamicCategoryTags"></div>
-
-            <!-- <div class="space-y-4">
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Cloud Platform :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Azure (148)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">AWS (129)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Frontend :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm ">React (125)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm ">JavaScript (123)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm ">TypeScript (89)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden lg:block">CSS (74)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">HTML (62)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">Angular (60)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">Vue (40)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Backend :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">C# (123)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">.NET (122)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">Python (84)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden lg:block">Java (63)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">Go (40)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">PHP (39)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">Node.js (34)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xl:block">C++ (22)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden xlg:block">ASP.NET (21)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">DevOps :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Docker (50)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">Kubernetes (47)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">Terraform (45)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm hidden lg:block">Azure DevOps (32)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Database :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm ">PostgreSQL (49)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm ">SQL Server (39)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm ">MySQL (28)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Version Control :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Git (76)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">GitHub (40)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">API :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">RESTful (55)</button>
-                <button class="filter-time bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm">API Management (27)</button>
-              </div>
-              <div class="flex items-center gap-x-2 mb-0">
-                <label for="" class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">Operating System :</label>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 text-sm">Linux (36)</button>
-              </div>
-            </div> -->
           </div>
 
 
