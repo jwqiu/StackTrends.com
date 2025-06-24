@@ -3,7 +3,17 @@
 let topChart;
 
 function initChart(labels, data) {
-  const ctx = document.getElementById('myChart').getContext('2d');
+  topChart?.destroy(); // 避免多次渲染冲突
+
+  const barThickness = 50;            // 和 options 一致
+  const padding = 32;                 // 可根据实际调整
+  const height = labels.length * barThickness + padding;
+  const canvas = document.getElementById('myChart');
+  canvas.height = height;
+  canvas.style.height = height + 'px'; 
+
+  const ctx = canvas.getContext('2d');
+
   topChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -11,6 +21,10 @@ function initChart(labels, data) {
       datasets: [{
         data: data,
         borderWidth: 1,
+        barPercentage: 1,      // 条在分类格子里占80%高度
+        categoryPercentage: 0.8, // 每个分类格子本身占用可用空间的90%
+        // barThickness: barThickness,        // 绝对高度，直接控制条的“粗细”
+
         backgroundColor: [
           '#60a5fa', // Azure - 深蓝
           '#93c5fd', // AWS - 中深蓝
@@ -26,6 +40,12 @@ function initChart(labels, data) {
       }]
     },
     options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,     // ← 这一行打开
+      layout: {
+        padding: {top: 0, bottom: 0} // 让内容紧贴上边
+      },
       scales: {
         y: {
           beginAtZero: true,  // 关闭自动从0开始
@@ -40,7 +60,7 @@ function initChart(labels, data) {
           },
           // ② 刻度值 & 刻度小线 关闭
           ticks: {
-            display: false,
+            display: true,
             drawTicks: false
           },
           // ③ 也要把轴本身的 border 关掉
@@ -57,9 +77,9 @@ function initChart(labels, data) {
           },
           // ② 刻度值 & 刻度小线 关闭
           ticks: {
-            display: true,      // ✅ 显示标签
+            display: false,      // ✅ 显示标签
             drawTicks: false,   // ❌ 不画刻度小线
-            font: { size: 12 },
+            font: { size: 8 },
             color: '#4b5563'
           },
           // ③ 也把 X 轴的主边框线关掉
@@ -71,6 +91,12 @@ function initChart(labels, data) {
       plugins: {
         legend: {
           display: false
+        },
+        title: {
+          display: true,
+          text: 'Share of jobs mentioning this tech stack',
+          font: { size: 20 },
+          padding: { top: 10, bottom: 20 }
         },
         tooltip: {
           backgroundColor: '#1e3a8a', // 深蓝色背景
@@ -87,7 +113,12 @@ function initChart(labels, data) {
         },
         datalabels: {
           anchor: 'end',
-          align: 'top',
+          align: function(context) {
+            const value = context.dataset.data[context.dataIndex];
+            return value < 0.05 ? 'end' : 'start';
+          },
+          offset: 4,
+          clip: false,
           font: {
             size: 12
           },
@@ -101,11 +132,12 @@ function initChart(labels, data) {
         bar: {
           borderRadius: 6, // ✅ 圆角柱状条
           borderSkipped: false,
-          barThickness: 28 // 控制柱子宽度
+          barThickness: barThickness // 控制柱子宽度
         }
       }
     }
   });
+
 }
 
 
@@ -114,8 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTechRank(); // Load the tech table data
   updateJobCount();
   drawExperiencePie();
+  // syncChartHeight(); // 初始同步高度
 
 });
+
+// window.addEventListener('resize', syncChartHeight);
+
+// function syncChartHeight() {
+//   const tableBox = document.querySelector('.right-table-box');  // ③ 找到右侧表格的“外层div”，给它起个class
+//   const chartBox = document.querySelector('.left-chart-box');  // ④ 找到左侧柱状图的“外层div”，也给它起个class
+
+//   if(tableBox && chartBox) { // ⑤ 只要两个都找到了
+//     chartBox.style.height = tableBox.offsetHeight + 'px'; // ⑥ 就让左边div的高度=右边div的实际高度
+//   }
+// }
 
 document.addEventListener('click', function (event) {
   if (event.target.classList.contains('filter-btn')) {
@@ -126,13 +170,15 @@ document.addEventListener('click', function (event) {
 
 
 function filterTable(filterValue,clickedButton) {  
+  let filteredData;
   if (filterValue === 'all') {
-    renderTechTableRows(allData,20);
-    showMoreBtn.style.display = allData.length > 20 ? '' : 'none';
+    renderTechTableRows(allData);
+    filteredData = allData; // 全部数据
+    // showMoreBtn.style.display = allData.length > 20 ? '' : 'none';
   }else {
     renderTechTableRows(allData); // 先渲染全部数据
     const rows = document.querySelectorAll('#techTable tr');
-    showMoreBtn.style.display = 'none'; // 隐藏“显示更多”按钮
+    // showMoreBtn.style.display = 'none'; // 隐藏“显示更多”按钮
     rows.forEach(row => {
       const category = row.cells[1].textContent.toLowerCase();
       if (category === filterValue) {
@@ -141,16 +187,26 @@ function filterTable(filterValue,clickedButton) {
         row.style.display = 'none'; // Hide row
       }
     });
+    filteredData = allData.filter(item =>
+      (item.category ?? item.Category).toLowerCase() === filterValue
+    );
+
   }
 
-  // rows.forEach(row => {
-  //   const category = row.cells[1].textContent.toLowerCase();
-  //   if (filterValue === 'all' || category === filterValue) {
-  //     row.style.display = ''; // Show row
-  //   } else {
-  //     row.style.display = 'none'; // Hide row
-  //   }
-  // });
+  const top10 = filteredData.slice(0, 10); // Get top 10 items
+  const labels = top10.map(item => {
+    let name = item.technology ?? item.Technology ?? "";
+    // 首字母大写
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    // 如果包含空格，则按空格拆分成多行
+    return name.includes(' ') ? name.split(' ') : name;
+  });
+
+
+  const counts = top10.map(item => item.percentage ?? item.Percentage);
+  console.log('filteredData.length =', filteredData.length, filteredData);
+  console.log('labels.length =', labels.length, labels);
+  initChart(labels, counts);
 
   document.querySelectorAll('.filter-btn').forEach(b => {
     b.classList.remove('bg-blue-500','text-white');
@@ -170,18 +226,20 @@ async function loadTechRank() {
     const data = await response.json();
     allData = [...data].sort((a, b) => (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage));
     renderCategoryTags(allData);
-    renderTechTableRows(allData, 20); // 初始渲染20条
-    
-    const showMoreBtn = document.getElementById('showMoreBtn');
-    showMoreBtn.style.display = data.length > 20 ? '' : 'none';
+    renderTechTableRows(allData); // 初始渲染20条
+    const clickedButton = document.querySelector('.filter-btn[data-filter="all"]');
+    clickedButton.classList.remove('bg-gray-200','text-gray-700');
+    clickedButton.classList.add('bg-blue-500','text-white');
+    // const showMoreBtn = document.getElementById('showMoreBtn');
+    // showMoreBtn.style.display = data.length > 20 ? '' : 'none';
 
-     if (!showMoreBtn.hasListener) {
-      showMoreBtn.addEventListener('click', () => {
-        renderTechTableRows(allData); // 全部渲染
-        showMoreBtn.style.display = 'none'; // 隐藏按钮
-      });
-      showMoreBtn.hasListener = true; // 避免重复绑定
-    }
+    //  if (!showMoreBtn.hasListener) {
+    //   showMoreBtn.addEventListener('click', () => {
+    //     renderTechTableRows(allData); // 全部渲染
+    //     showMoreBtn.style.display = 'none'; // 隐藏按钮
+    //   });
+    //   showMoreBtn.hasListener = true; // 避免重复绑定
+    // }
 
     // const tbody = document.getElementById('techTable');
     // tbody.innerHTML = ''; // Clear previous rows
@@ -299,7 +357,7 @@ function updateJobCount() {
   fetch('https://localhost:5001/api/job/count')
     .then(res => res.json())
     .then(data => {
-      document.getElementById("job-count").textContent = data.count;
+      document.getElementById("job-count").textContent = data.count+" job posts";
     })
     .catch(err => console.error("Job count fetch failed:", err));
 }
@@ -352,6 +410,7 @@ async function drawExperiencePie() {
           }
         },
         datalabels: {
+          
           formatter: (value, ctx) => value.toFixed(2) + '%', // 变成百分比
           color: '#444',
           font: {

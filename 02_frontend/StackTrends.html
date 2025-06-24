@@ -26,44 +26,74 @@
     <div class="p-8 mx-auto max-w-8xl">
       <div class="">
         <!-- 第一个模块 -->
-        <div>
+        <div class="mb-6">
           <!-- 首个小标题 -->
-          <div class="mb-4">
+          <div class="mb-4 flex items-center justify-between gap-x-2">
             <h1 class="text-xl font-bold mb-0">Most Requested Tech Stacks</h1>
-            <p class="text-gray-600 text-sm mb-0">Based on <span class="text-blue-600 font-bold text-md" id="job-count">#</span> jobs collected since April 2025</p> 
+            <p class="text-gray-400 text-sm mb-0">Based on analysis of <span class="text-blue-600 font-bold text-md" id="job-count"># </span>  / collected since April 2025</p> 
           </div>
-          <!-- 筛选项 -->
+          
           <div class="">
-            <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
-              <div class="w-full mx-auto flex-wrap flex gap-3 ">
-                <div class="flex items-center">
-                  <label for="" class="text-sm text-nowrap">Filter By :</label>
-                </div>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Frontend">Frontend</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Backend">Backend</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="DevOps_tools">DevOps</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Database">Database</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Version_Control">Version Control </button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="API">API</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Operating_System">Operating System</button>
+            <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0">
+              
+              <!-- 筛选项 -->
+              <div class="w-full mx-auto  items-start mt-0 mb-6 ms-0">
+                  <div class="items-center mb-2">
+                    <label for="" class="text-sm text-gray-400 text-nowrap">Filter By Category :</label>
+                  </div>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Frontend">Frontend</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Backend">Backend</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="DevOps_tools">DevOps</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Database">Database</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Version_Control">Version Control </button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="API">API</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Operating_System">Operating System</button>
               </div>
-              <!-- 图表 -->
-              <canvas id="myChart" width="400" height="200" class="ms-0"></canvas>
+              <hr>
+
+              <div class="lg:flex items-start gap-3 mt-4 ">
+                <!-- 柱形图表 -->
+                <div class="lg:w-1/2  ms-0">
+                  <canvas id="myChart"   style="display:block"></canvas>
+                </div>
+                <!-- 完整表格 -->
+                <div class="lg:w-1/2 ">
+                  <!-- 先包一层，用它来显示背景+圆角+阴影 -->
+                  <div class="bg-white rounded-lg shadow-lg overflow-hidden mt-3">
+                    <!-- 再包一层，用它来控制最大高和滚动 -->
+                    <div class="max-h-[600px] overflow-auto">
+                      <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
+                        <thead class="bg-gray-100">
+                          <tr>
+                            <th class="border px-4 py-2 font-semibold text-nowrap">Tech Stack</th>
+                            <th class="border px-4 py-2 font-semibold">Category</th>
+                            <th class="border px-4 py-2 font-semibold">Mentions</th>
+                            <th class="border px-4 py-2 font-semibold">Percentage</th>
+                            <th class="border px-4 py-2 font-semibold">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="techTable">
+                          <!-- … -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
         <!-- 第二个模块 -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
           <div class="flex items-center justify-between gap-x-2 mb-4">
-            <!-- 第二个小标题 -->
             <div class="ms-1">
               <h1 class="text-xl font-bold mb-0">All Tracked Tech Stacks </h1>            
               <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
             </div>
           </div>
-          <!-- 表格和show all -->
           <div class="">
             <table class="table-auto border border-gray-300 w-full text-sm text-left mx-auto rounded-lg overflow-hidden shadow-lg">
               <thead class="bg-blue-600 text-white">
@@ -87,7 +117,7 @@
                 <button id="showMoreBtn" class="px-2 py-1 rounded border border-blue-500 bg-white text-blue-500">Show ALL</button>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
       <!-- 第三个模块 -->
       <div>
