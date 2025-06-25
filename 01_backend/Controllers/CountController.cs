@@ -25,15 +25,20 @@ namespace StackTrends.Controllers
             // var cmd = new NpgsqlCommand();
             // var reader = await cmd.ExecuteReaderAsync();
 
-            await using var cmd = new NpgsqlCommand("SELECT * FROM tech_stacks_frequency_count", _conn);
+             await using var cmd = new NpgsqlCommand(@"
+                SELECT job_level,category,technology , mentions, percentage
+                FROM tech_stacks_frequency_count
+            ", _conn);
+
             await using var reader = await cmd.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
                 counts.Add(new TechStackCount
                 {
-                    Technology = reader["Technology"].ToString(),
+                    Level = reader["job_level"].ToString()!,
                     Category = reader["Category"].ToString(),
+                    Technology = reader["Technology"].ToString(),
                     Mentions = Convert.ToInt32(reader["Mentions"]),
                     Percentage = Convert.ToDouble(reader["Percentage"])
                 });
@@ -44,7 +49,7 @@ namespace StackTrends.Controllers
 
             return counts;
         }
-    
+
 
         [HttpGet("experience_level")]
         public async Task<IEnumerable<ExperienceLevelCount>> GetExperienceLevelCounts()
@@ -81,8 +86,8 @@ namespace StackTrends.Controllers
             {
                 counts.Add(new ExperienceLevelCount
                 {
-                    Level      = reader["Level"].ToString()!,
-                    Mentions   = Convert.ToInt32(reader["Mentions"]),
+                    Level = reader["Level"].ToString()!,
+                    Mentions = Convert.ToInt32(reader["Mentions"]),
                     Percentage = Convert.ToDouble(reader["Percentage"])
                 });
             }
@@ -90,6 +95,50 @@ namespace StackTrends.Controllers
             await _conn.CloseAsync();
             return counts;
         }
+        
+        // [HttpGet("tech-stacks-by-experience")]
+        // public async Task<IEnumerable<TechStackCount>> GetTechStacksByExperience()
+        // {
+        //     var list = new List<TechStackCount>();
+
+        //     const string sql = @"
+        //         SELECT
+        //             job_level   AS level,
+        //             category,
+        //             technology,
+        //             mentions,
+        //             percentage
+        //         FROM tech_stacks_frequency_count
+        //         ORDER BY
+        //         CASE job_level
+        //             WHEN 'Senior' THEN 1
+        //             WHEN 'Intermediate' THEN 2
+        //             WHEN 'Junior' THEN 3
+        //             ELSE 4
+        //         END,
+        //         mentions DESC
+        //     ";
+
+        //     await _conn.OpenAsync();
+        //     await using (var cmd = new NpgsqlCommand(sql, _conn))
+        //     await using (var reader = await cmd.ExecuteReaderAsync())
+        //     {
+        //         while (await reader.ReadAsync())
+        //         {
+        //             list.Add(new TechStackCount
+        //             {
+        //                 Level      = reader.GetString(reader.GetOrdinal("level")),
+        //                 Category   = reader.GetString(reader.GetOrdinal("category")),
+        //                 Technology = reader.GetString(reader.GetOrdinal("technology")),
+        //                 Mentions   = reader.GetInt32(reader.GetOrdinal("mentions")),
+        //                 Percentage = reader.GetDouble(reader.GetOrdinal("percentage"))
+        //             });
+        //         }
+        //     }
+        //     await _conn.CloseAsync();
+
+        //     return list;
+        // }
 
 
     };

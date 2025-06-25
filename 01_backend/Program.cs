@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Register NpgsqlConnection in the DI container
 builder.Services.AddScoped<NpgsqlConnection>(sp =>
     new NpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));

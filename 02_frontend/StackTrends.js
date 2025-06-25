@@ -146,8 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTechRank(); // Load the tech table data
   updateJobCount();
   drawExperiencePie();
-  // syncChartHeight(); // 初始同步高度
-
+  fetchLevelCounts()
+    .then(() => {
+      renderLevelOptions();
+    })
+    .catch(err => console.error(err));
 });
 
 // window.addEventListener('resize', syncChartHeight);
@@ -172,22 +175,22 @@ document.addEventListener('click', function (event) {
 function filterTable(filterValue,clickedButton) {  
   let filteredData;
   if (filterValue === 'all') {
-    renderTechTableRows(allData);
-    filteredData = allData; // 全部数据
+    renderTechTableRows(allLevelData);
+    filteredData = allLevelData; // 全部数据
     // showMoreBtn.style.display = allData.length > 20 ? '' : 'none';
   }else {
-    renderTechTableRows(allData); // 先渲染全部数据
+    renderTechTableRows(allLevelData); // 先渲染全部数据
     const rows = document.querySelectorAll('#techTable tr');
     // showMoreBtn.style.display = 'none'; // 隐藏“显示更多”按钮
     rows.forEach(row => {
-      const category = row.cells[1].textContent.toLowerCase();
+      const category = row.cells[0].textContent.toLowerCase();
       if (category === filterValue) {
         row.style.display = ''; // Show row
       } else {    
         row.style.display = 'none'; // Hide row
       }
     });
-    filteredData = allData.filter(item =>
+    filteredData = allLevelData.filter(item =>
       (item.category ?? item.Category).toLowerCase() === filterValue
     );
 
@@ -218,15 +221,22 @@ function filterTable(filterValue,clickedButton) {
   clickedButton.classList.add('bg-blue-500','text-white');
 }
 
+let allLevelData = []; // 全部数据
 let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
     const response = await fetch('https://localhost:5001/count/tech_stacks');
-    const data = await response.json();
-    allData = [...data].sort((a, b) => (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage));
+    allData = await response.json();
     renderCategoryTags(allData);
-    renderTechTableRows(allData); // 初始渲染20条
+
+    allLevelData = allData
+      .filter(item => (item.level ?? item.Level)?.toLowerCase() === 'all')
+      .sort((a, b) =>
+        (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage)
+      );
+    renderTechTableRows(allLevelData);
+
     const clickedButton = document.querySelector('.filter-btn[data-filter="all"]');
     clickedButton.classList.remove('bg-gray-200','text-gray-700');
     clickedButton.classList.add('bg-blue-500','text-white');
@@ -244,7 +254,7 @@ async function loadTechRank() {
     // const tbody = document.getElementById('techTable');
     // tbody.innerHTML = ''; // Clear previous rows
 
-    const top10= allData.slice(0, 10); // Get top 10 items
+    const top10= allLevelData.slice(0, 10); // Get top 10 items
     let labels = top10.map(item => item.technology ?? item.Technology);
     labels = labels.map(label => label.charAt(0).toUpperCase() + label.slice(1));
     const counts = top10.map(item => item.percentage ?? item.Percentage);
@@ -268,11 +278,11 @@ function renderTechTableRows(data, limit) {
   (limit ? data.slice(0, limit) : data).forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td class="border px-4 py-2">${item.category ?? item.Category}</td>
       <td class="border px-4 py-2">${
         (item.technology ?? item.Technology)
           .charAt(0).toUpperCase() + (item.technology ?? item.Technology).slice(1)
       }</td>
-      <td class="border px-4 py-2">${item.category ?? item.Category}</td>
       <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
       <td class="border px-4 py-2">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
       <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
@@ -427,3 +437,42 @@ async function drawExperiencePie() {
   });
 }
 
+
+// function populateLevelDropdown(selectorId) {
+//   const levels = ['all', 'Senior', 'Intermediate', 'Junior', 'Other'];
+//   const sel = document.getElementById(selectorId);
+//   sel.innerHTML = levels
+//     .map(l => `<option value="${l.toLowerCase()}">${l} Level</option>`)
+//     .join('');
+// }
+
+let levelCounts = [];
+
+// 1) 用 .then() 代替 async/await
+function fetchLevelCounts() {
+  return fetch('https://localhost:5001/api/job/count_by_level')
+
+    .then(resp => {
+      if (!resp.ok) throw new Error('请求失败 ' + resp.status);
+      return resp.json();
+    })
+    .then(json => {
+      levelCounts = json;
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+
+// 2) 渲染 <select>
+function renderLevelOptions() {
+  const sel = document.getElementById('experienceLevel');
+  if (!sel) return;
+  sel.innerHTML = levelCounts
+    .map(({ level, count }) => {
+      const val   = level.toLowerCase();
+      const label = level[0].toUpperCase() + level.slice(1);
+      return `<option value="${val}">${label} (${count})</option>`;
+    })
+    .join('');
+}

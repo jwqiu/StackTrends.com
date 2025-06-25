@@ -90,5 +90,44 @@ public class JobController : ControllerBase
         await _conn.CloseAsync();
         return Ok(new { count });
     }
-}
 
+    [HttpGet("count_by_level")]
+    public async Task<ActionResult<IEnumerable<JobCountByLevelDto>>> GetCountByLevel()
+    {
+        var list = new List<JobCountByLevelDto>();
+
+        await _conn.OpenAsync();
+
+        // UNION ALL：第一行是 All 的总数，后面再 GROUP BY
+        const string sql = @"
+        SELECT *
+        FROM (
+            SELECT 'All' AS job_level, COUNT(*) AS cnt FROM jobs
+            UNION ALL
+            SELECT job_level, COUNT(*) AS cnt FROM jobs GROUP BY job_level
+        ) t
+        ORDER BY
+            CASE job_level
+                WHEN 'All' THEN 0
+                WHEN 'Senior' THEN 1
+                WHEN 'Intermediate' THEN 2
+                WHEN 'Junior' THEN 3
+                ELSE 4
+            END;
+        ";
+
+        await using var cmd = new NpgsqlCommand(sql, _conn);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            list.Add(new JobCountByLevelDto
+            {
+                Level = reader.GetString(reader.GetOrdinal("job_level")),
+                Count = reader.GetInt32(reader.GetOrdinal("cnt"))
+            });
+        }
+
+        await _conn.CloseAsync();
+        return Ok(list);
+    }
+}

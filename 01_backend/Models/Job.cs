@@ -24,6 +24,12 @@ namespace StackTrends.Models
         public DateTime? ListedDate { get; set; } // 可选，可能不需要
     }
 
+    public class JobCountByLevelDto
+    {
+        public string Level { get; set; } = default!;   // e.g. "Senior", "Junior"…
+        public int Count     { get; set; }              // 该级别下的职位总数
+    }
+
 	
 }
 
