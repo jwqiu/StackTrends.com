@@ -17,7 +17,7 @@ namespace StackTrends.Controllers
         }
 
         [HttpGet("tech_stacks")]
-        public async Task<IEnumerable<TechStackCount>> GetCounts()
+        public async Task<IEnumerable<TechStackCount>> GetCounts([FromQuery] string level = "all")
         {
             var counts = new List<TechStackCount>();
 
@@ -25,10 +25,25 @@ namespace StackTrends.Controllers
             // var cmd = new NpgsqlCommand();
             // var reader = await cmd.ExecuteReaderAsync();
 
-             await using var cmd = new NpgsqlCommand(@"
-                SELECT job_level,category,technology , mentions, percentage
+            // 基础 SQL
+            var sql = @"
+                SELECT job_level, category, technology, mentions, percentage
                 FROM tech_stacks_frequency_count
-            ", _conn);
+            ";
+
+            // 如果 level 不等于 all，就加过滤
+            if (!string.IsNullOrWhiteSpace(level) && level.ToLower() != "all")
+            {
+                sql += " WHERE LOWER(job_level) = @level";
+            }
+
+            await using var cmd = new NpgsqlCommand(sql, _conn);
+
+            if (!string.IsNullOrWhiteSpace(level) && level.ToLower() != "all")
+            {
+                // 注意把 level 转小写，和 WHERE 里 LOWER() 保持一致
+                cmd.Parameters.AddWithValue("level", level.ToLower());
+            }
 
             await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -37,10 +52,10 @@ namespace StackTrends.Controllers
                 counts.Add(new TechStackCount
                 {
                     Level = reader["job_level"].ToString()!,
-                    Category = reader["Category"].ToString(),
-                    Technology = reader["Technology"].ToString(),
-                    Mentions = Convert.ToInt32(reader["Mentions"]),
-                    Percentage = Convert.ToDouble(reader["Percentage"])
+                    Category = reader["category"].ToString(),
+                    Technology = reader["technology"].ToString(),
+                    Mentions = Convert.ToInt32(reader["mentions"]),
+                    Percentage = Convert.ToDouble(reader["percentage"])
                 });
             }
 

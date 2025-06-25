@@ -95,7 +95,7 @@ function initChart(labels, data) {
         title: {
           display: true,
           text: 'Share of jobs mentioning this tech stack',
-          font: { size: 20 },
+          font: { size: 20, weight: 'normal' },
           padding: { top: 10, bottom: 20 }
         },
         tooltip: {
@@ -221,14 +221,13 @@ function filterTable(filterValue,clickedButton) {
   clickedButton.classList.add('bg-blue-500','text-white');
 }
 
-let allLevelData = []; // 全部数据
+let allLevelData = []; // level=all 的数据
 let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
     const response = await fetch('https://localhost:5001/count/tech_stacks');
     allData = await response.json();
-    renderCategoryTags(allData);
 
     allLevelData = allData
       .filter(item => (item.level ?? item.Level)?.toLowerCase() === 'all')
@@ -236,6 +235,8 @@ async function loadTechRank() {
         (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage)
       );
     renderTechTableRows(allLevelData);
+    renderCategoryTags(allLevelData);
+
 
     const clickedButton = document.querySelector('.filter-btn[data-filter="all"]');
     clickedButton.classList.remove('bg-gray-200','text-gray-700');
@@ -341,20 +342,21 @@ function renderCategoryTags(data) {
   categoryOrder.forEach(cat => {
     const techList = (grouped[cat] || [])
       .sort((a, b) => (b.mentions ?? b.Mentions) - (a.mentions ?? a.Mentions))
-      .slice(0, 5);
+      .slice(0, 3);
 
     if (techList.length === 0) return; // 没有数据就不渲染
 
     // 标签
-    let html = `<div class="flex items-center gap-x-2 mb-0">
+    let html = `<div class="flex items-center gap-x-3 mb-0">
       <label class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">${cat} :</label>
       `;
 
     techList.forEach((item, idx) => {
-      const name = item.technology ?? item.Technology;
-      const mentions = item.mentions ?? item.Mentions;
+      const rawName = item.technology ?? item.Technology;
+      const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      const percentage = ((item.percentage ?? item.Percentage) * 100).toFixed(2) + '%';
       // 第一个高亮，其余灰色
-      html += `<button class="${idx === 0 ? 'bg-blue-500 text-white hover:bg-blue-700' : 'filter-time bg-gray-200 text-gray-700'} px-2 py-1 rounded-md hover:bg-gray-300 text-sm">${name} (${mentions})</button>`;
+      html += `<button class="${idx === 0 ? 'bg-blue-500 text-white hover:bg-blue-700' : 'filter-time bg-gray-200 text-gray-700'} px-2 py-1 rounded-md hover:bg-gray-300 text-sm">${name} (${percentage})</button>`;
     });
 
     html += '</div>';
@@ -368,6 +370,8 @@ function updateJobCount() {
     .then(res => res.json())
     .then(data => {
       document.getElementById("job-count").textContent = data.count+" job posts";
+      document.getElementById("job-count-2").textContent = data.count+" job posts";
+
     })
     .catch(err => console.error("Job count fetch failed:", err));
 }
@@ -399,34 +403,76 @@ async function drawExperiencePie() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
 
       layout: {
-        padding: { left: 0, right: 0, top: 0, bottom: 0 }
+        padding: { left: 0, right: 120, top: 1, bottom: 20 }
       },
 
       plugins: {
-        legend: {
-          position: 'left',
-          fullSize: false,
-          align: 'center',
-          padding: 0,
-          labels: {
-            font: {
-              size: 18     // 图例文字大小（比如18px，可随意调大）
-            },
-            boxWidth: 24,   // 色块大小，默认大约为40，数值越大色块越大
-            padding: 16     // 文字与色块之间的间距，也可以调整
+        title: {
+          display: true,
+          text: 'Job Distribution by Experience Level',
+          font: {
+            size: 20,
+            weight: 'normal' 
+          },
+          padding: {
+            top: 10,
+            bottom: 20
           }
+        },
+        // legend: {
+        //   display: true,
+        //   position: 'bottom',
+        //   labels: {
+        //     generateLabels: chart => {
+        //       const d  = chart.data;
+        //       const ds = d.datasets[0];
+        //       return d.labels.map((lab,i) => ({
+        //         text: `${lab}: ${ds.data[i].toFixed(2)}%`,
+        //         fillStyle:   ds.backgroundColor[i],
+        //         strokeStyle: ds.backgroundColor[i],
+        //         hidden:      chart.getDataVisibility(i) === false,
+        //         index:       i
+        //       }));
+        //     }
+        //   }
+        // },
+        legend: {
+          display: false
         },
         datalabels: {
-          
-          formatter: (value, ctx) => value.toFixed(2) + '%', // 变成百分比
-          color: '#444',
-          font: {
-            size: 16
-          }
+        // 只显示 Senior、Intermediate、Junior 三个
+        display: ctx => {
+          const lab = ctx.chart.data.labels[ctx.dataIndex];
+          return ['Senior', 'Intermediate', 'Junior'].includes(lab);
         },
+
+        // 文案：标签 + 百分比
+        formatter: (value, ctx) => {
+          const label = ctx.chart.data.labels[ctx.dataIndex];
+          return `${label} : ${value.toFixed(2)}%`;
+        },
+
+        color: '#444',
+        font: {
+          size: 16,
+          weight: 'normal'
+        },
+
+        // 放在扇区中心
+        anchor: 'end',
+        align:  'end',
+        offset: 5,
+
+        clip:  false,
+        clamp: false
+      },
+        
+        // datalabels: {
+        //   display: false,
+        // },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.label}: ${ctx.parsed.toFixed(2)}%`
@@ -466,13 +512,65 @@ function fetchLevelCounts() {
 
 // 2) 渲染 <select>
 function renderLevelOptions() {
-  const sel = document.getElementById('experienceLevel');
-  if (!sel) return;
-  sel.innerHTML = levelCounts
+  const container = document.getElementById('experienceLevel');
+  if (!container) return;
+
+  container.innerHTML = levelCounts
     .map(({ level, count }) => {
       const val   = level.toLowerCase();
-      const label = level[0].toUpperCase() + level.slice(1);
-      return `<option value="${val}">${label} (${count})</option>`;
+      const label = level.charAt(0).toUpperCase() + level.slice(1);
+      return `
+        <button
+          class="level-filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm"
+          data-filter="${val}"
+        >
+          ${label} (${count})
+        </button>
+      `;
     })
     .join('');
+
+    container.addEventListener('click', async function(e) {
+
+        const btn = e.target.closest('button.level-filter-btn');
+        if (!btn) return;            // 不是我们关心的按钮就忽略
+
+      container.querySelectorAll('.level-filter-btn').forEach(b => {
+        b.classList.remove('bg-blue-500','text-white');
+        b.classList.add('bg-gray-200','text-gray-700');
+      });
+
+      // —— 再给当前按钮加上“选中”高亮 —— 
+      btn.classList.remove('bg-gray-200','text-gray-700');
+      btn.classList.add('bg-blue-500','text-white');
+
+      const selectedLevel = btn.dataset.filter;  // 拿 data-filter
+
+      const label = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
+      const span = document.getElementById('jobLevel');
+      if (span) span.textContent = label;
+
+      try {
+        const res = await fetch(`https://localhost:5001/count/tech_stacks?level=${selectedLevel}`);
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        renderCategoryTags( data.filter(item =>
+          (item.level ?? item.Level).toLowerCase() === selectedLevel
+        ));
+      } catch (err) {
+        console.error('Failed to fetch tech stacks:', err);
+      }
+
+    });
+
+
+  const allBtn = container.querySelector('button.level-filter-btn[data-filter="all"]');
+  if (allBtn) {
+    // 高亮样式
+    allBtn.classList.remove('bg-gray-200','text-gray-700');
+    allBtn.classList.add('bg-blue-500','text-white');
+    // 如果你想让它立刻拉取并渲染 all 的数据，可以模拟一次点击：
+    allBtn.click();
+  }
+
 }

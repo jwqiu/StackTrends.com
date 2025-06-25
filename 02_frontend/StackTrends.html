@@ -41,15 +41,15 @@
                   <div class="items-center mb-2">
                     <label for="" class="text-sm text-gray-400 text-nowrap">Filter By Category :</label>
                   </div>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Frontend">Frontend</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Backend">Backend</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="DevOps_tools">DevOps</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Database">Database</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Version_Control">Version Control </button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="API">API</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="Operating_System">Operating System</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Frontend">Frontend</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Backend">Backend</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="DevOps_tools">DevOps</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Database">Database</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Version_Control">Version Control </button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="API">API</button>
+                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Operating_System">Operating System</button>
               </div>
               <hr>
 
@@ -121,20 +121,42 @@
       </div>
       <!-- 第三个模块 -->
       <div>
-        <div class="mb-4">
-          <h1 class="text-xl font-bold mb-0">Share of Jobs by Experience Level</h1>            
-          <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
+
+        <div class="mb-4 flex items-center justify-between gap-x-2">
+          <h1 class="text-xl font-bold mb-0">Top Tech Stacks by Experience Level</h1>
+          <p class="text-gray-400 text-sm mb-0">Based on analysis of <span class="text-blue-600 font-bold text-md" id="job-count-2"># </span>  / collected since April 2025</p> 
         </div>
-        <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
-          <div class="bg-white mt-0 mb-6 max-w-md mx-auto" >
-            <canvas style="width: 400px; height: 250px;" id="experiencePie"></canvas>
+        <div class="gap-4 bg-white shadow-lg rounded-lg p-8">
+          <div class="w-full mx-auto  items-start mt-0 mb-6 ms-0">
+            <div class="items-center mb-2">
+              <label for="" class="text-sm text-gray-400 text-nowrap">Select Experience Level:</label>
+            </div>
+            <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button> -->
+            <!-- <div class=" rounded-lg">
+              <select id="experienceLevel" class="text-sm">
+              </select>
+            </div> -->
+            <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
+          </div>
+          <hr>
+          <div class="flex flex-col lg:flex-row lg:justify-center mt-6 ">
+            <div class="mt-0 lg:w-1/2 max-w-[450px]">
+              <canvas id="experiencePie" ></canvas>
+            </div>
+            <div class="lg:w-1/2 "> 
+              <div class="flex flex-col items-center justify-center">
+                <p class="text-xl font-normal text-gray-600 mb-4 text-center mt-1">
+                  Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )
+                </p>
+                <div class="space-y-5 mt-2 p-2" id="dynamicCategoryTags"></div>
+              </div>
+            </div>
           </div>
         </div>
-        
       </div>
       
       <!-- 第四个模块 -->
-      <div class="">
+      <!-- <div class="">
         <div class="flex items-center justify-between gap-x-2 mb-4">
           <div class="ms-1">
             <h1 class="text-xl font-bold mb-0">Expected Tech Stacks by Experience Level</h1>            
@@ -142,26 +164,9 @@
           </div>
           
         </div>
-        <div class="w-full bg-white shadow-lg rounded-lg p-8 mt-0 mb-6">
-          <div class="flex items-center  justify-center mb-0 "> 
-            <div class="justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-20 mx-auto text-gray-600">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-              </svg>
-              <div class="border border-gray-300 rounded-lg p-2 mt-4 mb-0">
-                <select id="experienceLevel" class="text-sm">
-                  <!-- 选项 JS 填充 -->
-                </select>
-              </div>
-            </div>
-            <div class="space-y-4" id="dynamicCategoryTags"></div>
-          </div>
+        
 
-
-          
-        </div>
-
-      </div>
+      </div> -->
 
     </div>
     
