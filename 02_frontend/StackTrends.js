@@ -1,6 +1,9 @@
 // import { mockData } from './mockData.js';
 
 let topChart;
+let experienceChart = null;
+let selectedIndex = -1;
+let level_labels = [];
 
 function initChart(labels, data) {
   topChart?.destroy(); // 避免多次渲染冲突
@@ -382,15 +385,20 @@ async function drawExperiencePie() {
   const data = await res.json(); 
 
   // 2. 准备标签和数据
-  const labels   = data.map(d => d.level);
+  level_labels   = data.map(d => d.level);
   const percents = data.map(d => d.percentage);
 
   // 3. 绘制饼图
   const ctx = document.getElementById('experiencePie').getContext('2d');
-  new Chart(ctx, {
+
+  if (experienceChart) {
+    experienceChart.destroy();
+  }
+
+  experienceChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels,
+      labels: level_labels,
       datasets: [{
         data: percents,
         backgroundColor: [
@@ -404,7 +412,11 @@ async function drawExperiencePie() {
     options: {
       responsive: true,
       maintainAspectRatio: true,
-
+      elements: {
+        arc: {
+          offset: ctx => ctx.dataIndex === selectedIndex ? 80 : 0
+        }
+      },
       layout: {
         padding: { left: 0, right: 120, top: 1, bottom: 20 }
       },
@@ -455,11 +467,17 @@ async function drawExperiencePie() {
           return `${label} : ${value.toFixed(2)}%`;
         },
 
-        color: '#444',
-        font: {
-          size: 16,
-          weight: 'normal'
-        },
+        color: ctx => ctx.dataIndex === selectedIndex ? '#3b82f6' : '#666',
+        // font: {
+        //   size: 16,
+        //   weight: 'normal'
+        // },
+        font: ctx => ctx.dataIndex === selectedIndex
+        ? { size: 18, weight: 'bold' }
+        : { size: 16, weight: 'normal' },
+        
+        stroke: '#fff',           // 白色描边
+        strokeWidth: 4, 
 
         // 放在扇区中心
         anchor: 'end',
@@ -549,6 +567,9 @@ function renderLevelOptions() {
       const label = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
       const span = document.getElementById('jobLevel');
       if (span) span.textContent = label;
+
+      selectedIndex = level_labels.findIndex(lab => lab.toLowerCase() === selectedLevel); // 这行
+      experienceChart.update(); 
 
       try {
         const res = await fetch(`https://localhost:5001/count/tech_stacks?level=${selectedLevel}`);
