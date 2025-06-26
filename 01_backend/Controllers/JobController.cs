@@ -41,7 +41,7 @@ public class JobController : ControllerBase
         var sql = @"
             SELECT 
                 company_id, company_name, job_id, job_title, job_url, sub_id, sub_name, tech_tags as required_stacks,
-                listed_date
+                listed_date, location
             FROM jobs";
 
         await using var cmd = new NpgsqlCommand(sql, _conn);
@@ -63,7 +63,8 @@ public class JobController : ControllerBase
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim())
                     .ToList(),
-                ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"])
+                ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"]),
+                JobLocation = reader["location"] == DBNull.Value ? null : reader["location"].ToString(),
             };
 
             jobs.Add(job);

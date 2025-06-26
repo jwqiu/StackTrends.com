@@ -66,24 +66,39 @@ function renderJobs() {
           : '';
     // 可自定义图片路径和其它字段
     const html = `
-      <div class="p-4 bg-gray-50 rounded shadow">
-        <div class="flex items-center gap-4">
-          <div>
-            <h3 class="font-semibold text-lg text-grey-700">${job.jobTitle}</h3>
-            <p class="text-sm text-gray-600">
-              Company: ${job.companyName ?? ''} 
+      <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
+        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-300 hover:border-2">
+          <h3 class=" text-lg text-grey-700">${job.jobTitle}</h3>
+          <p class="text-sm text-gray-600 mt-1 ">
+            ${job.companyName ?? ''} 
+          </p>
+          <div class="flex justify-between items-center  mt-1">
+            <div>
+              <p class="text-sm text-gray-600 mt-1 mt-1 ">
+                ${job.jobLocation ?? ''}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 ">
+                ${new Date(job.listedDate).toLocaleDateString('en-NZ')}
+              </p>
+            </div>
+
+          </div>
+          <div class="mt-4 bg-gray-100 p-4 rounded shadow-md">
+            <p class="inline-flex items-center text-sm text-gray-500 gap-1 mt-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.867 19.125h.008v.008h-.008v-.008Z" />
+                </svg>
+                Tech Requirements:
+            </p>
+            <p class="required-tech-stacks text-sm mt-1">
+              ${stacks}
             </p>
           </div>
-          <img src="./static/images/seeklogo.png" alt="" class="w-10 h-10 rounded-full ms-auto">        
         </div>
-        <p class="text-sm py-1 text-gray-600">
-          ${job.jobUrl ? ` <a href="${job.jobUrl}" class="underline text-blue-500" target="_blank">Check Job detail>> </a>` : ''}
-        </p>
-        <p class="required-tech-stacks text-sm mt-1">
-          <strong>Required Tech Stacks:</strong> ${stacks}
-        </p>
-        
-      </div>
+      </a>
     `;
     jobList.insertAdjacentHTML('beforeend', html);
   });

@@ -22,6 +22,8 @@ namespace StackTrends.Models
         public string? SubName { get; set; }
 
         public DateTime? ListedDate { get; set; } // 可选，可能不需要
+
+        public string? JobLocation { get; set; } // 工作地点
     }
 
     public class JobCountByLevelDto
