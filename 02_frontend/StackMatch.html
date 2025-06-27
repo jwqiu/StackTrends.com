@@ -25,37 +25,22 @@
             </div>
         </nav>
         <div class="flex justify-center gap-8 p-8  ">
-            <div class=" w-[300px] space-y-8 sticky top-4 self-start">
+            <div class=" w-[300px] space-y-6 sticky top-4 self-start">
                 <div class="p-8 rounded-lg shadow-lg bg-white">
                     <h1 class="font-bold text-xl">Select Tech Stacks</h1>
                     <!-- <input type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack..."> -->
-                    <div class="relative">
-                        <input id="techstack-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack...">
-                        <ul id="suggest-list" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
-                    </div>
-                    <button id="add-btn" class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-600 mt-4">
-                        Add
-                    </button>
-                </div>
-                <div class="p-8 rounded-lg shadow-lg bg-white">
-                    <h1 class="font-bold text-xl">Your Tech Stacks</h1>
-                    <div class="your-tech-stacks flex flex-wrap gap-2 mt-4">
-                        <!-- Each selected item -->
-                        <!-- <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                            python
-                            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
-                                &times;
-                            </button>
+                    <div class="flex gap-3 mt-2">
+                        <div class="relative">
+                            <input id="techstack-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" placeholder="Enter tech stack...">
+                            <ul id="suggest-list" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
                         </div>
-                        <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                            aws
-                            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
-                                &times;
-                            </button>
-                        </div> -->
+                        <button id="add-btn" class="bg-white border border-blue-400 text-blue-400 px-8 py-2 rounded-lg hover:bg-blue-400 hover:text-white mt-2">
+                            Add
+                        </button>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+                
+                <div class="bg-white p-8 rounded-lg shadow-lg ">
                     <h1 class="font-bold text-xl">Filter Options</h1>
                     <div class="2xl:flex 2xl:gap-x-4">
                         <div class="flex flex-wrap items-center gap-y-3 gap-x-2 mt-4 mb-4">
@@ -64,6 +49,29 @@
                             <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Senior">Senior</button>
                             <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="Intermediate">Intermediate</button>
                             <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="junior">Junior</button>
+                            <button class="filter bg-gray-200 text-gray-700 px-2 py-1 rounded-md  text-sm" data-filter="other">Other</button>
+
+                        </div>
+                        <div class="flex flex-wrap items-center gap-y-0 gap-x-2 mt-8 ">
+                            <label for="" class="text-sm text-nowrap">Currently selected stacks:</label>
+                             
+                            <div class="your-tech-stacks flex flex-wrap gap-2 mt-2 ">
+                                <p class="text-sm text-gray-400">No tech stacks selected</p>
+                                <!-- Each selected item -->
+                                <!-- <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                                    python
+                                    <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
+                                        &times;
+                                    </button>
+                                </div>
+                                <div class="flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                                    aws
+                                    <button class="remove-btn ml-2 text-blue-600 hover:text-red-500">
+                                        &times;
+                                    </button>
+                                </div> -->
+                            </div>
+                           
                         </div>
                         <!-- <div class="flex items-center gap-x-2 mt-4mb-4">
                             <label for="" class="text-sm text-nowrap">Posted date:</label>
@@ -72,7 +80,11 @@
                             <button class="filter-time bg-gray-200 text-gray-300 px-2 py-1 rounded-md  text-sm" data-filter="Past 6 months">Past 6 months</button>
                         </div> -->
                     </div>
+
                 </div>
+                <button class="apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Apply Filters</button>
+                <p style="display:none"><span id="results-count" class="font-bold text-blue-500" >#</span> results found</p>
+
                 <!-- <div class="p-8 rounded-lg shadow-lg bg-white">
                     <h1 class="font-bold text-xl">Top Tech Stacks by Category</h1>
                     <div class="flex items-center gap-x-1 mt-2 ">

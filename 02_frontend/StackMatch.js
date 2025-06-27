@@ -1,4 +1,7 @@
-let currentJobLevel = null;
+let currentJobLevel = "ALL";
+let allTechStacks = [];
+let selectedStacks = [];
+
 
 function removeTag(button) {
     button.parentElement.remove();
@@ -17,31 +20,45 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMoreJobs();
     loadTechStacks();
     filterJobsByLevel();
+    applyFilters();
+    getFilterResultsCount(currentJobLevel);
+    
 });
 
-
-function highlightMatchingStacks(){
-  // Step 1: Get the selected tech stacks
-  const selectedStacks = Array.from(
-      document.querySelectorAll(".your-tech-stacks .flex.items-center")
-  ).map((stack) => stack.childNodes[0].nodeValue.trim().toLowerCase()); // Get only the text (excluding the button)
-
-  // Step 2: Find all "Required Tech Stacks" elements
-  const requiredStacksElements = document.querySelectorAll(
-      ".required-tech-stacks"
-  );
-
-  requiredStacksElements.forEach((element) => {
-      // Extract only the tech stacks (ignore the "Required Tech Stacks:" label)
-      const stacksText = element.textContent.replace("Required Tech Stacks:", "").trim();
-      const stacks = stacksText.split(",").map((stack) => stack.trim().toLowerCase());
-
-      const matchingStacks = stacks.filter((stack) => selectedStacks.includes(stack));
-      const nonMatchingStacks = stacks.filter((stack) => !selectedStacks.includes(stack));
-
-      element.innerHTML = `<strong>Required Tech Stacks: </strong><span class="text-red-600">${matchingStacks.join(", ")}</span>, ${nonMatchingStacks.join(", ")}`;
-  });
+function highlightStacksHtml(stacks, selected) {
+  const clean = stacks
+    .filter(s => s && s.trim())
+    .map(s => s.trim());
+  const matched = clean.filter(s => selected.includes(s.toLowerCase()));
+  const unmatched = clean.filter(s => !selected.includes(s.toLowerCase()));
+  return [
+    ...matched.map(s => `<span class="text-red-500">${s}</span>`),
+    ...unmatched
+  ].join(', ') || 'N/A';
 }
+
+// function highlightMatchingStacks(){
+//   // Step 1: Get the selected tech stacks
+//   const selectedStacks = Array.from(
+//       document.querySelectorAll(".your-tech-stacks .flex.items-center")
+//   ).map((stack) => stack.childNodes[0].nodeValue.trim().toLowerCase()); // Get only the text (excluding the button)
+
+//   // Step 2: Find all "Required Tech Stacks" elements
+//   const requiredStacksElements = document.querySelectorAll(
+//       ".required-tech-stacks"
+//   );
+
+//   requiredStacksElements.forEach((element) => {
+//       // Extract only the tech stacks (ignore the "Required Tech Stacks:" label)
+//       const stacksText = element.textContent.replace("Required Tech Stacks:", "").trim();
+//       const stacks = stacksText.split(",").map((stack) => stack.trim().toLowerCase());
+
+//       const matchingStacks = stacks.filter((stack) => selectedStacks.includes(stack));
+//       const nonMatchingStacks = stacks.filter((stack) => !selectedStacks.includes(stack));
+
+//       element.innerHTML = `<strong>Required Tech Stacks: </strong><span class="text-red-600">${matchingStacks.join(", ")}</span>, ${nonMatchingStacks.join(", ")}`;
+//   });
+// }
 
 let allJobs = []; // 存全部jobs
 let jobsPerPage = 20;
@@ -53,6 +70,12 @@ async function loadJobs() {
   let url = `https://localhost:5001/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
+  }
+  if (selectedStacks.length > 0) {
+    selectedStacks.forEach(kw => {
+      url += `&keywords=${encodeURIComponent(kw)}`;
+      console.log("Requesting jobs with URL:", url);
+    });
   }
   const response = await fetch(url);
   const data = await response.json();
@@ -71,9 +94,10 @@ function renderJobs() {
 
   jobsToShow.forEach(job => {
     // 拼接 required stacks
-    const stacks = job.requiredStacks && job.requiredStacks.length > 0
-    ? job.requiredStacks.filter(s => s && s.trim() !== '').join(', ') || 'N/A'
-    : 'N/A';
+    // const stacks = job.requiredStacks && job.requiredStacks.length > 0
+    // ? job.requiredStacks.filter(s => s && s.trim() !== '').join(', ') || 'N/A'
+    // : 'N/A';
+    const stacks = highlightStacksHtml(job.requiredStacks, selectedStacks);
     // 可自定义图片路径和其它字段
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
@@ -131,8 +155,7 @@ function loadMoreJobs() {
     }
 }
 
-let allTechStacks = [];
-let selectedStacks = [];
+
 
 async function loadTechStacks() {
   // 调用后端API获取所有技术栈
@@ -191,6 +214,8 @@ function addSelectedStack() {
     if (!selectedStacks.includes(name)) {
         selectedStacks.push(name);
         renderSelectedStacks();
+        console.log(`Added tech stack: ${name}`);
+        console.log(`Current selected stacks: ${selectedStacks.join(', ')}`);
     }
     input.value = '';
     document.getElementById("suggest-list").innerHTML = '';
@@ -217,14 +242,14 @@ function renderSelectedStacks() {
             renderSelectedStacks();
         };
     });
-    highlightMatchingStacks();
+    // highlightMatchingStacks();
 
 }
 
 function filterJobsByLevel() {
-    
+  
   document.querySelectorAll('.filter').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       currentJobLevel = btn.dataset.filter;
       currentPage = 1;
       allJobs = [];
@@ -238,8 +263,41 @@ function filterJobsByLevel() {
       btn.classList.remove('bg-gray-200', 'text-gray-700');
       btn.classList.add('bg-blue-500', 'text-white');
 
-      await loadJobs();
+      // await loadJobs();
     });
   });
 
+  const defaultBtn = document.querySelector('.filter[data-filter="ALL"]');
+  if (defaultBtn) defaultBtn.click();
+
+}
+
+function applyFilters() {
+    document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
+    currentPage = 1;
+    allJobs = [];
+    await loadJobs();
+    await getFilterResultsCount();
+  });
+}
+
+async function getFilterResultsCount() {
+  let url = `https://localhost:5001/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+  selectedStacks.forEach(kw => {
+    url += `&keywords=${encodeURIComponent(kw)}`;
+  });
+    selectedStacks.forEach(kw => {
+    url += `&keywords=${encodeURIComponent(kw)}`;
+  });
+  const response = await fetch(url);
+  const { count } = await response.json();
+  const countDisplay = document.getElementById('results-count');
+  countDisplay.textContent = count;
+  countDisplay.parentElement.style.display = 'block';
+  // const response = await fetch(`https://localhost:5001/api/Job/count?job_level=${currentJobLevel}`);
+  // const data = await response.json();
+  // const count = data.count;
+  // const countDisplay = document.getElementById('results-count');
+  // countDisplay.textContent = `${count}`;
+  // countDisplay.parentElement.style.display = 'block';
 }

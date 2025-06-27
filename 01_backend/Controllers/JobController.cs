@@ -35,7 +35,7 @@ public class JobController : ControllerBase
         int page = 1,
         int size = 20,
         string? job_level = null, 
-        string? keyword = null
+        [FromQuery] List<string>? keywords = null
     )
 
     {
@@ -46,22 +46,51 @@ public class JobController : ControllerBase
         var whereConditions = new List<string>();
         if (!string.IsNullOrEmpty(job_level))
             whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
-        if (!string.IsNullOrEmpty(keyword))
-            whereConditions.Add("LOWER(tech_tags) LIKE LOWER('%' || @keyword || '%')");
+        
+        if (keywords != null && keywords.Count > 0)
+        {
+            var keywordConds = keywords
+                .Where(k => !string.IsNullOrWhiteSpace(k))
+                .Select((k, i) => $"LOWER(tech_tags) LIKE LOWER(@kw{i})")
+                .ToList();
+            whereConditions.Add("(" + string.Join(" AND ", keywordConds) + ")");
+        }
 
         var whereClause = whereConditions.Count > 0
             ? "WHERE " + string.Join(" AND ", whereConditions)
             : "";
 
+        // —— 1. 生成 match_count 的 CASE WHEN 表达式 ——  
+        string matchExpr = "";
+        if (keywords != null && keywords.Count > 0)
+        {
+            var cases = keywords
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+                .Select((k, i) => 
+                    $"CASE WHEN LOWER(tech_tags) LIKE LOWER(@kw{i}) THEN 1 ELSE 0 END")
+                .ToList();
+            matchExpr = string.Join(" + ", cases);
+        }
+
+
         // 基础 SQL 查询
         var sql = @"
-            SELECT 
-                company_id, company_name, job_id, job_title, job_url, sub_id, sub_name, tech_tags as required_stacks,
-                listed_date, location
-            FROM jobs
-            " + whereClause + @"
-            ORDER BY listed_date DESC NULLS LAST
-            OFFSET @offset LIMIT @limit";
+        SELECT 
+            company_id, company_name, job_id, job_title, job_url, sub_id, sub_name,
+            tech_tags as required_stacks,
+            listed_date, location"
+        + (string.IsNullOrEmpty(matchExpr)
+            ? ""
+            : $", ({matchExpr}) AS match_count")
+        + @"
+        FROM jobs
+        " + whereClause + @"
+        ORDER BY "
+        + (string.IsNullOrEmpty(matchExpr)
+            ? "listed_date DESC NULLS LAST"
+            : "match_count DESC, listed_date DESC NULLS LAST")
+        + @"
+        OFFSET @offset LIMIT @limit";
 
         await using var cmd = new NpgsqlCommand(sql, _conn);
 
@@ -70,8 +99,13 @@ public class JobController : ControllerBase
         if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
             cmd.Parameters.AddWithValue("job_level", job_level);
 
-        if (!string.IsNullOrEmpty(keyword))
-            cmd.Parameters.AddWithValue("keyword", keyword);
+        if (keywords != null && keywords.Count > 0)
+        {
+            for (int i = 0; i < keywords.Count; i++)
+            {
+                cmd.Parameters.AddWithValue($"kw{i}", $"%{keywords[i]}%");
+            }
+        }
 
         await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -109,12 +143,41 @@ public class JobController : ControllerBase
     }
 
     [HttpGet("count")]
-    public async Task<IActionResult> JobsCount()
+    public async Task<IActionResult> JobsCount(
+        string? job_level = null,
+        [FromQuery] List<string>? keywords = null)
     {
         await _conn.OpenAsync();
 
-        var sql = "SELECT COUNT(*) FROM jobs";
+        var whereConditions = new List<string>();
+        if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
+            whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
+        if (keywords != null && keywords.Count > 0)
+        {
+            var keywordConds = keywords
+                .Where(k => !string.IsNullOrWhiteSpace(k))
+                .Select((k, i) => $"LOWER(tech_tags) LIKE LOWER(@kw{i})")
+                .ToList();
+            whereConditions.Add("(" + string.Join(" AND ", keywordConds) + ")");
+        }
+
+        var whereClause = whereConditions.Count > 0
+            ? "WHERE " + string.Join(" AND ", whereConditions)
+            : "";
+
+        var sql = $"SELECT COUNT(*) FROM jobs {whereClause}";
+
         await using var cmd = new NpgsqlCommand(sql, _conn);
+        if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
+            cmd.Parameters.AddWithValue("job_level", job_level);
+        if (keywords != null && keywords.Count > 0)
+        {
+            for (int i = 0; i < keywords.Count; i++)
+            {
+                cmd.Parameters.AddWithValue($"kw{i}", $"%{keywords[i]}%");
+            }
+        }
+
         var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
 
         await _conn.CloseAsync();
