@@ -81,11 +81,13 @@ async function loadJobs() {
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
   }
-  for (const kw of selectedStacks) {
-    const norm = await normalizeKeyword(kw);
-    if (norm.trim()) {
-      url += `&keywords=${encodeURIComponent(norm)}`;
+  if (selectedStacks.length > 0) {
+    for (const kw of selectedStacks) {
+      if (kw.trim()) {
+        url += `&keywords=${encodeURIComponent(kw)}`;
+      }
     }
+    console.log("Requesting jobs with URL:", url);
   }
   const response = await fetch(url);
   const data = await response.json();
@@ -297,11 +299,13 @@ function applyFilters() {
 async function getFilterResultsCount() {
   let url = `https://localhost:5001/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
 
-  for (const kw of selectedStacks) {
-    const norm = await normalizeKeyword(kw);
-    if (norm.trim()) {
-        url += `&keywords=${encodeURIComponent(norm)}`;
+  if (selectedStacks.length > 0) {
+    for (const kw of selectedStacks) {
+      if (kw.trim()) {
+        url += `&keywords=${encodeURIComponent(kw)}`;
+      }
     }
+    console.log("Requesting jobs with URL:", url);
   }
   const response = await fetch(url);
   const { count } = await response.json();

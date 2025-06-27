@@ -17,51 +17,52 @@
       
       <div class="flex items-center gap-x-8 me-8">
         <div class="flex flex-col items-center">
-          <a href="/02_frontend/StackTrends.html" class="text-gray-600 ">StackTrends</a>
-          <div class="w-24 h-0.5 bg-gray-600 mt-1 rounded"></div>
+          <a href="/02_frontend/StackTrends.html" class="text-blue-500 ">StackTrends</a>
+          <div class="w-24 h-0.5 bg-blue-500 mt-1 rounded"></div>
         </div>
         <a href="/02_frontend/StackMatch.html" class="text-sm text-gray-400">StackMatch</a>
+        <a href="/02_frontend/ManageTechStacks.html" class="text-sm text-gray-400" >ManageTechStacks</a>
+
       </div>
     </nav>
     <div class="p-8 mx-auto max-w-8xl">
       <div class="">
         <!-- 第一个模块 -->
-        <div class="mb-6">
+        <div class="mb-8">
           <!-- 首个小标题 -->
-          <div class="mb-4 flex items-center justify-between gap-x-2">
-            <h1 class="text-xl font-bold mb-0">Most Requested Tech Stacks</h1>
-            <p class="text-gray-400 text-sm mb-0">Based on analysis of <span class="text-blue-600 font-bold text-md" id="job-count"># </span>  / collected since April 2025</p> 
+          <div class="mb-8 xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-8">
+            <div>
+              <h1 class="text-xl font-bold mb-2">Most Requested Tech Stacks</h1>
+              <p class="text-gray-400 text-sm mb-0">Based on <span class="text-blue-600 " id="job-count"># </span> collected since April 2025</p> 
+            </div>
+            <div class="flex flex-col">
+              <label for="" class="mt-3 xl:mt-0 xl:text-end text-sm text-gray-400 text-nowrap mb-3">Filter By Category :</label>
+              <div class="flex gap-x-2 gap-y-2 flex-wrap">
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Frontend">Frontend</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Backend">Backend</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="DevOps_tools">DevOps</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Database">Database</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Version_Control">Version Control </button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="API">API</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Operating_System">Operating System</button>
+              </div>
+              
+            </div>
           </div>
           
           <div class="">
-            <div class="w-full mx-auto bg-white shadow-lg rounded-lg p-8 mt-0">
-              
-              <!-- 筛选项 -->
-              <div class="w-full mx-auto  items-start mt-0 mb-6 ms-0">
-                  <div class="items-center mb-2">
-                    <label for="" class="text-sm text-gray-400 text-nowrap">Filter By Category :</label>
-                  </div>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud_Platform">Cloud Platform</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Frontend">Frontend</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Backend">Backend</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="DevOps_tools">DevOps</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Database">Database</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Version_Control">Version Control </button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="API">API</button>
-                  <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Operating_System">Operating System</button>
-              </div>
-              <hr>
-
-              <div class="lg:flex items-start gap-3 mt-4 ">
+            <div class="w-full mx-auto mt-0">
+              <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  mt-4 ">
                 <!-- 柱形图表 -->
-                <div class="lg:w-1/2  ms-0">
-                  <canvas id="myChart"   style="display:block"></canvas>
+                <div class="lg:w-1/2 bg-white shadow-lg rounded-lg p-8">
+                  <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
                 </div>
                 <!-- 完整表格 -->
-                <div class="lg:w-1/2 ">
+                <div class="lg:w-1/2 w-full">
                   <!-- 先包一层，用它来显示背景+圆角+阴影 -->
-                  <div class="bg-white rounded-lg shadow-lg overflow-hidden mt-3">
+                  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                     <!-- 再包一层，用它来控制最大高和滚动 -->
                     <div class="max-h-[600px] overflow-auto">
                       <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
@@ -86,64 +87,28 @@
             </div>
           </div>
         </div>
-        <!-- 第二个模块 -->
-        <!-- <div class="mb-4">
-          <div class="flex items-center justify-between gap-x-2 mb-4">
-            <div class="ms-1">
-              <h1 class="text-xl font-bold mb-0">All Tracked Tech Stacks </h1>            
-              <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
-            </div>
-          </div>
-          <div class="">
-            <table class="table-auto border border-gray-300 w-full text-sm text-left mx-auto rounded-lg overflow-hidden shadow-lg">
-              <thead class="bg-blue-600 text-white">
-                <tr>
-                  <th class="border px-4 py-2 font-semibold">Technology</th>
-                  <th class="border px-4 py-2 font-semibold">
-                    Category
-                  </th>
-                  <th class="border px-4 py-2 font-semibold">Mentions</th>
-                  <th class="border px-4 py-2 font-semibold">Percentage</th>
-                  <th class="border px-4 py-2 font-semibold">Action</th>
-
-                </tr>
-              </thead>
-              <tbody id="techTable" >
-      
-              </tbody>
-
-            </table>
-            <div class="flex justify-center mt-4">
-                <button id="showMoreBtn" class="px-2 py-1 rounded border border-blue-500 bg-white text-blue-500">Show ALL</button>
-            </div>
-          </div>
-        </div> -->
       </div>
       <!-- 第三个模块 -->
       <div>
-
-        <div class="mb-4 flex items-center justify-between gap-x-2">
-          <h1 class="text-xl font-bold mb-0">Top Tech Stacks by Experience Level</h1>
-          <p class="text-gray-400 text-sm mb-0">Based on analysis of <span class="text-blue-600 font-bold text-md" id="job-count-2"># </span>  / collected since April 2025</p> 
-        </div>
-        <div class="gap-4 bg-white shadow-lg rounded-lg p-8">
-          <div class="w-full mx-auto  items-start mt-0 mb-6 ms-0">
-            <div class="items-center mb-2">
-              <label for="" class="text-sm text-gray-400 text-nowrap">Select Experience Level:</label>
-            </div>
-            <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-1 rounded-md hover:bg-gray-300 text-sm" data-filter="all">All</button> -->
-            <!-- <div class=" rounded-lg">
-              <select id="experienceLevel" class="text-sm">
-              </select>
-            </div> -->
+        <div class="xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-8 mb-8">
+          <div class="">
+            <h1 class="text-xl font-bold mb-2">Top Tech Stacks by Experience Level</h1>
+            <p class="text-gray-400 text-sm mb-0">Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
+          </div>
+          <div class="flex flex-col">
+            <label for="" class=" mt-3 xl:mt-0 text-sm xl:text-end mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
             <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
           </div>
-          <hr>
-          <div class="flex flex-col items-center  lg:flex-row lg:justify-center lg:items-start  mt-6 ">
-            <div class="mt-0 w-full lg:w-1/2  max-w-[450px]">
-              <canvas id="experiencePie"  ></canvas>
+        </div>
+        
+        <div class="">
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="  bg-white  shadow-lg rounded-lg  p-8 ">
+              <div class="min-w-[400px] max-w-[550px] mx-auto">
+                <canvas id="experiencePie"  ></canvas>
+              </div>
             </div>
-            <div class="lg:w-1/2 w-full"> 
+            <div class="  bg-white shadow-lg rounded-lg p-8"> 
               <div class="flex flex-col items-center justify-center">
                 <p class="text-xl font-normal text-gray-600 mb-4 text-center mt-1">
                   Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )

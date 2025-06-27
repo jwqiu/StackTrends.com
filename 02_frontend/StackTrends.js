@@ -351,7 +351,7 @@ function renderCategoryTags(data) {
 
     // 标签
     let html = `<div class="flex items-center gap-x-3 mb-0">
-      <label class="text-sm text-gray-400 text-nowrap w-40 text-end flex-shrink-0">${cat} :</label>
+      <label class="text-sm text-gray-400 text-nowrap w-40 text-start flex-shrink-0">${cat} :</label>
       `;
 
     techList.forEach((item, idx) => {

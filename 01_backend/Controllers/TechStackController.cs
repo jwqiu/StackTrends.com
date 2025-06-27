@@ -19,7 +19,11 @@ public class TechStackController : ControllerBase
     {
         var list = new List<TechStack>();
         await _conn.OpenAsync();
-        var sql = @"SELECT id, category, raw_keyword FROM tech_stacks_list";
+        var sql = @"
+        SELECT id, category, raw_keyword, normalized_keyword
+        FROM tech_stacks_list
+        ORDER BY id ASC, category ASC";
+
         await using var cmd = new NpgsqlCommand(sql, _conn);
         await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -30,6 +34,7 @@ public class TechStackController : ControllerBase
                 Id = Convert.ToInt32(reader["id"]),
                 Category = reader["category"] == DBNull.Value ? null : reader["category"].ToString(),
                 StackName = reader["raw_keyword"] == DBNull.Value ? null : reader["raw_keyword"].ToString(),
+                NormalizedStackName = reader["normalized_keyword"] == DBNull.Value ? null : reader["normalized_keyword"].ToString()
             });
         }
 
