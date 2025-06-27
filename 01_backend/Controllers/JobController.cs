@@ -31,20 +31,48 @@ public class JobController : ControllerBase
 
     // 🧪 3. 获取所有职位（无过滤，用于调试）
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllJobs()
+    public async Task<IActionResult> GetAllJobs(
+        int page = 1,
+        int size = 20,
+        string? job_level = null, 
+        string? keyword = null
+    )
 
     {
         var jobs = new List<Job>();
 
         await _conn.OpenAsync();
 
+        var whereConditions = new List<string>();
+        if (!string.IsNullOrEmpty(job_level))
+            whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
+        if (!string.IsNullOrEmpty(keyword))
+            whereConditions.Add("LOWER(tech_tags) LIKE LOWER('%' || @keyword || '%')");
+
+        var whereClause = whereConditions.Count > 0
+            ? "WHERE " + string.Join(" AND ", whereConditions)
+            : "";
+
+        // 基础 SQL 查询
         var sql = @"
             SELECT 
                 company_id, company_name, job_id, job_title, job_url, sub_id, sub_name, tech_tags as required_stacks,
                 listed_date, location
-            FROM jobs";
+            FROM jobs
+            " + whereClause + @"
+            ORDER BY listed_date DESC NULLS LAST
+            OFFSET @offset LIMIT @limit";
 
         await using var cmd = new NpgsqlCommand(sql, _conn);
+
+        cmd.Parameters.AddWithValue("offset", (page - 1) * size);
+        cmd.Parameters.AddWithValue("limit", size);
+        if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
+            cmd.Parameters.AddWithValue("job_level", job_level);
+
+        if (!string.IsNullOrEmpty(keyword))
+            cmd.Parameters.AddWithValue("keyword", keyword);
+
         await using var reader = await cmd.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())
@@ -72,11 +100,12 @@ public class JobController : ControllerBase
 
         await _conn.CloseAsync();
 
-        var sortedJobs = jobs
-        .OrderByDescending(j => j.ListedDate ?? DateTime.MinValue)
-        .ToList();
+        // var sortedJobs = jobs
+        // .OrderByDescending(j => j.ListedDate ?? DateTime.MinValue)
+        // .ToList();
 
-        return Ok(sortedJobs);
+        bool hasMore = jobs.Count == size; // 如果当前页填满，说明还有下一页
+        return Ok(new { jobs, hasMore });
     }
 
     [HttpGet("count")]

@@ -1,3 +1,5 @@
+let currentJobLevel = null;
+
 function removeTag(button) {
     button.parentElement.remove();
   }
@@ -14,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadJobs();
     loadMoreJobs();
     loadTechStacks();
+    filterJobsByLevel();
 });
 
 
@@ -43,12 +46,18 @@ function highlightMatchingStacks(){
 let allJobs = []; // 存全部jobs
 let jobsPerPage = 20;
 let currentPage = 1;
+let hasMore = true;
 
 async function loadJobs() {
   // 调用后端API获取所有职位
-  const response = await fetch('https://localhost:5001/api/job/all');
-  allJobs = await response.json();
-  currentPage = 1;
+  let url = `https://localhost:5001/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
+  if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
+    url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
+  }
+  const response = await fetch(url);
+  const data = await response.json();
+  allJobs = [...allJobs, ...data.jobs]; 
+  hasMore = data.hasMore;
   renderJobs(); // 渲染第一页
 
 }
@@ -57,30 +66,33 @@ function renderJobs() {
   const jobList = document.getElementById('job-list');
   jobList.innerHTML = ""; // 清空旧内容
 
-  const jobsToShow = allJobs.slice(0, currentPage * jobsPerPage);
+  // const jobsToShow = allJobs.slice(0, currentPage * jobsPerPage);
+  const jobsToShow = allJobs;
 
   jobsToShow.forEach(job => {
     // 拼接 required stacks
-    const stacks = job.requiredStacks
-          ? job.requiredStacks.filter(s => s && s.trim() !== '').join(', ')
-          : '';
+    const stacks = job.requiredStacks && job.requiredStacks.length > 0
+    ? job.requiredStacks.filter(s => s && s.trim() !== '').join(', ') || 'N/A'
+    : 'N/A';
     // 可自定义图片路径和其它字段
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-300 hover:border-2">
-          <h3 class=" text-lg text-grey-700">${job.jobTitle}</h3>
+          <h3 class="font-bold text-lg text-grey-700">${job.jobTitle}</h3>
           <p class="text-sm text-gray-600 mt-1 ">
-            ${job.companyName ?? ''} 
+            ${job.companyName ?? 'N/A'} 
           </p>
           <div class="flex justify-between items-center  mt-1">
             <div>
               <p class="text-sm text-gray-600 mt-1 mt-1 ">
-                ${job.jobLocation ?? ''}
+                ${job.jobLocation ?? 'N/A'}
               </p>
             </div>
             <div>
               <p class="text-sm text-gray-600 ">
-                ${new Date(job.listedDate).toLocaleDateString('en-NZ')}
+                ${job.listedDate 
+                ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
+                : 'N/A'}
               </p>
             </div>
 
@@ -104,7 +116,7 @@ function renderJobs() {
   });
   const loadMoreBtn = document.getElementById('load-more-btn');
   if (loadMoreBtn) {
-    loadMoreBtn.style.display = (currentPage * jobsPerPage < allJobs.length) ? 'block' : 'none';
+    loadMoreBtn.style.display = hasMore ? 'block' : 'none';
   }
 
 }
@@ -112,9 +124,9 @@ function renderJobs() {
 function loadMoreJobs() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', () => {
+      loadMoreBtn.addEventListener('click', async() => {
         currentPage++;
-        renderJobs();
+        await loadJobs();
       });
     }
 }
@@ -206,5 +218,28 @@ function renderSelectedStacks() {
         };
     });
     highlightMatchingStacks();
+
+}
+
+function filterJobsByLevel() {
+    
+  document.querySelectorAll('.filter').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      currentJobLevel = btn.dataset.filter;
+      currentPage = 1;
+      allJobs = [];
+      // ✅ 先清除所有按钮的高亮状态
+      document.querySelectorAll('.filter').forEach(b => {
+        b.classList.remove('bg-blue-500', 'text-white');
+        b.classList.add('bg-gray-200', 'text-gray-700');  // 你原来写的是 text-gray-300
+      });
+
+      // ✅ 给当前点击按钮加高亮样式
+      btn.classList.remove('bg-gray-200', 'text-gray-700');
+      btn.classList.add('bg-blue-500', 'text-white');
+
+      await loadJobs();
+    });
+  });
 
 }

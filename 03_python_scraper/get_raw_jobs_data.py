@@ -135,7 +135,7 @@ while True:
 
             job.append(company_id)
 
-            job.append(job_data.get('companyName', "NA"))
+            job.append(job_data.get('companyName', "N/A"))
             job.append(job_data['id'])
             job.append(job_data['title'])
 
