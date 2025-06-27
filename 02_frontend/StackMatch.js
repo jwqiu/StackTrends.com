@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTechStacks();
     filterJobsByLevel();
     applyFilters();
-    getFilterResultsCount(currentJobLevel);
+    getFilterResultsCount();
     
 });
 
@@ -65,17 +65,27 @@ let jobsPerPage = 20;
 let currentPage = 1;
 let hasMore = true;
 
+async function normalizeKeyword(rawKeyword) {
+  const url = `https://localhost:5001/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Normalize request failed: ${res.status}`);
+  }
+  const { normalized } = await res.json();
+  return normalized;
+}
+
 async function loadJobs() {
   // 调用后端API获取所有职位
   let url = `https://localhost:5001/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
   }
-  if (selectedStacks.length > 0) {
-    selectedStacks.forEach(kw => {
-      url += `&keywords=${encodeURIComponent(kw)}`;
-      console.log("Requesting jobs with URL:", url);
-    });
+  for (const kw of selectedStacks) {
+    const norm = await normalizeKeyword(kw);
+    if (norm.trim()) {
+      url += `&keywords=${encodeURIComponent(norm)}`;
+    }
   }
   const response = await fetch(url);
   const data = await response.json();
@@ -205,16 +215,19 @@ function showSuggestions(e) {
     });
 }
 
-function addSelectedStack() {
+async function addSelectedStack() {
     const input = document.getElementById("techstack-input");
-    const name = input.value.trim();
-    if (!name) return;
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    let norm = await normalizeKeyword(raw);
+    if (!norm) norm = raw;
 
     // 避免重复
-    if (!selectedStacks.includes(name)) {
-        selectedStacks.push(name);
+    if (!selectedStacks.includes(norm)) {
+        selectedStacks.push(norm);
         renderSelectedStacks();
-        console.log(`Added tech stack: ${name}`);
+        console.log(`Added tech stack: ${norm}`);
         console.log(`Current selected stacks: ${selectedStacks.join(', ')}`);
     }
     input.value = '';
@@ -283,12 +296,13 @@ function applyFilters() {
 
 async function getFilterResultsCount() {
   let url = `https://localhost:5001/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
-  selectedStacks.forEach(kw => {
-    url += `&keywords=${encodeURIComponent(kw)}`;
-  });
-    selectedStacks.forEach(kw => {
-    url += `&keywords=${encodeURIComponent(kw)}`;
-  });
+
+  for (const kw of selectedStacks) {
+    const norm = await normalizeKeyword(kw);
+    if (norm.trim()) {
+        url += `&keywords=${encodeURIComponent(norm)}`;
+    }
+  }
   const response = await fetch(url);
   const { count } = await response.json();
   const countDisplay = document.getElementById('results-count');
