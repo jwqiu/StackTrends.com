@@ -7,3 +7,4 @@
 *.xlsx
 
 connect.py
+**/appsettings.json
