@@ -66,7 +66,7 @@ let currentPage = 1;
 let hasMore = true;
 
 async function normalizeKeyword(rawKeyword) {
-  const url = `https://localhost:5001/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
+  const url = `https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Normalize request failed: ${res.status}`);
@@ -77,7 +77,7 @@ async function normalizeKeyword(rawKeyword) {
 
 async function loadJobs() {
   // 调用后端API获取所有职位
-  let url = `https://localhost:5001/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
+  let url = `https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
   }
@@ -172,7 +172,7 @@ function loadMoreJobs() {
 async function loadTechStacks() {
   // 调用后端API获取所有技术栈
   try {
-    const response = await fetch('https://localhost:5001/api/TechStack/all');
+    const response = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/all');
     allTechStacks = await response.json();
     document.getElementById("techstack-input").addEventListener("input", showSuggestions);
     document.getElementById("add-btn").addEventListener("click", addSelectedStack);
@@ -297,7 +297,7 @@ function applyFilters() {
 }
 
 async function getFilterResultsCount() {
-  let url = `https://localhost:5001/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+  let url = `https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
 
   if (selectedStacks.length > 0) {
     for (const kw of selectedStacks) {

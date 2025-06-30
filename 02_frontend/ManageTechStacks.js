@@ -3,7 +3,7 @@ let allTechStacks = [];
 // ① 加载并渲染所有 tech stacks
 async function loadTechStacks() {
     try {
-        const res = await fetch('https://localhost:5001/api/TechStack/all');
+        const res = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/all');
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         allTechStacks = await res.json();
         renderTechStacks();
@@ -50,7 +50,7 @@ async function submitTechStack() {
   }
 
   // 3. 发送 POST 请求
-  const res = await fetch('https://localhost:5001/api/TechStack/add', {
+  const res = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -79,7 +79,7 @@ async function deleteTechStack(id) {
   if (!confirm(`确定要删除 ID=${id} 的 TechStack 吗？`)) return;
 
   try {
-    const res = await fetch(`https://localhost:5001/api/TechStack/delete/${id}`, {
+    const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/delete/${id}`, {
       method: 'DELETE'
     });
 
@@ -150,7 +150,7 @@ async function editTechStack(id) {
     tr.querySelectorAll('[data-field]').forEach(el => {
       payload[el.dataset.field] = el.value.trim();
     });
-    await fetch(`https://localhost:5001/api/TechStack/update/${id}`, {
+    await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/update/${id}`, {
       method: 'PUT',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
