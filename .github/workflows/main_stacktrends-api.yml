@@ -48,6 +48,13 @@ jobs:
         with:
           name: myapp
           path: myapp
+
+          
+      
+      - name: 列出文件目录
+        run: |
+          echo "工作目录：$(pwd)"
+          ls -R .
       
       - name: Login to Azure
         uses: azure/login@v2
