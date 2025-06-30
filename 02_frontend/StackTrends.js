@@ -569,7 +569,9 @@ function renderLevelOptions() {
       if (span) span.textContent = label;
 
       selectedIndex = level_labels.findIndex(lab => lab.toLowerCase() === selectedLevel); // 这行
-      experienceChart.update(); 
+      if (experienceChart) {
+        experienceChart.update();
+      }
 
       try {
         const res = await fetch(`https://localhost:5001/count/tech_stacks?level=${selectedLevel}`);
