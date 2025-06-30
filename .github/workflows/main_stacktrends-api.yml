@@ -32,7 +32,7 @@ jobs:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
+          name: myapp
           path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
@@ -46,7 +46,8 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: myapp
+          path: myapp
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -59,5 +60,5 @@ jobs:
         with:
           app-name: 'stacktrends-api'
           slot-name: 'Production'
-          package: './.net-app'
+          package: './myapp'
           
