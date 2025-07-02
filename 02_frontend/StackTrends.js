@@ -1,5 +1,5 @@
 // import { mockData } from './mockData.js';
-
+const API_BASE = window.API_BASE;
 let topChart;
 let experienceChart = null;
 let selectedIndex = -1;

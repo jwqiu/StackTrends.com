@@ -1,3 +1,4 @@
+const API_BASE = window.API_BASE;
 let currentJobLevel = "ALL";
 let allTechStacks = [];
 let selectedStacks = [];

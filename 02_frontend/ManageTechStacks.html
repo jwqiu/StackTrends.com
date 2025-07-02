@@ -22,121 +22,198 @@
                 <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
                 <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
                 <div class="flex flex-col items-center">
-                    <a href="ManageTechStacks.html" class="text-blue-500" >ManageTechStacks</a>
-                    <div class="w-36 h-0.5 bg-blue-500 mt-1 rounded"></div>
+                    <a href="ManageTechStacks.html" class="text-blue-500" >Manage</a>
+                    <div class="w-16 h-0.5 bg-blue-500 mt-1 rounded"></div>
                 </div>
             </div>
 
         </nav>
         <div class="p-8">
-            <div class="max-w-[800px] mx-auto">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-semibold text-gray-600">Add New Stack Keyword</h2>
-                    <!-- <button id="add-btn" class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-700 ">
-                        Add
-                    </button> -->
+            
+            <div class="flex justify-start gap-x-8 ms-4">
+                <div class="flex items-start flex-col gap-y-2 mb-8 max-w-[200px]">
+                    <nav class="bg-white shadow-lg rounded-lg p-4 w-48">
+                        <ul class="space-y-2">
+                            <li>
+                                <a
+                                    href="#"
+                                    id="menu-category"
+                                    class="flex items-center px-4 py-2 rounded-lg  hover:bg-blue-100 hover:text-blue-500 transition"
+                                >
+                                    <!-- <svg class="h-5 w-5 mr-2 text-gray-400 hover:text-blue-600 transition" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                                    </svg> -->
+                                    Category
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#"
+                                    id="menu-stack"
+                                    class="flex items-center px-4 py-2 rounded-lg  hover:bg-blue-100 hover:text-blue-500 transition"
+                                >
+                                    <!-- 可选：替换成你喜欢的图标 -->
+                                    <!-- <svg class="h-5 w-5 mr-2 text-gray-400 hover:text-blue-600 transition" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg> -->
+                                    Stack Keyword
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </nav>
                 </div>
-                
-                <form id="techStackForm" action="">
-                    <div class="flex flex-col gap-4 mb-6 bg-white shadow-lg rounded-lg p-6">
-                        <div class="flex items-center justify-between">
-                            <label for="category" class="mr-4 text-gray-700 font-medium">Category</label>
-                            <div class="relative w-[300px]">
-                                <select id="category" name="category"
-                                class="block w-full appearance-none bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight 
-                                        hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
-                                    <option value="" disabled selected>Select a category</option>
-                                    <option value="Frontend">Frontend</option>
-                                    <option value="Backend">Backend</option>
-                                    <option value="Database">Database</option>
-                                    <option value="Cloud_Platform">Cloud Platform</option>
-                                    <option value="DevOps_tools">DevOps Tools</option>
-                                    <option value="API">API</option>
-                                    <option value="Version_Control">Version Control</option>
-                                    <option value="Operating_System">Operating System</option>
-                                    <option value="Other">Other</option>
+                <div class="flex-1" >
+                    <div id="stack-keyword-panel" class="max-w-[1200px]" style="display:none">
+                    
+                        <form id="techStackForm" action="">
+                            
+                            <div class="flex flex-col gap-4 mb-6 bg-white shadow-lg rounded-lg p-8">
+                                <h2 class="text-xl font-semibold text-gray-600">Add New Stack Keyword</h2>
+                                <div class="flex items-center justify-between">
+                                    <label for="category" class="mr-4 text-gray-700 ">Category</label>
+                                    <div class="relative w-[300px]">
+                                        <select id="category" name="category"
+                                        class="block w-full appearance-none bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight 
+                                                hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                            <option value="" disabled selected>Select a category</option>
+                                            <!-- <option value="Frontend">Frontend</option>
+                                            <option value="Backend">Backend</option>
+                                            <option value="Database">Database</option>
+                                            <option value="Cloud Platforms">Cloud Platforms</option>
+                                            <option value="DevOps Tools">DevOps Tools</option>
+                                            <option value="API">API</option>
+                                            <option value="Version Control">Version Control</option>
+                                            <option value="Operating System">Operating System</option>
+                                            <option value="Other">Other</option> -->
 
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                <!-- RAW KEYWORD -->
+                                    <div class="flex items-center justify-between">
+                                        <label for="raw-keyword" class="mr-4 text-gray-700 ">Raw Keyword </label>
+                                        <input
+                                        id="raw-keyword"
+                                        name="rawKeyword"
+                                        type="text"
+                                        placeholder="Enter raw keyword"
+                                        class="block w-[300px] bg-white border border-gray-300 rounded-lg py-2 px-4 leading-tight
+                                                hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                <!-- NORMALIZED -->
+                                    <div class="flex items-center justify-between">
+                                        <label for="normalized" class="mr-4 text-gray-700 ">Normalized</label>
+                                        <input
+                                        id="normalized"
+                                        name="normalizedKeyword"
+                                        type="text"
+                                        placeholder="Enter normalized keyword"
+                                        class="block w-[300px] bg-white border border-gray-300 rounded-lg py-2 px-4 leading-tight
+                                                hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-end w-full space-x-4 mt-2">
+                                    <div class=" gap-x-3 flex justify-between">
+                                        <!-- 提交按钮：主色调 -->
+                                        <button
+                                            type="button" onclick="submitTechStack()"
+                                            class="bg-blue-600 w-[300px] text-white font-medium rounded-lg px-4 py-2
+                                                hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        >
+                                            Submit
+                                        </button>
+
+                                        <!-- 取消按钮：次级/空心风格 -->
+                                        <!-- <button
+                                            type="button" id="cancelBtn"
+                                            class="bg-white text-gray-700 border border-gray-300 font-medium rounded-lg px-4 py-2
+                                                hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        >
+                                            Cancel
+                                        </button> -->
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="space-y-4">
-                        <!-- RAW KEYWORD -->
-                            <div class="flex items-center justify-between">
-                                <label for="raw-keyword" class="mr-4 text-gray-700 font-medium">RAW KEYWORD</label>
-                                <input
-                                id="raw-keyword"
-                                name="rawKeyword"
-                                type="text"
-                                placeholder="Enter raw keyword"
-                                class="block w-[300px] bg-white border border-gray-300 rounded-lg py-2 px-4 leading-tight
-                                        hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                />
-                            </div>
+                        </form>
 
-                        <!-- NORMALIZED -->
-                            <div class="flex items-center justify-between">
-                                <label for="normalized" class="mr-4 text-gray-700 font-medium">NORMALIZED</label>
-                                <input
-                                id="normalized"
-                                name="normalizedKeyword"
-                                type="text"
-                                placeholder="Enter normalized keyword"
-                                class="block w-[300px] bg-white border border-gray-300 rounded-lg py-2 px-4 leading-tight
-                                        hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                />
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-end w-full space-x-4 mt-2">
-                            <div class=" gap-x-3 flex justify-between">
-                                <!-- 提交按钮：主色调 -->
-                                <button
-                                    type="button" onclick="submitTechStack()"
-                                    class="bg-blue-600 w-[300px] text-white font-medium rounded-lg px-4 py-2
-                                        hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                >
-                                    Submit
-                                </button>
+                        <h2 class="text-xl font-semibold text-gray-600 mb-6">Current Tech Stack Keyword</h2>
+                        <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
+                            <table id="tech-stacks-table" class="min-w-full bg-white text-sm">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                                        <th class="px-4 py-2 text-left">ID</th>
+                                        <th class="px-4 py-2 text-left">Category</th>
+                                        <th class="px-4 py-2 text-left">Raw Keyword</th>
+                                        <th class="px-4 py-2 text-left">Normalized</th>
+                                        <th class="px-4 py-2 text-left">Action</th>
 
-                                <!-- 取消按钮：次级/空心风格 -->
-                                <!-- <button
-                                    type="button" id="cancelBtn"
-                                    class="bg-white text-gray-700 border border-gray-300 font-medium rounded-lg px-4 py-2
-                                        hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                >
-                                    Cancel
-                                </button> -->
-                            </div>
+                                    </tr>
+                                </thead>
+                                <tbody id="tech-stacks-body" class="divide-y divide-gray-100 text-gray-700">
+                                    <!-- JS 插入行 -->
+                                </tbody>
+                            </table>
                         </div>
+                        
                     </div>
-                </form>
+                    <div id="category-panel" class="mb-8">
+                        <form action="" id="add-category-form">
+                            <div class="max-w-[1200px] bg-white shadow-lg rounded-lg p-8 mb-8">
+                                <h2 class="text-xl font-semibold text-gray-600 mb-8">Add New Category</h2>
+                                <div class="justify-between flex mb-4">
+                                    <label for="category" class="mr-4 text-gray-700">Category Name</label>
+                                    <input type="text" id="category-name-input" placeholder="Enter category name" class="border w-[300px] border-gray-300 rounded-lg px-4 py-2" />
+                                </div>
+                                <div class="justify-between flex mb-8">
+                                    <label for="groupname" class="mr-4 text-gray-700">Group Name</label>
+                                    <input type="text" id="group-name-input" placeholder="Enter group name" class="border w-[300px] border-gray-300 rounded-lg px-4 py-2" />
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="bg-blue-500 w-[300px] text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="bg-white shadow-lg rounded-lg p-8 mb-8 max-w-[1200px]">
+                            <h2 class="text-xl font-semibold text-gray-600 mb-6 ">Current Category</h2>
+                            <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
+                                <table id="category-table" class="min-w-full bg-white text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                                            <th class="px-4 py-2 text-left">#</th>
+                                            <th class="px-4 py-2 text-left">Category Name</th>
+                                            <th class="px-4 py-2 text-left">Group Name</th>
+                                            <th class="px-4 py-2 text-left">Actions</th>   <!-- 新增 -->
 
-                <h2 class="text-xl font-semibold text-gray-600 mb-6">Current Tech Stack Keyword</h2>
-                <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
-                    <table id="tech-stacks-table" class="min-w-full bg-white text-sm">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-                            <th class="px-4 py-2 text-left">ID</th>
-                            <th class="px-4 py-2 text-left">Category</th>
-                            <th class="px-4 py-2 text-left">Raw Keyword</th>
-                            <th class="px-4 py-2 text-left">Normalized</th>
-                            <th class="px-4 py-2 text-left">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="category-table-body" class="divide-y divide-gray-100 text-gray-700">
+                                    <!-- JS 插入行 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
 
-                        </tr>
-                    </thead>
-                    <tbody id="tech-stacks-body" class="divide-y divide-gray-100 text-gray-700">
-                        <!-- JS 插入行 -->
-                    </tbody>
-                    </table>
+                    </div>
+                    
                 </div>
+               
             </div>
+
+           
             
         </div>
-
+        <script src="config.js"></script>
         <script src="./ManageTechStacks.js"></script>
 
     </body>
