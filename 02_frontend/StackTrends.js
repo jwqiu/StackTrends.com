@@ -229,7 +229,7 @@ let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
-    const response = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/count/tech_stacks');
+    const response = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks');
     allData = await response.json();
 
     allLevelData = allData
@@ -381,7 +381,7 @@ function updateJobCount() {
 
 async function drawExperiencePie() {
   // 1. 请求后端接口
-  const res  = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/count/experience_level');
+  const res  = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/by-level');
   const data = await res.json();
 
   // 2. 准备标签和数据
@@ -514,7 +514,7 @@ let levelCounts = [];
 
 // 1) 用 .then() 代替 async/await
 function fetchLevelCounts() {
-  return fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/count_by_level')
+  return fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/count/by-level')
 
     .then(resp => {
       if (!resp.ok) throw new Error('请求失败 ' + resp.status);
@@ -574,7 +574,7 @@ function renderLevelOptions() {
       }
 
       try {
-        const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/count/tech_stacks?level=${selectedLevel}`);
+        const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech_stacks?level=${selectedLevel}`);
         if (!res.ok) throw new Error(res.status);
         const data = await res.json();
         renderCategoryTags( data.filter(item =>

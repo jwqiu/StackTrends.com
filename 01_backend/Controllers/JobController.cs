@@ -184,7 +184,7 @@ public class JobController : ControllerBase
         return Ok(new { count });
     }
 
-    [HttpGet("count_by_level")]
+    [HttpGet("count/by-level")]
     public async Task<ActionResult<IEnumerable<JobCountByLevelDto>>> GetCountByLevel()
     {
         var list = new List<JobCountByLevelDto>();

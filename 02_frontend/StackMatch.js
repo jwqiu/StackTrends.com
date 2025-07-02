@@ -29,11 +29,13 @@ function highlightStacksHtml(stacks, selected) {
   const clean = stacks
     .filter(s => s && s.trim())
     .map(s => s.trim());
+
+  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
   const matched = clean.filter(s => selected.includes(s.toLowerCase()));
   const unmatched = clean.filter(s => !selected.includes(s.toLowerCase()));
   return [
-    ...matched.map(s => `<span class="text-red-500">${s}</span>`),
-    ...unmatched
+    ...matched.map(s => `<span class="text-red-500">${capitalize(s)}</span>`),
+    ...unmatched.map(s => `<span>${capitalize(s)}</span>`)
   ].join(', ') || 'N/A';
 }
 
@@ -121,12 +123,12 @@ function renderJobs() {
           <div class="flex justify-between items-center  mt-1">
             <div>
               <p class="text-sm text-gray-600 mt-1 mt-1 ">
-                ${job.jobLocation ?? 'N/A'}
+                📍 ${job.jobLocation ?? 'N/A'}
               </p>
             </div>
             <div>
               <p class="text-sm text-gray-600 ">
-                ${job.listedDate 
+                Posted on 🗓️ ${job.listedDate 
                 ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
                 : 'N/A'}
               </p>

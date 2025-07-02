@@ -5,7 +5,7 @@ using StackTrends.Models;
 namespace StackTrends.Controllers
 {
     [ApiController]
-    [Route("count")]
+    [Route("api/[controller]")]
     public class CountController : ControllerBase
 
     {
@@ -16,7 +16,7 @@ namespace StackTrends.Controllers
             _conn = conn;
         }
 
-        [HttpGet("tech_stacks")]
+        [HttpGet("tech-stacks")]
         public async Task<IEnumerable<TechStackCount>> GetCounts([FromQuery] string level = "all")
         {
             var counts = new List<TechStackCount>();
@@ -66,7 +66,7 @@ namespace StackTrends.Controllers
         }
 
 
-        [HttpGet("experience_level")]
+        [HttpGet("by-level")]
         public async Task<IEnumerable<ExperienceLevelCount>> GetExperienceLevelCounts()
         {
             var counts = new List<ExperienceLevelCount>();
