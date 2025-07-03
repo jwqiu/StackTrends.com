@@ -415,4 +415,5 @@ async function loadCategoryOptions() {
       select.appendChild(opt);
     });
   }
-  document.addEventListener('DOMContentLoaded', loadCategoryOptions);
+
+document.addEventListener('DOMContentLoaded', loadCategoryOptions);

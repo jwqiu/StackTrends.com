@@ -241,9 +241,9 @@ async function loadTechRank() {
     renderCategoryTags(allLevelData);
 
 
-    const clickedButton = document.querySelector('.filter-btn[data-filter="all"]');
-    clickedButton.classList.remove('bg-gray-200','text-gray-700');
-    clickedButton.classList.add('bg-blue-500','text-white');
+    // const clickedButton = document.querySelector('.filter-btn[data-filter="all"]');
+    // clickedButton.classList.remove('bg-gray-200','text-gray-700');
+    // clickedButton.classList.add('bg-blue-500','text-white');
     // const showMoreBtn = document.getElementById('showMoreBtn');
     // showMoreBtn.style.display = data.length > 20 ? '' : 'none';
 
@@ -318,14 +318,14 @@ function renderTechTableRows(data, limit) {
 
 function renderCategoryTags(data) {
   const categoryOrder = [
-    "Cloud_Platform",
     "Frontend",
     "Backend",
-    "DevOps_tools",
+    "Coding Methods",
+    "Cloud Platforms",
+    "DevOps Tools",
     "Database",
-    "Version_Control",
-    "API",
-    "Operating_System"
+    "AI",
+    "Other"
   ];
 
   // 分组
@@ -342,6 +342,8 @@ function renderCategoryTags(data) {
   const container = document.getElementById('dynamicCategoryTags');
   container.innerHTML = '';
 
+  let html = `<div class="w-full max-w-full overflow-x-auto  scrollbar-thin scrollbar-thumb-gray-300"><div class="inline-flex flex-col min-w-max">`;
+
   categoryOrder.forEach(cat => {
     const techList = (grouped[cat] || [])
       .sort((a, b) => (b.mentions ?? b.Mentions) - (a.mentions ?? a.Mentions))
@@ -350,22 +352,25 @@ function renderCategoryTags(data) {
     if (techList.length === 0) return; // 没有数据就不渲染
 
     // 标签
-    let html = `<div class="flex items-center gap-x-3 mb-0">
-      <label class="text-sm text-gray-400 text-nowrap w-40 text-start flex-shrink-0">${cat} :</label>
-      `;
+    html += `
+      <div class="flex flex-nowrap items-center gap-x-3 mb-5 w-max">
+        <label class="text-sm text-gray-400 whitespace-nowrap w-32 text-start flex-shrink-0">${cat} :</label>
+    `;
 
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
       const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       const percentage = ((item.percentage ?? item.Percentage) * 100).toFixed(2) + '%';
       // 第一个高亮，其余灰色
-      html += `<button class="${idx === 0 ? 'bg-blue-500 text-white hover:bg-blue-700' : 'filter-time bg-gray-200 text-gray-700'} px-2 py-1 rounded-md hover:bg-gray-300 text-sm">${name} (${percentage})</button>`;
+      html += `<button class="${idx === 0 ? 'bg-blue-500 text-white hover:bg-blue-700' : 'filter-time bg-gray-200 text-gray-700'} text-nowrap px-2 py-1 rounded-md hover:bg-gray-300 text-sm">${name} (${percentage})</button>`;
     });
 
-    html += '</div>';
+    html += `</div>`; // 结束标签
 
-    container.innerHTML += html;
   });
+  html += `</div></div>`;
+  container.innerHTML += html;
+
 }
 
 function updateJobCount() {
@@ -574,7 +579,7 @@ function renderLevelOptions() {
       }
 
       try {
-        const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech_stacks?level=${selectedLevel}`);
+        const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks?level=${selectedLevel}`);
         if (!res.ok) throw new Error(res.status);
         const data = await res.json();
         renderCategoryTags( data.filter(item =>
@@ -597,3 +602,33 @@ function renderLevelOptions() {
   }
 
 }
+
+async function loadCategoryOptions() {
+    const categories = document.getElementById('category-filters');
+    categories.innerHTML = '';
+
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+    allBtn.dataset.filter = 'all';
+    allBtn.textContent = 'All';
+    categories.appendChild(allBtn);
+
+
+    const res = await fetch(`${API_BASE}/api/category`);
+    const cats = await res.json();
+    cats.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+      btn.dataset.filter = c.name;
+      btn.textContent = c.name;
+      categories.appendChild(btn);
+    });
+
+    if (allBtn) {
+      allBtn.classList.remove('bg-gray-200', 'text-gray-700');
+      allBtn.classList.add('bg-blue-500', 'text-white');
+      allBtn.click();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadCategoryOptions);

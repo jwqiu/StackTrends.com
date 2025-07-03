@@ -68,7 +68,14 @@ for level in levels:
     df = pd.DataFrame(tag_counter.items(), columns=['technology', 'Mentions'])
     df['Mentions'] = df['Mentions'].astype(int)
     df['Percentage'] = df['Mentions'] / total_jobs
-    df['Category'] = df['technology'].map(category_map).fillna('Other')
+
+    # （可选）先把映射表的 key 也转成小写，确保匹配成功
+    category_map = {k.lower(): v for k, v in category_map.items()}
+
+    # 先转小写再映射，找不到的填 'Other'
+    df['Category'] = df['technology'].str.lower().map(category_map).fillna('Other')
+
+
     df['Job_Level'] = level
     all_dfs.append(df)
 

@@ -41,8 +41,8 @@
             </div>
             <div class="flex flex-col">
               <label for="" class="mt-3 xl:mt-0 xl:text-end text-sm text-gray-400 text-nowrap mb-3">Filter By Category :</label>
-              <div class="flex gap-x-2 gap-y-2 flex-wrap">
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
+              <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap">
+                <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud Platforms">Cloud Platforms</button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Frontend">Frontend</button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Backend">Backend</button>
@@ -51,7 +51,7 @@
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Version Control">Version Control </button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="API">API</button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Operating System">Operating System</button>
-                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Other">Other</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Other">Other</button> -->
               </div>
               
             </div>
@@ -95,7 +95,7 @@
       </div>
       <!-- 第三个模块 -->
       <div>
-        <div class="xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-8 mb-8">
+        <div class="xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-4 mb-8">
           <div class="">
             <h1 class="text-xl font-bold mb-2">Top Tech Stacks by Experience Level</h1>
             <p class="text-gray-400 text-sm mb-0">Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
@@ -108,17 +108,17 @@
         
         <div class="">
           <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="  bg-white  shadow-lg rounded-lg  p-8 ">
+            <div class="  bg-white  shadow-lg rounded-lg  p-8 pr-0 ">
               <div class="min-w-[400px] max-w-[550px] mx-auto">
                 <canvas id="experiencePie"  ></canvas>
               </div>
             </div>
-            <div class="  bg-white shadow-lg rounded-lg p-8"> 
+            <div class="  bg-white shadow-lg rounded-lg p-4"> 
               <div class="flex flex-col items-center justify-center">
                 <p class="text-xl font-normal text-gray-600 mb-8 text-center mt-1">
                   Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )
                 </p>
-                <div class="space-y-5 mt-2 p-2" id="dynamicCategoryTags"></div>
+                <div class=" p-2 w-full" id="dynamicCategoryTags"></div>
               </div>
             </div>
           </div>
