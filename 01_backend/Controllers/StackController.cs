@@ -121,7 +121,7 @@ public class TechStackController : ControllerBase
         var sql1 = @"
             SELECT normalized_keyword 
             FROM tech_stacks_list 
-            WHERE LOWER(raw_keyword) = LOWER(@kw)
+            WHERE LOWER(normalized_keyword) = LOWER(@kw)
             LIMIT 1";
         await using var cmd1 = new NpgsqlCommand(sql1, _conn);
         cmd1.Parameters.AddWithValue("kw", keyword);
@@ -140,7 +140,7 @@ public class TechStackController : ControllerBase
             var sql2 = @"
                 SELECT raw_keyword 
                 FROM tech_stacks_list 
-                WHERE LOWER(raw_keyword) LIKE LOWER('%' || @kw || '%')
+                WHERE LOWER(raw_keyword) = LOWER(@kw)
                 LIMIT 1";
             await using var cmd2 = new NpgsqlCommand(sql2, _conn);
             cmd2.Parameters.AddWithValue("kw", keyword);

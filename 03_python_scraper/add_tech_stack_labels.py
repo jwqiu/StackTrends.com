@@ -159,7 +159,7 @@ def label_job_level(title):
         return 'Senior'
     elif 'intermediate' in title:
         return 'Intermediate'
-    elif 'junior' in title:
+    elif 'junior' in title or 'graduate' in title:
         return 'Junior'
     else:
         return 'Other'

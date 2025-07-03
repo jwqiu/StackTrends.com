@@ -97,8 +97,9 @@ function initChart(labels, data) {
         },
         title: {
           display: true,
-          text: 'Share of jobs mentioning this tech stack',
-          font: { size: 20, weight: 'normal' },
+          text: '              % of Jobs Mentioning Each Tech Stack',
+          align: 'start', 
+          font: { size: 18, weight: 'normal' },
           padding: { top: 10, bottom: 20 }
         },
         tooltip: {
@@ -276,6 +277,8 @@ async function loadTechRank() {
   }
 }
 
+// <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
+
 function renderTechTableRows(data, limit) {
   const tbody = document.getElementById('techTable');
   tbody.innerHTML = '';
@@ -289,7 +292,6 @@ function renderTechTableRows(data, limit) {
       }</td>
       <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
       <td class="border px-4 py-2">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
-      <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
     `;
     tbody.appendChild(tr);
   });
@@ -338,40 +340,71 @@ function renderCategoryTags(data) {
     grouped[category].push(item);
   });
 
-  // 渲染
-  const container = document.getElementById('dynamicCategoryTags');
-  container.innerHTML = '';
-
-  let html = `<div class="w-full max-w-full overflow-x-auto  scrollbar-thin scrollbar-thumb-gray-300"><div class="inline-flex flex-col min-w-max">`;
-
+  // 遍历每个大类，单独填充到各自的div里
   categoryOrder.forEach(cat => {
     const techList = (grouped[cat] || [])
       .sort((a, b) => (b.mentions ?? b.Mentions) - (a.mentions ?? a.Mentions))
-      .slice(0, 3);
+      .slice(0, 4); // 可调整显示数量
 
-    if (techList.length === 0) return; // 没有数据就不渲染
+    // 找到前端对应的div
+    const container = document.getElementById(cat);
+    if (!container) return;
 
-    // 标签
-    html += `
-      <div class="flex flex-nowrap items-center gap-x-3 mb-5 w-max">
-        <label class="text-sm text-gray-400 whitespace-nowrap w-32 text-start flex-shrink-0">${cat} :</label>
-    `;
-
+    let html = "";
+    const bgArr = [
+      'bg-blue-600', // ≥ 0.30
+      'bg-blue-500', // 0.30 - 0.25
+      'bg-blue-400', // 0.25 - 0.20
+      'bg-blue-300', // 0.20 - 0.15
+      'bg-blue-200', // 0.15 - 0.10
+      'bg-blue-100', // 0.10 - 0.05
+      'bg-gray-200'  // < 0.05
+    ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
       const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-      const percentage = ((item.percentage ?? item.Percentage) * 100).toFixed(2) + '%';
-      // 第一个高亮，其余灰色
-      html += `<button class="${idx === 0 ? 'bg-blue-500 text-white hover:bg-blue-700' : 'filter-time bg-gray-200 text-gray-700'} text-nowrap px-2 py-1 rounded-md hover:bg-gray-300 text-sm">${name} (${percentage})</button>`;
+      const percentageRaw = item.percentage ?? item.Percentage;
+      const percentage = (percentageRaw * 100).toFixed(2) + '%';
+
+      let bgClass = '';
+      if (percentageRaw >= 0.30) {
+        bgClass = bgArr[0];
+      } else if (percentageRaw >= 0.25) {
+        bgClass = bgArr[1];
+      } else if (percentageRaw >= 0.20) {
+        bgClass = bgArr[2];
+      } else if (percentageRaw >= 0.15) {
+        bgClass = bgArr[3];
+      } else if (percentageRaw >= 0.10) {
+        bgClass = bgArr[4];
+      } else if (percentageRaw >= 0.05) {
+        bgClass = bgArr[5];
+      } else {
+        bgClass = bgArr[6];
+      }
+
+      let textClass = '';
+      // const bgClass = bgArr[idx % bgArr.length];
+      // const textClass = idx < 3 ? 'text-gray-700' : 'text-gray-500';
+      if (percentageRaw >= 0.1) {
+        textClass = 'text-white font-semibold';
+      } else {
+        textClass = 'text-gray-600';
+      }
+      html += `
+        <div class="aspect-square w-full flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
+          <span class="block text-center w-full line-clamp-2" title="${name}">${name}</span>
+          <div class="text-xs mt-1">${percentage}</div>
+        </div>
+      `;
     });
 
-    html += `</div>`; // 结束标签
-
+      // 填充到对应div
+    container.innerHTML = html;
   });
-  html += `</div></div>`;
-  container.innerHTML += html;
 
 }
+
 
 function updateJobCount() {
   fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/count')
@@ -472,7 +505,7 @@ async function drawExperiencePie() {
           return `${label} : ${value.toFixed(2)}%`;
         },
 
-        color: ctx => ctx.dataIndex === selectedIndex ? '#3b82f6' : '#666',
+        color: ctx => ctx.dataIndex === selectedIndex ? '#000' : '#000',
         // font: {
         //   size: 16,
         //   weight: 'normal'

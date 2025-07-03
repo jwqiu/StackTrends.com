@@ -69,7 +69,7 @@ let currentPage = 1;
 let hasMore = true;
 
 async function normalizeKeyword(rawKeyword) {
-  const url = `https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
+  const url = `${API_BASE}/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Normalize request failed: ${res.status}`);
@@ -224,9 +224,11 @@ async function addSelectedStack() {
     const input = document.getElementById("techstack-input");
     const raw = input.value.trim();
     if (!raw) return;
+    console.log(`Raw value is: ${raw}`);
 
     let norm = await normalizeKeyword(raw);
     if (!norm) norm = raw;
+    console.log(`Normalized value is: ${norm}`);
 
     // 避免重复
     if (!selectedStacks.includes(norm)) {

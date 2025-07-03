@@ -34,13 +34,13 @@
         <!-- 第一个模块 -->
         <div class="mb-8">
           <!-- 首个小标题 -->
-          <div class="mb-8 xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-8">
-            <div>
-              <h1 class="text-xl font-bold mb-2">Most Requested Tech Stacks</h1>
-              <p class="text-gray-400 text-sm mb-0">Based on <span class="text-blue-600 " id="job-count"># </span> collected since April 2025</p> 
+          <div class="mb-8  bg-white shadow-lg rounded-lg p-8">
+            <div class="lg:flex lg:items-center lg:justify-between mb-0">
+              <h1 class="text-xl font-bold mb-0">Most Requested Tech Stacks</h1>
+              <p class="text-gray-400 text-sm mb-0 mt-1 lg:mt-0">📊 Based on <span class="text-blue-600 " id="job-count"># </span> collected since April 2025</p> 
             </div>
             <div class="flex flex-col">
-              <label for="" class="mt-3 xl:mt-0 xl:text-end text-sm text-gray-400 text-nowrap mb-3">Filter By Category :</label>
+              <label for="" class="mt-3  text-sm text-gray-400 text-nowrap mb-3">Filter By Category :</label>
               <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap">
                 <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
                 <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud Platforms">Cloud Platforms</button>
@@ -77,7 +77,7 @@
                             <th class="border px-4 py-2 font-semibold text-nowrap">Tech Stack</th>
                             <th class="border px-4 py-2 font-semibold">Mentions</th>
                             <th class="border px-4 py-2 font-semibold">Percentage</th>
-                            <th class="border px-4 py-2 font-semibold">Action</th>
+                            <!-- <th class="border px-4 py-2 font-semibold">Action</th> -->
                           </tr>
                         </thead>
                         <tbody id="techTable">
@@ -93,20 +93,19 @@
           </div>
         </div>
       </div>
-      <!-- 第三个模块 -->
+      <!-- 第2个模块 -->
       <div>
-        <div class="xl:flex xl:items-center xl:justify-between bg-white shadow-lg rounded-lg p-4 mb-8">
-          <div class="">
-            <h1 class="text-xl font-bold mb-2">Top Tech Stacks by Experience Level</h1>
-            <p class="text-gray-400 text-sm mb-0">Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
+        <div class=" bg-white shadow-lg rounded-lg p-8 mb-8">
+          <div class="lg:flex lg:items-center lg:justify-between mb-4">
+            <h1 class="text-xl font-bold mb-0">Top Tech Stacks by Experience Level</h1>
+            <p class="text-gray-400 text-sm mb-0 mt-1 lg:mt-0">📊 Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
           </div>
           <div class="flex flex-col">
-            <label for="" class=" mt-3 xl:mt-0 text-sm xl:text-end mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
+            <label for="" class=" mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
             <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
           </div>
         </div>
-        
-        <div class="">
+        <div class="" style="display: none;">
           <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="  bg-white  shadow-lg rounded-lg  p-8 pr-0 ">
               <div class="min-w-[400px] max-w-[550px] mx-auto">
@@ -123,23 +122,188 @@
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- 第四个模块 -->
-      <!-- <div class="">
-        <div class="flex items-center justify-between gap-x-2 mb-4">
-          <div class="ms-1">
-            <h1 class="text-xl font-bold mb-0">Expected Tech Stacks by Experience Level</h1>            
-            <p class="text-gray-600 text-sm mb-0">During the Selected Day</p> 
-          </div>
-          
-        </div>
-        
+        <div class="">
+          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
+              <h1 class="text-xl font-bold mb-0">🧑‍💻 Coding Skills</h1>
+              <div class="">
+                <p class="mb-2 text-gray-500">Frontend</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Frontend">
+                  
+                  
+                </div>
+              </div>
+              <div>
+                <p class="mb-2 text-gray-500">Backend</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Backend">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                </div>
+              </div>
+              <div>
+                <p class="mb-2 text-gray-500">Coding Practices and Methods</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Coding Methods">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                </div>
+              </div>
 
-      </div> -->
+            </div>
+            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
+              <h1 class="text-xl font-bold mb-0">🛠️ Platforms & Tools</h1>
+              <div class="">
+                <p class="mb-2 text-gray-500">Cloud Platforms</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Cloud Platforms">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                  
+                </div>
+              </div>
+              <div>
+                <p class="mb-2 text-gray-500">Database</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Database">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                </div>
+              </div>
+              <div>
+                <p class="mb-2 text-gray-500">DevOps Tools</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="DevOps Tools">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
+              <h1 class="text-xl font-bold mb-0">🤖 AI</h1>
+              <div class="">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="AI">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                  
+                </div>
+              </div>
+
+
+            </div>
+            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
+              <h1 class="text-xl font-bold mb-0">➕ Other</h1>
+              <div class="">
+                <div class="grid grid-cols-2 sm:grid-cols-4  gap-2" id="Other">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                  
+                </div>
+              </div>
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script>
       // 确保 ChartDataLabels 已经加载
