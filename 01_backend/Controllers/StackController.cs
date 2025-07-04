@@ -117,40 +117,53 @@ public class TechStackController : ControllerBase
     {
         await _conn.OpenAsync();
 
-        // 1) 精确找 normalized
+        // 1) 精确查 normalized_keyword 列
         var sql1 = @"
             SELECT normalized_keyword 
             FROM tech_stacks_list 
             WHERE LOWER(normalized_keyword) = LOWER(@kw)
             LIMIT 1";
         await using var cmd1 = new NpgsqlCommand(sql1, _conn);
-        cmd1.Parameters.AddWithValue("kw", keyword);
+        cmd1.Parameters.AddWithValue("kw", keyword.ToLower());
         var normObj = await cmd1.ExecuteScalarAsync();
 
-        string? normalized = normObj != null && normObj != DBNull.Value
-            ? normObj.ToString()!
-            : null;
-        if (string.IsNullOrWhiteSpace(normalized))
+        if (normObj != null && normObj != DBNull.Value)
         {
-            normalized = null; // 确保 normalized 是 null 而不是空字符串
-        }
-        // 2) 如果没找到，再模糊匹配 raw_keyword
-        if (normalized == null)
-        {
-            var sql2 = @"
-                SELECT raw_keyword 
-                FROM tech_stacks_list 
-                WHERE LOWER(raw_keyword) = LOWER(@kw)
-                LIMIT 1";
-            await using var cmd2 = new NpgsqlCommand(sql2, _conn);
-            cmd2.Parameters.AddWithValue("kw", keyword);
-            var rawObj = await cmd2.ExecuteScalarAsync();
-            normalized = rawObj != null && rawObj != DBNull.Value
-                ? rawObj.ToString()!
-                : keyword;
+            await _conn.CloseAsync();
+            // 命中 normalized_keyword，直接用原词返回
+            return Ok(new { normalized = keyword });
         }
 
+        // 2) 精确查 raw_keyword 列
+        var sql2 = @"
+            SELECT normalized_keyword, raw_keyword
+            FROM tech_stacks_list
+            WHERE LOWER(raw_keyword) = LOWER(@kw)
+            LIMIT 1";
+        await using var cmd2 = new NpgsqlCommand(sql2, _conn);
+        cmd2.Parameters.AddWithValue("kw", keyword.ToLower());
+        await using var reader = await cmd2.ExecuteReaderAsync();
+
+        string? normalized = null;
+        if (await reader.ReadAsync())
+        {
+            // 优先用 normalized_keyword 列（有值则用）
+            if (!(reader["normalized_keyword"] is DBNull) && !string.IsNullOrWhiteSpace(reader["normalized_keyword"].ToString()))
+            {
+                normalized = reader["normalized_keyword"].ToString();
+            }
+            else
+            {
+                // 没有归一化就用 raw_keyword 原词
+                normalized = reader["raw_keyword"].ToString();
+            }
+            await _conn.CloseAsync();
+            return Ok(new { normalized });
+        }
+
+        // 3) 都没有命中，返回原始 keyword
         await _conn.CloseAsync();
-        return Ok(new { normalized });
+        return Ok(new { normalized = keyword });
     }
+
 }
