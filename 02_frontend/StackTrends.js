@@ -97,7 +97,7 @@ function initChart(labels, data) {
         },
         title: {
           display: true,
-          text: '              % of Jobs Mentioning Each Tech Stack',
+          text: '              Top 10 Tech Stacks by % of Jobs Mentioned',
           align: 'start', 
           font: { size: 18, weight: 'normal' },
           padding: { top: 10, bottom: 20 }
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
   drawExperiencePie();
   fetchLevelCounts()
     .then(() => {
-      renderLevelOptions();
+      renderTopTechStackTableByLevel();
     })
     .catch(err => console.error(err));
 });
@@ -412,6 +412,8 @@ function updateJobCount() {
     .then(data => {
       document.getElementById("job-count").textContent = data.count+" job posts";
       document.getElementById("job-count-2").textContent = data.count+" job posts";
+      document.getElementById("job-count-3").textContent = data.count+" job posts";
+
 
     })
     .catch(err => console.error("Job count fetch failed:", err));
@@ -552,7 +554,8 @@ let levelCounts = [];
 
 // 1) 用 .then() 代替 async/await
 function fetchLevelCounts() {
-  return fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/count/by-level')
+
+  return fetch(`${API_BASE}/api/job/count/by-level`)
 
     .then(resp => {
       if (!resp.ok) throw new Error('请求失败 ' + resp.status);
@@ -586,43 +589,43 @@ function renderLevelOptions() {
     })
     .join('');
 
-    container.addEventListener('click', async function(e) {
+    // container.addEventListener('click', async function(e) {
 
-        const btn = e.target.closest('button.level-filter-btn');
-        if (!btn) return;            // 不是我们关心的按钮就忽略
+    //     const btn = e.target.closest('button.level-filter-btn');
+    //     if (!btn) return;            // 不是我们关心的按钮就忽略
 
-      container.querySelectorAll('.level-filter-btn').forEach(b => {
-        b.classList.remove('bg-blue-500','text-white');
-        b.classList.add('bg-gray-200','text-gray-700');
-      });
+    //   container.querySelectorAll('.level-filter-btn').forEach(b => {
+    //     b.classList.remove('bg-blue-500','text-white');
+    //     b.classList.add('bg-gray-200','text-gray-700');
+    //   });
 
-      // —— 再给当前按钮加上“选中”高亮 —— 
-      btn.classList.remove('bg-gray-200','text-gray-700');
-      btn.classList.add('bg-blue-500','text-white');
+    //   // —— 再给当前按钮加上“选中”高亮 —— 
+    //   btn.classList.remove('bg-gray-200','text-gray-700');
+    //   btn.classList.add('bg-blue-500','text-white');
 
-      const selectedLevel = btn.dataset.filter;  // 拿 data-filter
+    //   const selectedLevel = btn.dataset.filter;  // 拿 data-filter
 
-      const label = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
-      const span = document.getElementById('jobLevel');
-      if (span) span.textContent = label;
+    //   const label = selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1);
+    //   const span = document.getElementById('jobLevel');
+    //   if (span) span.textContent = label;
 
-      selectedIndex = level_labels.findIndex(lab => lab.toLowerCase() === selectedLevel); // 这行
-      if (experienceChart) {
-        experienceChart.update();
-      }
+    //   selectedIndex = level_labels.findIndex(lab => lab.toLowerCase() === selectedLevel); // 这行
+    //   if (experienceChart) {
+    //     experienceChart.update();
+    //   }
 
-      try {
-        const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks?level=${selectedLevel}`);
-        if (!res.ok) throw new Error(res.status);
-        const data = await res.json();
-        renderCategoryTags( data.filter(item =>
-          (item.level ?? item.Level).toLowerCase() === selectedLevel
-        ));
-      } catch (err) {
-        console.error('Failed to fetch tech stacks:', err);
-      }
+    //   try {
+    //     const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks?level=${selectedLevel}`);
+    //     if (!res.ok) throw new Error(res.status);
+    //     const data = await res.json();
+    //     renderCategoryTags( data.filter(item =>
+    //       (item.level ?? item.Level).toLowerCase() === selectedLevel
+    //     ));
+    //   } catch (err) {
+    //     console.error('Failed to fetch tech stacks:', err);
+    //   }
 
-    });
+    // });
 
 
   const allBtn = container.querySelector('button.level-filter-btn[data-filter="all"]');
@@ -665,3 +668,89 @@ async function loadCategoryOptions() {
 }
 
 document.addEventListener('DOMContentLoaded', loadCategoryOptions);
+
+async function renderTopTechStackTableByLevel() {
+  const levels = [
+    { key: "junior",        label: "🧑‍🎓 Junior&Graduate" },
+    { key: "intermediate",  label: "👨‍💻 Intermediate"    },
+    { key: "senior",        label: "👨‍💼 Senior"          }
+  ];
+
+  // 并发请求三个 level 的数据
+  const responses = await Promise.all(
+    levels.map(lvl =>
+      fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks?level=${lvl.key}`)
+        .then(res => res.json())
+    )
+  );
+
+  // 数据结构处理：{category: {junior: [tech1,tech2,tech3], intermediate: [...], ...}}
+  const tableData = {};
+  levels.forEach((lvl, idx) => {
+    const arr = responses[idx];
+    // 对每个 category 只取 mentions 前3的 technology
+    const grouped = {};
+    arr.forEach(item => {
+      const cat  = item.category   ?? item.Category;
+      const tech = item.technology ?? item.Technology;
+      const ment = item.mentions   ?? item.Mentions;
+      if (!grouped[cat]) grouped[cat] = [];
+      const perc = item.percentage ?? item.Percentage;
+      grouped[cat].push({ tech, ment, perc });
+
+    });
+    // 只保留 mentions 前3
+    Object.entries(grouped).forEach(([cat, arr2]) => {
+      const top3 = arr2
+      .sort((a, b) => b.ment - a.ment)
+      .slice(0, 3)
+      .map(x => `${capitalize(x.tech)} (${(x.perc * 100).toFixed(2)}%)`);
+      if (!tableData[cat]) tableData[cat] = {};
+      tableData[cat][lvl.key] = top3;
+    });
+  });
+
+  // 按照固定顺序展示
+  const categoryOrder = [
+    "Frontend","Backend","Coding Methods","Cloud Platforms",
+    "DevOps Tools","Database","AI","Other"
+  ];
+
+  // 生成表格 HTML
+  let html = `
+    <thead class="bg-blue-500 text-white font-semibold">
+      <tr>
+        <th class="px-4 py-2">Tech Stack</th>
+         ${levels.map(l => {
+            const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
+            return `<th class="px-4 py-2 text-lg text-left">${l.label} <span class="text-sm text-white"><br>(${count} jobs)</span></th>`;
+          }).join("")}
+      </tr>
+    </thead>
+    <tbody class="text-gray-800">
+  `;
+  categoryOrder.forEach(cat => {
+    html += `<tr class="border-t border-gray-300">
+      <td class="px-8 py-2">${cat}</td>
+      ${levels.map(lvl => {
+        const arr = tableData[cat]?.[lvl.key] || [];
+        const displayArr = arr.map((val, idx) => 
+          idx === 0 
+            ? `<span class="font-bold text-gray-700">👉${capitalize(val)}</span>`
+            : capitalize(val)
+        );
+        return `<td class="px-4 py-2 text-left">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;
+      }).join("")}
+    </tr>`;
+  });
+  html += `</tbody>`;
+
+  // 渲染到你的 table 元素
+  document.getElementById('topTechStackTable').innerHTML = html;
+}
+
+
+function capitalize(str) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
