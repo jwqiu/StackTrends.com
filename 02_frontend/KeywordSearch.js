@@ -325,4 +325,21 @@ function renderJobDescription(job, keyword) {
     );
     container.insertAdjacentHTML('beforeend', highlighted);
   });
+
+  if (job.jobUrl) {
+    const linkWrapper = document.createElement('p');
+    linkWrapper.className = 'mt-4 text-left';
+    linkWrapper.innerHTML = `
+      <a 
+        href="${job.jobUrl}" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="text-blue-500 hover:underline"
+      >
+        View Full Job Posting
+      </a>
+    `;
+    container.appendChild(linkWrapper);
+  }
+
 }
