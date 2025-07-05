@@ -244,7 +244,8 @@ public class JobController : ControllerBase
                 sub_id,
                 sub_name,
                 listed_date,
-                location
+                location,
+                job_des_origin
             FROM jobs
             WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
             ORDER BY listed_date DESC NULLS LAST
@@ -263,7 +264,7 @@ public class JobController : ControllerBase
                 CompanyId = reader["company_id"] as int?,
                 CompanyName = reader["company_name"]?.ToString(),
                 JobUrl = reader["job_url"]?.ToString(),
-                JobDescription = reader["job_des"]?.ToString(),
+                JobDescription = reader["job_des_origin"]?.ToString(),
                 SubId = reader["sub_id"] as int?,
                 SubName = reader["sub_name"]?.ToString(),
                 ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"]),

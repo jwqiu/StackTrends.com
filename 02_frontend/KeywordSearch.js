@@ -212,37 +212,63 @@ function renderMentionRateRow(data) {
     }
   }
 
-  function showMoreJobs() {
-    const container = document.getElementById('jobListContainer');
-    const start = displayCount;
-    const end = Math.min(displayCount + PAGE_SIZE, matchedJobs.length);
+function showMoreJobs() {
+  const container   = document.getElementById('jobListContainer');
+  const PAGE_SIZE   = 20;
+  const defaultBg   = 'bg-gray-100';
+  const selectedBg  = 'bg-blue-100';
+  const start       = displayCount;
+  const end         = Math.min(start + PAGE_SIZE, matchedJobs.length);
 
-    for (let i = start; i < end; i++) {
-      const job = matchedJobs[i];
-      const div = document.createElement('div');
-      div.className = 'flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow';
+  for (let i = start; i < end; i++) {
+    const job = matchedJobs[i];
+    const div = document.createElement('div');
 
-      const title = document.createElement('p');
-      title.textContent = job.jobTitle;
+    // 1) 一次性添加所有共用类
+    div.classList.add(
+      'job-row',                  // 标记行
+      'flex','justify-between','items-center',
+      'p-4','rounded-lg','shadow',
+      defaultBg                   // 默认背景
+    );
 
-      const info = document.createElement('div');
-      info.innerHTML = `
-        <p class="text-gray-400 text-sm text-nowrap">Posted on</p>
-        <p class="text-gray-500">#${job.listedDate 
-                ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
-                : 'N/A'}</p>
-      `;
+    // 标题
+    const title = document.createElement('p');
+    title.textContent = job.jobTitle;
+    // 时间
+    const info = document.createElement('div');
+    info.innerHTML = `
+      <p class="text-gray-400 text-sm text-nowrap">Posted on</p>
+      <p class="text-gray-500">#${
+        job.listedDate
+          ? new Date(job.listedDate).toLocaleDateString('en-NZ')
+          : 'N/A'
+      }</p>
+    `;
 
-      div.appendChild(title);
-      div.appendChild(info);
-      container.appendChild(div);
-    }
+    div.append(title, info);
+    container.appendChild(div);
 
-    displayCount = end;
-    // 控制 Load More 按钮显隐
-    document.getElementById('load-more-btn').style.display =
-      displayCount < matchedJobs.length ? 'block' : 'none';
+    // 点击切换高亮
+    div.addEventListener('click', () => {
+      // 先把所有行恢复成灰色
+      container.querySelectorAll('.job-row').forEach(el => {
+        el.classList.replace(selectedBg, defaultBg);
+      });
+      // 再把当前行变成蓝色
+      div.classList.replace(defaultBg, selectedBg);
+
+      // 渲染详情
+      const kw = document.getElementById('keywordInput').value.trim();
+      renderJobDescription(job, kw);
+    });
   }
+
+  displayCount = end;
+  document.getElementById('load-more-btn').style.display =
+    displayCount < matchedJobs.length ? 'block' : 'none';
+}
+
 
   // 绑定 Load More
   document.getElementById('load-more-btn')
@@ -251,3 +277,52 @@ function renderMentionRateRow(data) {
   // 绑定 Search
   document.getElementById('searchButton')
     .addEventListener('click', renderMatchingJobList);
+
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderJobDescription(job, keyword) {
+  const container = document.getElementById('jobDescriptionContainer');
+  container.innerHTML = '';
+
+  // 1. 把后端返回的 HTML 字符串解析成 document
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(job.jobDescription || '', 'text/html');
+
+  // 2. 拿到所有的 <p> 和 <li> 节点
+  const nodes = Array.from(doc.querySelectorAll('p, li'));
+
+  // 3. 定义正则（不带 g，否则 test 会乱序；带 i 忽略大小写）
+  const re = new RegExp(`(${escapeRegExp(keyword)})`, 'i');
+
+  // 4. 找出所有包含关键字的节点索引
+  const matches = nodes
+    .map((node, i) => re.test(node.textContent) ? i : -1)
+    .filter(i => i >= 0);
+
+  if (matches.length === 0) {
+    container.textContent = 'No matching snippet.';
+    return;
+  }
+
+  // 5. 收集需要显示的索引（包含匹配前后各一段落）
+  const indices = new Set();
+  matches.forEach(i => {
+    for (let d = -1; d <= 1; d++) {
+      const j = i + d;
+      if (j >= 0 && j < nodes.length) indices.add(j);
+    }
+  });
+
+  // 6. 按索引顺序渲染，每段保留原 HTML 结构并高亮关键字
+  Array.from(indices).sort((a, b) => a - b).forEach(i => {
+    const html = nodes[i].outerHTML;
+    const highlighted = html.replace(
+      new RegExp(`(${escapeRegExp(keyword)})`, 'gi'),
+      '<span class="text-red-500">$1</span>'
+    );
+    container.insertAdjacentHTML('beforeend', highlighted);
+  });
+}

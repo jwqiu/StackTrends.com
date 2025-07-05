@@ -104,9 +104,10 @@
                 <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
             </div>
 
-            <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[400px] sticky top-4 self-start ">
-                <p>Specific Job Description about this Keyword</p>
-                <div class="bg-gray-100 w-full rounded-lg shadow-lg h-[300px]">
+            <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px] sticky top-4 self-start ">
+                <p class="text-xl font-bold">Keyword-Relevant Job Description</p>
+                <div class="bg-gray-100 w-full rounded-lg shadow-lg max-h-[800px] overflow-y-auto p-4" id="jobDescriptionContainer">
+                    <p class="text-gray-500 p-4">This is a placeholder for the job description. It will be populated with the actual job description when a job is selected.</p>
                 </div>
             
             </div>
