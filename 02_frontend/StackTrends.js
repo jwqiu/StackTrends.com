@@ -718,7 +718,7 @@ async function renderTopTechStackTableByLevel() {
 
   // 生成表格 HTML
   let html = `
-    <thead class="bg-blue-500 text-white font-semibold">
+    <thead class="bg-blue-400 text-white font-semibold">
       <tr>
         <th class="px-4 py-2">Tech Stack</th>
          ${levels.map(l => {
