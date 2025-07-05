@@ -723,7 +723,7 @@ async function renderTopTechStackTableByLevel() {
         <th class="px-4 py-2">Tech Stack</th>
          ${levels.map(l => {
             const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
-            return `<th class="px-4 py-2 text-lg text-left">${l.label} <span class="text-sm text-white"><br>(${count} jobs)</span></th>`;
+            return `<th class="px-4 py-2 text-lg text-center">${l.label} <span class="text-sm text-white"><br>(${count} jobs)</span></th>`;
           }).join("")}
       </tr>
     </thead>
@@ -739,7 +739,7 @@ async function renderTopTechStackTableByLevel() {
             ? `<span class="font-bold text-gray-700">👉${capitalize(val)}</span>`
             : capitalize(val)
         );
-        return `<td class="px-4 py-2 text-left">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;
+        return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;
       }).join("")}
     </tr>`;
   });

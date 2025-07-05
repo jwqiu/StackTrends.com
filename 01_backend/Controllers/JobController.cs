@@ -34,7 +34,7 @@ public class JobController : ControllerBase
     public async Task<IActionResult> GetAllJobs(
         int page = 1,
         int size = 20,
-        string? job_level = null, 
+        string? job_level = null,
         [FromQuery] List<string>? keywords = null
     )
 
@@ -46,7 +46,7 @@ public class JobController : ControllerBase
         var whereConditions = new List<string>();
         if (!string.IsNullOrEmpty(job_level))
             whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
-        
+
         if (keywords != null && keywords.Count > 0)
         {
             var keywordConds = keywords
@@ -66,7 +66,7 @@ public class JobController : ControllerBase
         {
             var cases = keywords
             .Where(k => !string.IsNullOrWhiteSpace(k))
-                .Select((k, i) => 
+                .Select((k, i) =>
                     $"CASE WHEN LOWER(tech_tags) LIKE LOWER(@kw{i}) THEN 1 ELSE 0 END")
                 .ToList();
             matchExpr = string.Join(" + ", cases);
@@ -223,4 +223,57 @@ public class JobController : ControllerBase
         await _conn.CloseAsync();
         return Ok(list);
     }
+    [HttpGet("search/by-keyword")]
+    public async Task<ActionResult<List<Job>>> SearchJobsByKeyword([FromQuery] string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+            return BadRequest("Keyword is required.");
+
+        await _conn.OpenAsync();
+
+        var jobs = new List<Job>();
+
+        const string sql = @"
+            SELECT 
+                job_id, 
+                job_title,
+                company_id,
+                company_name,
+                job_url,
+                job_des,
+                sub_id,
+                sub_name,
+                listed_date,
+                location
+            FROM jobs
+            WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
+            ORDER BY listed_date DESC NULLS LAST
+            ;";  // 可选，限制返回数量
+
+        await using var cmd = new NpgsqlCommand(sql, _conn);
+        cmd.Parameters.AddWithValue("kw", keyword);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            jobs.Add(new Job
+            {
+                JobId = Convert.ToInt32(reader["job_id"]),
+                JobTitle = reader["job_title"].ToString() ?? "",
+                CompanyId = reader["company_id"] as int?,
+                CompanyName = reader["company_name"]?.ToString(),
+                JobUrl = reader["job_url"]?.ToString(),
+                JobDescription = reader["job_des"]?.ToString(),
+                SubId = reader["sub_id"] as int?,
+                SubName = reader["sub_name"]?.ToString(),
+                ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"]),
+                JobLocation = reader["location"]?.ToString(),
+                RequiredStacks = null // 如果你之后想支持 JSON 数组再处理
+            });
+        }
+
+        await _conn.CloseAsync();
+        return Ok(jobs);
+    }
+
 }

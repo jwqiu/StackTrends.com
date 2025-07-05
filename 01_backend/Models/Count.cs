@@ -15,7 +15,7 @@ namespace StackTrends.Models
         public int Mentions { get; set; }
         public double Percentage { get; set; }
     }
-    
+
     // public class TechStackByLevel
     // {
     //     public string Level { get; set; }        // e.g. "Senior"
@@ -24,4 +24,19 @@ namespace StackTrends.Models
     //     public int Mentions { get; set; }        // 该等级该类别该技术栈被提及次数
     //     public double Percentage { get; set; }   // Mentions / 该等级总职位数 * 100
     // }
+    public class KeywordMatchResult
+    {
+        public int TotalJobs { get; set; }
+        public int TotalMatches { get; set; }
+        public double OverallPercentage { get; set; }
+        public List<LevelMatch> LevelBreakdown { get; set; } = new();
+    }
+
+    public class LevelMatch
+    {
+        public string Level { get; set; } = "";
+        public int MatchCount { get; set; }
+        public double Percentage { get; set; }
+    }
+
 }

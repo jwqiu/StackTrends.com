@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>StackRadar</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100">
+        <nav class="bg-white shadow p-4 shadow-lg flex justify-between items-center">
+            <div class="flex items-start flex-col">
+                <div class="flex items-center gap-x-1 ms-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                    </svg>
+                    <div class="text-xl font-bold text-blue-600">StackRadar</div>
+                </div>
+                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech from <span class="font-bold text-gray-500">Real Job Data</span></p>
+            </div>
+            
+            <div class="flex items-center gap-x-6 xl:gap-x-8 me-8">
+                <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
+                <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
+                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Management</a>
+                <a href="TrackedKeywords.html" class=" text-gray-400">Tracked Keywords</a>
+
+                <div class="flex flex-col items-center">
+                    <a href="KeywordSearch.html" class="text-blue-500">Search</a>
+                    <div class="w-20 h-0.5 bg-blue-500 mt-1 rounded"></div>
+                </div>
+
+            </div>
+        </nav>
+        <div class="flex gap-x-8 mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
+            <div class="w-full text-center bg-white rounded-lg shadow-lg">
+                <input id="keywordInput" type="text" placeholder="Search for keywords..." class="border border-gray-300 p-2 rounded-lg w-full">
+            </div>
+            <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
+        </div>
+        <div class="container mx-auto flex flex-col lg:flex-row  gap-x-8 rounded-lg shadow-lg mt-8 p-8 bg-white items-center ">
+            <div>
+                <p class="text-sm text-gray-400">Results for</p>
+                <p id="searchKeyword" class="text-5xl mb-6 lg:mb-0 mt-0">Python</p>
+            </div>
+            <table class="w-[87.5%] lg:w-full text-sm text-center">
+                <thead class=" text-gray-500 font-semibold">
+                    <tr class="">
+                        <th class="px-4 py-2">#</th>
+                        <th class="px-4 py-2">ALL Jobs(xx)</th>
+                        <th class="px-4 py-2">🧑‍🎓Junior&Graduate(xx)</th>
+                        <th class="px-4 py-2">👨‍💻Intermediate(xx)</th>
+                        <th class="px-4 py-2">👨‍💼Senior(xx)</th>
+                    </tr>
+                </thead>
+                <tbody class=" text-gray-800">
+                    <tr id="matchCountRow" class=" border-gray-300">
+                        <td class="px-4 py-2">Match Count</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                    </tr>
+                    <tr id="mentionRateRow" class=" border-gray-300">
+                        <td class="px-4 py-2">Mention Rate</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                        <td class="px-4 py-2">#</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="container mx-auto mt-8 gap-x-8  grid  grid-cols-2  ">
+            <div class="bg-white rounded-lg shadow-lg p-8  ">
+                <h1 class="text-xl font-bold ">Matching Job List</h1>
+                <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
+    
+                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                        <p>Job Title 1</p>
+                        <div>
+                            <p class="text-gray-400 text-sm">Posted on</p>
+                            <p class="text-gray-500">#2023-01-01</p>
+                        </div>
+                        
+                    </div>
+
+                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                        <p>Job Title 2</p>
+                        <div>
+                            <p class="text-gray-400 text-sm">Posted on</p>
+                            <p class="text-gray-500">#2023-01-02</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                        <p>Job Title 3</p>
+                        <div>
+                            <p class="text-gray-400 text-sm">Posted on</p>
+                            <p class="text-gray-500">#2023-01-03</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
+            </div>
+
+            <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[400px] sticky top-4 self-start ">
+                <p>Specific Job Description about this Keyword</p>
+                <div class="bg-gray-100 w-full rounded-lg shadow-lg h-[300px]">
+                </div>
+            
+            </div>
+
+        </div>
+
+
+        <script src="config.js"></script>
+        <script src="./KeywordSearch.js"></script>
+    </body>
+</html>

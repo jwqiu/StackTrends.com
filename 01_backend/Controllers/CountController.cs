@@ -110,7 +110,7 @@ namespace StackTrends.Controllers
             await _conn.CloseAsync();
             return counts;
         }
-        
+
         // [HttpGet("tech-stacks-by-experience")]
         // public async Task<IEnumerable<TechStackCount>> GetTechStacksByExperience()
         // {
@@ -154,6 +154,101 @@ namespace StackTrends.Controllers
 
         //     return list;
         // }
+
+        [HttpGet("match/keyword")]
+        public async Task<IActionResult> GetKeywordMatchStats([FromQuery] string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return BadRequest("Keyword is required.");
+
+            await _conn.OpenAsync();
+
+            var result = new KeywordMatchResult
+            {
+                TotalMatches = 0,
+                TotalJobs = 0,
+                OverallPercentage = 0.0,
+                LevelBreakdown = new List<LevelMatch>()
+            };
+
+            const string totalCountSql = @"SELECT COUNT(*) FROM jobs;";
+            const string totalMatchSql = @"
+                SELECT COUNT(*) 
+                FROM jobs 
+                WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)";
+            const string levelBreakdownSql = @"
+            SELECT job_level, COUNT(*) AS MatchCount
+            FROM jobs
+            WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
+            GROUP BY job_level
+            ORDER BY
+                CASE job_level
+                    WHEN 'Senior' THEN 1
+                    WHEN 'Intermediate' THEN 2
+                    WHEN 'Junior' THEN 3
+                    ELSE 4
+                END;";
+            const string levelTotalSql = @"
+            SELECT job_level, COUNT(*) AS TotalCount
+            FROM jobs
+            GROUP BY job_level;";
+
+
+            // 查询总 job 数量
+            await using (var cmd = new NpgsqlCommand(totalCountSql, _conn))
+            {
+                result.TotalJobs = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            }
+
+            // 查询匹配的总数量
+            await using (var cmd = new NpgsqlCommand(totalMatchSql, _conn))
+            {
+                cmd.Parameters.AddWithValue("kw", keyword);
+                result.TotalMatches = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            }
+
+            result.OverallPercentage = result.TotalJobs > 0
+                ? Math.Round(result.TotalMatches * 100.0 / result.TotalJobs, 2)
+                : 0.0;
+
+            // 查询各等级总数
+            var levelTotalDict = new Dictionary<string, int>();
+            await using (var cmd = new NpgsqlCommand(levelTotalSql, _conn))
+            {
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var level = reader["job_level"].ToString();
+                    var total = Convert.ToInt32(reader["TotalCount"]);
+                    levelTotalDict[level] = total;
+                }
+            }
+
+            // 查询各等级匹配数量
+            await using (var cmd = new NpgsqlCommand(levelBreakdownSql, _conn))
+            {
+                cmd.Parameters.AddWithValue("kw", keyword);
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var level = reader["job_level"].ToString();
+                    var matchCount = Convert.ToInt32(reader["MatchCount"]);
+                    var percentage = levelTotalDict.ContainsKey(level) && levelTotalDict[level] > 0
+                        ? Math.Round(matchCount * 100.0 / levelTotalDict[level], 2)
+                        : 0.0;
+
+                    result.LevelBreakdown.Add(new LevelMatch
+                    {
+                        Level = level,
+                        MatchCount = matchCount,
+                        Percentage = percentage
+                    });
+                }
+            }
+
+            await _conn.CloseAsync();
+            return Ok(result);
+        }
 
 
     };
