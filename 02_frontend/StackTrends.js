@@ -344,7 +344,7 @@ function renderCategoryTags(data) {
   categoryOrder.forEach(cat => {
     const techList = (grouped[cat] || [])
       .sort((a, b) => (b.mentions ?? b.Mentions) - (a.mentions ?? a.Mentions))
-      .slice(0, 4); // 可调整显示数量
+      .slice(0, 5); // 可调整显示数量
 
     // 找到前端对应的div
     const container = document.getElementById(cat);
@@ -358,7 +358,7 @@ function renderCategoryTags(data) {
       'bg-blue-300', // 0.20 - 0.15
       'bg-blue-200', // 0.15 - 0.10
       'bg-blue-100', // 0.10 - 0.05
-      'bg-gray-200'  // < 0.05
+      'bg-gray-100'  // < 0.05
     ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
@@ -389,12 +389,12 @@ function renderCategoryTags(data) {
       if (percentageRaw >= 0.1) {
         textClass = 'text-white font-semibold';
       } else {
-        textClass = 'text-gray-600';
+        textClass = 'text-gray-500';
       }
       html += `
         <div class="aspect-square w-full flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
-          <span class="block text-center w-full line-clamp-2" title="${name}">${name}</span>
-          <div class="text-xs mt-1">${percentage}</div>
+          <span class="block text-center w-full line-clamp-2 text-lg xl:text-md" title="${name}">${name}</span>
+          <div class="text-md lg:text-sm mt-1">${percentage}</div>
         </div>
       `;
     });

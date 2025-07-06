@@ -185,32 +185,45 @@ function renderMentionRateRow(data) {
 //   }
 // }
 
- let matchedJobs = [];
-  let displayCount = 0;
-  const PAGE_SIZE = 20;
+let matchedJobs = [];
+let displayCount = 0;
+const PAGE_SIZE = 20;
 
-  async function renderMatchingJobList() {
+async function renderMatchingJobList() {
     const keywordInput = document.getElementById('keywordInput');
     const keyword = keywordInput?.value.trim();
     if (!keyword) return;
 
     const url = `${window.API_BASE || ''}/api/job/search/by-keyword?keyword=${encodeURIComponent(keyword)}`;
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch matching jobs');
-      matchedJobs = await res.json();
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch matching jobs');
+        matchedJobs = await res.json();
 
-      // 重置计数与容器
-      displayCount = 0;
-      const container = document.getElementById('jobListContainer');
-      container.innerHTML = '';
+        // 重置计数与容器
+        displayCount = 0;
+        const container = document.getElementById('jobListContainer');
+        container.innerHTML = '';
 
-      // 立刻显示第一页
-      showMoreJobs();
+        if (matchedJobs.length === 0) {
+            container.innerHTML = `<p class="text-gray-500">No matching jobs found.</p>`;
+            document.getElementById('load-more-btn').style.display ='none';
+            const jobDescriptionContainer = document.getElementById('jobDescriptionContainer');
+            jobDescriptionContainer.innerHTML = 'This area will be populated with the actual job description relevant to your keyword when a job is selected.'; // 清空详情容器
+            jobDescriptionContainer.classList.add('text-gray-500', 'text-start', 'p-8');
+            return;
+        }
+        // 立刻显示第一页
+        showMoreJobs();
+        
+        const jobDescriptionContainer = document.getElementById('jobDescriptionContainer');
+          jobDescriptionContainer.innerHTML = 'This area will be populated with the actual job description relevant to your keyword when a job is selected.'; // 清空详情容器
+          jobDescriptionContainer.classList.add('text-gray-500', 'text-start', 'p-8');
+
     } catch (err) {
-      console.error('Error loading matching jobs:', err);
+        console.error('Error loading matching jobs:', err);
     }
-  }
+}
 
 function showMoreJobs() {
   const container   = document.getElementById('jobListContainer');
@@ -284,6 +297,8 @@ function escapeRegExp(str) {
 }
 
 function renderJobDescription(job, keyword) {
+  console.log('Keyword:', keyword);
+  console.log('Full jobDescription:', job.jobDescription);
   const container = document.getElementById('jobDescriptionContainer');
   container.innerHTML = '';
 
@@ -336,7 +351,7 @@ function renderJobDescription(job, keyword) {
         rel="noopener noreferrer" 
         class="text-blue-500 hover:underline"
       >
-        View Full Job Posting
+        View This Job Posting
       </a>
     `;
     container.appendChild(linkWrapper);

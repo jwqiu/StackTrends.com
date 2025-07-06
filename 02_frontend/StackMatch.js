@@ -37,7 +37,7 @@ function highlightStacksHtml(stacks, selected) {
   return [
     ...matched.map(s => `<span class="text-red-500">${capitalize(s)}</span>`),
     ...unmatched.map(s => `<span>${capitalize(s)}</span>`)
-  ].join(', ') || 'N/A';
+  ].join(' , ') || 'N/A';
 }
 
 // function highlightMatchingStacks(){

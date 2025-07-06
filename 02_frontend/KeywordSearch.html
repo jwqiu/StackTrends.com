@@ -15,14 +15,14 @@
                     </svg>
                     <div class="text-xl font-bold text-blue-600">StackRadar</div>
                 </div>
-                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech from <span class="font-bold text-gray-500">Real Job Data</span></p>
+                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
             </div>
             
             <div class="flex items-center gap-x-6 xl:gap-x-8 me-8">
                 <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
                 <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
                 <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Management</a>
-                <a href="TrackedKeywords.html" class=" text-gray-400">Tracked Keywords</a>
+                <a href="TrackedKeywords.html" class=" text-gray-400">Keywords</a>
 
                 <div class="flex flex-col items-center">
                     <a href="KeywordSearch.html" class="text-blue-500">Search</a>
@@ -31,12 +31,18 @@
 
             </div>
         </nav>
-        <div class="flex gap-x-8 mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
-            <div class="w-full text-center bg-white rounded-lg shadow-lg">
-                <input id="keywordInput" type="text" placeholder="Search for keywords..." class="border border-gray-300 p-2 rounded-lg w-full">
+        <div class="flex flex-col  mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
+            <div class="flex gap-x-8 mb-3" >   
+                 <div class="w-full text-center bg-white rounded-lg shadow-lg">
+                    <input id="keywordInput" type="text" placeholder="Search for keywords..." class="border border-gray-300 p-2 rounded-lg w-full">
+                </div>
+                <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
             </div>
-            <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
+
+            <p class="text-sm text-gray-500">⚠️ Please note: if your keyword contains special characters, they may be ignored in the search, and results may not be fully accurate.</p>
+
         </div>
+
         <div class="container mx-auto flex flex-col lg:flex-row  gap-x-8 rounded-lg shadow-lg mt-8 p-8 bg-white items-center ">
             <div>
                 <p class="text-sm text-gray-400">Results for</p>
@@ -73,10 +79,10 @@
         </div>
         <div class="container mx-auto mt-8 gap-x-8  grid  grid-cols-2  ">
             <div class="bg-white rounded-lg shadow-lg p-8  ">
-                <h1 class="text-xl font-bold ">Matching Job List</h1>
+                <h1 class="text-xl font-bold ">💼 Matching Job List</h1>
                 <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
     
-                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                    <!-- <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
                         <p>Job Title 1</p>
                         <div>
                             <p class="text-gray-400 text-sm">Posted on</p>
@@ -99,16 +105,16 @@
                             <p class="text-gray-400 text-sm">Posted on</p>
                             <p class="text-gray-500">#2023-01-03</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
             </div>
 
             <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px]  sticky top-4 self-start ">
-                <p class="text-xl font-bold">Keyword-Relevant Job Description</p>
+                <p class="text-xl font-bold">💬 How this tech stack is requested in job ads</p>
 
                 <div class="bg-gray-100 w-full rounded-lg shadow-lg max-h-[800px] overflow-y-auto p-4" id="jobDescriptionContainer">
-                    <p class="text-gray-500 p-4">This is a placeholder for the job description. It will be populated with the actual job description when a job is selected.</p>
+                    <p class="text-gray-500 p-4">This area will be populated with the actual job description relevant to your keyword when a job is selected.</p>
                 </div>
 
             </div>
