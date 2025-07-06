@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>StackRadar</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100">
+        <nav class="bg-white shadow p-4 shadow-lg flex justify-between items-center">
+            <div class="flex items-start flex-col">
+                <div class="flex items-center gap-x-1 ms-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                    </svg>
+                    <div class="text-xl font-bold text-blue-600">StackRadar</div>
+                </div>
+                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
+            </div>
+            
+            <div class="flex items-center gap-x-6 xl:gap-x-8 me-8">
+                <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
+                <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
+                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Management</a>
+                <a href="TrackedKeywords.html" class="text-sm text-gray-400">Keywords</a>
+                <a href="KeywordSearch.html" class="text-sm text-gray-400">Search</a>
+
+                <div class="flex flex-col items-center">
+                    <a href="About.html" class="text-blue-500 ">About</a>
+                    <div class="w-16 h-0.5 bg-blue-500 mt-1 rounded"></div>
+                </div>
+            </div>
+        </nav>
+        <div class="flex flex-row gap-x-8 mt-8 mb-8 container mx-auto">
+            <div class="w-1/4 flex flex-col gap-y-4 bg-white p-8 rounded-lg shadow-lg article-list">
+                <p class="text-lg text-gray-600">✍️ Article List</p>
+                <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer" data-id="StackRadar">
+                    <p class="text-md font-bold">About StackRadar</p>
+                    <p class="text-sm text-gray-400">Last updated: 2025/03/01</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer" data-id="Author">
+                    <p class="text-md font-bold">About Author</p>
+                    <p class="text-sm text-gray-400">Last updated: 2025/03/01</p>
+                </div>
+            </div>
+            <div class="w-3/4 bg-white p-8 rounded-lg shadow-lg article-content">
+                <div class=" flex flex-col gap-y-4" data-id="StackRadar">
+                    <p class="text-5xl font-bold">About StackRadar</p>
+                    <p class="text-md text-gray-400">Last updated: 2025/03/01</p>
+                    <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
+                        <p class="text-md text-gray-600">Article Content</p>
+                    </div>
+                </div>
+                <div class=" flex flex-col gap-y-4" style="display: none;" data-id="Author">
+                    <p class="text-5xl font-bold">About Author</p>
+                    <p class="text-md text-gray-400">Last updated: 2025/03/01</p>
+                    <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
+                        <p class="text-md text-gray-600">Article Content</p>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+        
+        <script src="config.js"></script>
+        <script src="./About.js"></script>
+    </body>
+</html>
