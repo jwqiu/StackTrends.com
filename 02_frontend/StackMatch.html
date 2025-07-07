@@ -15,7 +15,7 @@
                     </svg>
                     <div class="text-xl font-bold text-blue-600">StackRadar</div>
                 </div>
-                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
+                <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand Tech Skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
             </div>
             <button id="menu-toggle" class="lg:hidden text-gray-600 me-4 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
@@ -102,7 +102,18 @@
 
                 </div>
                 <button class="apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Apply Filters</button>
-                <p style="display:none">🔍 <span id="results-count" class="font-bold text-blue-500" >#</span> Results matching your Tech Stacks and Level</p>
+                <div>   
+                    <p style="display:none" class="mb-3">🔍 <span id="results-count" class="font-bold  text-blue-500" >#</span> Results matching your Tech Stack and Level</p>
+                    <p class="text-gray-600">📧 Want email alerts about the latest jobs that match your skills and level? — 
+                        <a href="#" onclick="openModal()"
+                        class="text-blue-600 underline hover:text-blue-800 hover:underline transition duration-150 ease-in-out">
+                        Click here
+                        </a>
+                    </p>
+                </div>
+
+                
+                
 
                 <!-- <div class="p-8 rounded-lg shadow-lg bg-white">
                     <h1 class="font-bold text-xl">Top Tech Stacks by Category</h1>
@@ -160,6 +171,16 @@
                     Load More
                 </button>
                   
+            </div>
+        </div>
+
+        <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white p-6 rounded-2xl shadow-lg max-w-md w-full text-start">
+                <p class="text-gray-800 text-lg font-bold mb-4">Thanks for your TRUST! 🤝</p>
+                <p class="text-gray-800 text-lg mb-4">But this feature is still in the oven — stay tuned! 🍞😜</p>
+                <button onclick="closeModal()" class="bg-blue-600 text-white  px-4 py-2 rounded hover:bg-blue-700">
+                Close
+                </button>
             </div>
         </div>
     <script src="config.js"></script>

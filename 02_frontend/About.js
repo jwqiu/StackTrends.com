@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add("bg-blue-100");
 
     });
+
+    articleButtons[0].click(); // 默认点击第一个按钮
+
   });
 });
 

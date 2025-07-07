@@ -333,3 +333,11 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.classList.toggle("hidden");
   });
 });
+
+function openModal() {
+  document.getElementById('customModal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('customModal').classList.add('hidden');
+}
