@@ -352,13 +352,13 @@ function renderCategoryTags(data) {
 
     let html = "";
     const bgArr = [
-      'bg-blue-600', // ≥ 0.30
-      'bg-blue-500', // 0.30 - 0.25
-      'bg-blue-400', // 0.25 - 0.20
-      'bg-blue-300', // 0.20 - 0.15
-      'bg-blue-200', // 0.15 - 0.10
-      'bg-blue-100', // 0.10 - 0.05
-      'bg-gray-100'  // < 0.05
+      'bg-blue-700', // ≥ 0.30
+      'bg-blue-600', // 0.30 - 0.25
+      'bg-blue-500', // 0.25 - 0.20
+      'bg-blue-400', // 0.20 - 0.15
+      'bg-blue-300', // 0.15 - 0.10
+      'bg-blue-200', // 0.10 - 0.05
+      'bg-gray-200'  // < 0.05
     ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
@@ -380,20 +380,20 @@ function renderCategoryTags(data) {
       } else if (percentageRaw >= 0.05) {
         bgClass = bgArr[5];
       } else {
-        bgClass = bgArr[6];
+        bgClass = bgArr[6] + ' border border-gray-200'; // 最后一个灰色背景加边框
       }
 
       let textClass = '';
       // const bgClass = bgArr[idx % bgArr.length];
       // const textClass = idx < 3 ? 'text-gray-700' : 'text-gray-500';
-      if (percentageRaw >= 0.1) {
+      if (percentageRaw >= 0.05) {
         textClass = 'text-white font-semibold';
       } else {
-        textClass = 'text-gray-500';
+        textClass = 'text-gray-400';
       }
       html += `
-        <div class="aspect-square w-full flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
-          <span class="block text-center w-full line-clamp-2 text-lg xl:text-md" title="${name}">${name}</span>
+        <div class="aspect-square w-full rounded-lg opacity-80 shadow-lg flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
+          <span class="block text-center w-full line-clamp-2 text-lg xl:text-base" title="${name}">${name}</span>
           <div class="text-md lg:text-sm mt-1">${percentage}</div>
         </div>
       `;
@@ -718,19 +718,19 @@ async function renderTopTechStackTableByLevel() {
 
   // 生成表格 HTML
   let html = `
-    <thead class="bg-blue-400 text-white font-semibold">
+    <thead class="bg-gray-100 text-blue-600">
       <tr>
-        <th class="px-4 py-2">Tech Stack</th>
+        <th class="px-4 py-4">#</th>
          ${levels.map(l => {
             const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
-            return `<th class="px-4 py-2 text-lg text-center">${l.label} <span class="text-sm text-white"><br>(${count} jobs)</span></th>`;
+            return `<th class="px-4 py-4 text-lg text-center">${l.label} <span class="text-sm text-gray-400">(${count} jobs)</span></th>`;
           }).join("")}
       </tr>
     </thead>
     <tbody class="text-gray-800">
   `;
   categoryOrder.forEach(cat => {
-    html += `<tr class="border-t border-gray-300">
+    html += `<tr class="">
       <td class="px-8 py-2">${cat}</td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
@@ -754,3 +754,12 @@ function capitalize(str) {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+
+  toggleBtn.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
+  });
+});

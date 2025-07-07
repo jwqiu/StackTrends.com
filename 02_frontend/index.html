@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100">
-    <nav class="bg-white shadow p-4 shadow-lg flex justify-between items-center ">
+    <nav class="bg-white relative shadow p-4 shadow-lg flex justify-between items-center ">
       <div class="flex items-start flex-col">
         <div class="flex items-center gap-x-1 ms-8">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
@@ -17,10 +17,20 @@
         </div>
         <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
       </div>
-
-      
-      <div class="flex items-center gap-x-6 xl:gap-x-8 me-8">
-        <div class="flex flex-col items-center">
+      <button id="menu-toggle" class="lg:hidden text-gray-600 me-4 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <div id="menu" class="hidden 
+      absolute top-full left-0 w-full z-30
+      bg-white shadow-md p-8 border-t
+      flex flex-row gap-y-4 items-center justify-center
+      lg:static lg:flex lg:flex-row lg:me-8 lg:border-none
+      gap-x-6  lg:p-0 lg:shadow-none lg:w-auto
+      ">
+        <div class="md:flex flex-col ">
           <a href="index.html" class="text-blue-500 ">StackTrends</a>
           <div class="w-24 h-0.5 bg-blue-500 mt-1 rounded"></div>
         </div>
@@ -29,9 +39,9 @@
         <a href="TrackedKeywords.html" class="text-sm text-gray-400">Keywords</a>
         <a href="KeywordSearch.html" class="text-sm text-gray-400">Search</a>
         <a href="About.html" class="text-sm text-gray-400">About</a>
-
-
       </div>
+
+      
     </nav>
     <div class="p-8 mx-auto max-w-8xl">
       <!-- 第1个模块 -->
@@ -41,7 +51,7 @@
             <h1 class="text-xl font-bold mb-1">Most Mentioned Tech Stacks – Overall</h1>
             <p class="text-gray-400 text-sm mb-0 mt-1 lg:mt-0">📊 Based on <span class="text-blue-600 " id="job-count"># </span> collected since April 2025</p> 
           </div>
-          <div class="flex flex-col lg:flex-row lg:items-center xl:mt-0 mt-3" >
+          <div class="flex flex-col lg:flex-row lg:items-center xl:mt-0 mt-4" >
             <!-- <label for="" class="mt-0  text-sm text-gray-400 text-nowrap mb-0 me-2">Filter By Category :</label> -->
             <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0">
               <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
@@ -97,10 +107,18 @@
       <!-- 第2个模块 -->
       <div>
         <div class=" bg-white shadow-lg rounded-lg p-8 mb-8">
-          <div class="lg:flex lg:items-center lg:justify-between mb-0">
-            <h1 class="text-xl font-bold mb-0">Most Mentioned Tech Stacks – Top 5 in each Category</h1>
-            <p class="text-gray-400 text-sm mb-0 mt-1 lg:mt-0">📊 Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
+          <div class="flex flex-col mb-0 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-col gap-y-2 mb-0 ">
+              <h1 class="text-xl font-bold mb-0">Most Mentioned Tech Stacks – Top 5 in each Category</h1>
+              <p class="text-gray-400 text-sm mb-0 mt-1 lg:mt-0">📊 Based on <span class="text-blue-600  text-md" id="job-count-2"># </span> collected since April 2025</p> 
+            </div>
+            <div class="flex items-center gap-x-2 mt-4 lg:mt-0 text-sm text-gray-500">
+              <span>Less Mentioned</span>
+              <div class="w-40 h-3 bg-gradient-to-r from-blue-100 via-blue-400 to-blue-600 rounded-full shadow-inner"></div>
+              <span>More Mentioned</span>
+            </div>
           </div>
+          
           <div class="flex flex-col" style="display: none;">
             <label for="" class=" mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
             <div id="experienceLevel" class="flex flex-wrap gap-2"></div>

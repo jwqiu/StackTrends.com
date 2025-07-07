@@ -7,7 +7,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="bg-gray-100">
-        <nav class="bg-white shadow p-4 shadow-lg flex justify-between items-center">
+        <nav class="bg-white relative shadow p-4 shadow-lg flex justify-between items-center">
             <div class="flex items-start flex-col">
                 <div class="flex items-center gap-x-1 ms-8">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
@@ -17,8 +17,19 @@
                 </div>
                 <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand tech skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
             </div>
-
-            <div class="flex items-center gap-x-6 xl:gap-x-8 me-8">
+            <button id="menu-toggle" class="lg:hidden text-gray-600 me-4 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div id="menu" class="hidden 
+            absolute top-full left-0 w-full z-30
+            bg-white shadow-md p-8 border-t
+            flex flex-row gap-y-4 items-center justify-center
+            lg:static lg:flex lg:flex-row lg:me-8 lg:border-none
+            gap-x-6  lg:p-0 lg:shadow-none lg:w-auto
+            ">
                 <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
                 <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
                 <div class="flex flex-col items-center">

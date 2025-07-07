@@ -20,7 +20,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 给当前点击项加高亮
         button.classList.add("bg-blue-100");
-        
+
     });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+
+  toggleBtn.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
   });
 });
