@@ -1,6 +1,7 @@
 using Npgsql;
 using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -42,6 +43,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddCategory([FromBody] Category category)
     {
         // 校验
@@ -59,7 +61,7 @@ public class CategoryController : ControllerBase
                 INSERT INTO public.category (name, group_name)
                 VALUES (@name, @group_name)";
             await using var cmd = new NpgsqlCommand(sql, _conn);
-            cmd.Parameters.AddWithValue("name",  category.Name);
+            cmd.Parameters.AddWithValue("name", category.Name);
             cmd.Parameters.AddWithValue("group_name", category.GroupName);
             await cmd.ExecuteNonQueryAsync();
         }
@@ -72,6 +74,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteCategory(int id)
     {
         await _conn.OpenAsync();
@@ -95,6 +98,7 @@ public class CategoryController : ControllerBase
 
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category dto)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.Name))

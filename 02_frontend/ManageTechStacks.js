@@ -4,7 +4,7 @@ let allTechStacks = [];
 // ① 加载并渲染所有 tech stacks
 async function loadTechStacks() {
     try {
-        const res = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/all');
+        const res = await fetch(`${API_BASE}/api/TechStack/all`);
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         allTechStacks = await res.json();
         renderTechStacks();
@@ -51,9 +51,10 @@ async function submitTechStack() {
   }
 
   // 3. 发送 POST 请求
-  const res = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/add', {
+  const res = await fetch(`${API_BASE}/api/TechStack/add`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: "include",
     body: JSON.stringify({
       category,
       stackName: rawKeyword,
@@ -70,6 +71,8 @@ async function submitTechStack() {
       await loadTechStacks();
     }
     window.location.reload();
+  } else if (res.status === 401) {
+    document.getElementById("loginModal").classList.remove("hidden");
   } else {
     const errText = await res.text();
     alert('提交失败：' + errText);
@@ -80,8 +83,9 @@ async function deleteTechStack(id) {
   if (!confirm(`确定要删除 ID=${id} 的 TechStack 吗？`)) return;
 
   try {
-    const res = await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/delete/${id}`, {
-      method: 'DELETE'
+    const res = await fetch(`${API_BASE}/api/TechStack/delete/${id}`, {
+      method: 'DELETE',
+      credentials: "include"
     });
 
     if (res.ok) {
@@ -94,7 +98,9 @@ async function deleteTechStack(id) {
       }
     } else if (res.status === 404) {
       alert('未找到该记录，可能已被删除');
-    } else {
+    } else if (res.status === 401) {
+      document.getElementById("loginModal").classList.remove("hidden");
+  } else {
       const text = await res.text();
       alert(`删除失败：${res.status} ${text}`);
     }
@@ -152,12 +158,18 @@ async function editTechStack(id) {
     tr.querySelectorAll('[data-field]').forEach(el => {
       payload[el.dataset.field] = el.value.trim();
     });
-    await fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/TechStack/update/${id}`, {
+    const res = await fetch(`${API_BASE}/api/TechStack/update/${id}`, {
       method: 'PUT',
       headers: {'Content-Type':'application/json'},
+      credentials: "include",
       body: JSON.stringify(payload)
     });
-    loadTechStacks();
+    if (res.status === 401) {
+      document.getElementById("loginModal").classList.remove("hidden");
+    } else {
+      loadTechStacks();
+    }
+
   };
 
   // 点击 Cancel：直接重载列表，放弃修改
@@ -191,7 +203,8 @@ let allCategories = [];
 
 async function loadCategories() {
   try {
-    const res = await fetch(`${API_BASE}/api/category`);
+    const res = await fetch(`${API_BASE}/api/category`, {
+      method: 'GET',});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     // 假设后端返回的是 { id, name, groupName } 数组
     const categories = await res.json();
@@ -269,13 +282,19 @@ function setupAddCategoryForm() {
       const res = await fetch(`${window.API_BASE}/api/category`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+
         body: JSON.stringify({ name, groupName })
       });
 
+      if (res.status === 401) {
+        document.getElementById("loginModal").classList.remove("hidden");
+        return;
+      }
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`Error ${res.status}: ${text}`);
-      }
+      } 
 
       alert('Category added successfully.');
       inputName.value = '';
@@ -336,16 +355,25 @@ async function editCategory(id) {
       const res = await fetch(`${window.API_BASE}/api/category/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      // 成功后重新加载列表
-      loadCategories();
+      if (!res.ok) {
+        if (res.status === 401) {
+          document.getElementById("loginModal").classList.remove("hidden");
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } else {
+        // 成功后重新加载列表
+        loadCategories();
+      }
     } catch (err) {
       console.error('Update failed:', err);
       alert(`Update failed: ${err.message}`);
     }
-  };
+  }
 
   // 6. Cancel：还原到原始文本 + 恢复 Edit/Delete 按钮
   actionTd.querySelector('[data-action="cancel"]').onclick = () => {
@@ -365,13 +393,16 @@ async function deleteCategory(id) {
 
   try {
     const res = await fetch(`${API_BASE}/api/category/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: "include"
     });
     if (res.status === 204) {
       // 删除成功，刷新列表
       loadCategories();
     } else if (res.status === 404) {
       alert('Category not found!');
+    } else if (res.status === 401) {
+      document.getElementById("loginModal").classList.remove("hidden");
     } else {
       const errMsg = await res.text();
       alert('Delete failed: ' + errMsg);
@@ -426,3 +457,58 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.classList.toggle("hidden");
   });
 });
+
+// function closeLoginModal() {
+//   document.getElementById("loginModal").classList.add("hidden");
+// }
+
+function submitLoginForm() {
+  const form = document.getElementById("loginForm");
+  const formData = new FormData(form);
+
+  fetch(`${window.API_BASE}/api/account/login`, {
+    method: "POST",
+    credentials: "include",    // <— 加这一行
+    body: formData
+  })
+    .then(res => res.ok ? res.json() : Promise.reject("Unauthorized"))
+    .then(data => {
+      if (data.success) {
+        closeLoginModal();
+        sessionStorage.setItem('isAdmin', 'true');
+        sessionStorage.setItem('Username', formData.get('username'));
+        location.reload();
+      } else {
+        showLoginError();
+      }
+    })
+    .catch(err => {
+      console.error("Login failed:", err);
+      showLoginError();
+    });
+}
+
+function closeLoginModal() {
+  document.getElementById("loginModal").classList.add("hidden");
+  document.getElementById("loginError").classList.add("hidden");
+}
+
+function showLoginError() {
+  document.getElementById("loginError").classList.remove("hidden");
+}
+
+function renderNav() {
+  const isAdmin = sessionStorage.getItem('isAdmin');
+  if (!isAdmin) {
+    // 如果没有登录或不是管理员，直接返回
+    return;
+  }
+  else if (isAdmin === 'true') {
+
+    const adminTab = document.getElementById('adminTab');
+    // 普通按钮
+    adminTab.textContent = '🔐 Admin';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', renderNav);

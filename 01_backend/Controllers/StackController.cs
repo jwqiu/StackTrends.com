@@ -1,6 +1,7 @@
 using Npgsql;
 using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 [ApiController]
@@ -43,6 +44,7 @@ public class TechStackController : ControllerBase
     }
 
     [HttpPost("add")]
+    [Authorize]
     public async Task<IActionResult> AddTechStack([FromBody] TechStack stack)
     {
         await _conn.OpenAsync();
@@ -61,6 +63,7 @@ public class TechStackController : ControllerBase
     }
 
     [HttpDelete("delete/{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTechStack(int id)
     {
         await _conn.OpenAsync();
@@ -85,6 +88,7 @@ public class TechStackController : ControllerBase
     }
     
     [HttpPut("update/{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechStack stack)
     {
         await _conn.OpenAsync();

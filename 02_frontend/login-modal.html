@@ -1,0 +1,22 @@
+<div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white p-12 rounded shadow-lg w-full max-w-sm">
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-lg font-semibold mb-0">🔐 Admin Login</p>
+        <button onclick="closeLoginModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+    <form id="loginForm">   
+        <div class="flex flex-col gap-y-4 mb-6">
+            <input name="username" placeholder="Username" required class="border w-full px-3 py-2  rounded" />
+            <input name="password" type="password" placeholder="Password" required class="border w-full px-3 py-2 rounded" />
+        </div>
+        <button type="button" class="bg-blue-600 font-bold text-white px-4 py-2 rounded w-full" onclick="submitLoginForm()">Login</button>
+
+
+    </form>
+    <p id="loginError" class="text-red-400 mt-4 hidden">😓 Invalid Username or Password!</p>
+  </div>
+</div>

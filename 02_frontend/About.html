@@ -32,7 +32,6 @@
             ">
                 <a href="index.html" class="text-sm text-gray-400">StackTrends</a>
                 <a href="StackMatch.html" class="text-sm text-gray-400" >StackMatch</a>
-                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Management</a>
                 <a href="TrackedKeywords.html" class="text-sm text-gray-400">Keywords</a>
                 <a href="KeywordSearch.html" class="text-sm text-gray-400">Search</a>
 
@@ -40,6 +39,8 @@
                     <a href="About.html" class="text-blue-500 ">About</a>
                     <div class="w-16 h-0.5 bg-blue-500 mt-1 rounded"></div>
                 </div>
+                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Admin</a>
+
             </div>
         </nav>
         <div class="flex flex-row gap-x-8 mt-8 mb-8 container mx-auto">
@@ -73,8 +74,15 @@
             
             
         </div>
-        
+        <div id="modalContainer"></div>
         <script src="config.js"></script>
         <script src="./About.js"></script>
+        <script>
+            fetch("login-modal.html")
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("modalContainer").innerHTML = html;
+            });
+        </script>
     </body>
 </html>
