@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using StackTrends.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
+// using Microsoft.Extensions.FileProviders;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,15 +25,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFE", policy =>
     {
         policy
-          .WithOrigins("http://127.0.0.1:5500", "https://www.stackradar.me")  // 改成你网页实际的 origin
+          .WithOrigins("http://127.0.0.1:5500", "https://www.stackradar.me", "https://localhost:5001")  // 改成你网页实际的 origin
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials();   // 一定要加这一行，才能让浏览器带上 Cookie
     });
 });
 
-builder.Services.AddReverseProxy()
-       .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+// builder.Services.AddReverseProxy()
+//        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddAuthentication("MyCookieAuth")
     .AddCookie("MyCookieAuth", options =>
@@ -55,17 +55,22 @@ app.UseCors("AllowFE");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseDefaultFiles();    // 会默认返回 wwwroot/index.html
-app.UseStaticFiles();  // 会返回 wwwroot 下的静态文件
+// app.UseDefaultFiles();    // 会默认返回 wwwroot/index.html
+// app.UseStaticFiles();  // 会返回 wwwroot 下的静态文件
 
-app.UseStaticFiles(new StaticFileOptions {
-  FileProvider = new PhysicalFileProvider(
-    Path.Combine(app.Environment.ContentRootPath, "../02_frontend")
-  ),
-  RequestPath = ""   // 让 /index.html 直接指向 02_frontend/index.html
-});
+// var spaProvider = new PhysicalFileProvider(
+//     Path.Combine(app.Environment.ContentRootPath, "../02_frontend")
+// );
+// app.UseDefaultFiles(new DefaultFilesOptions {
+//     FileProvider = spaProvider,
+//     RequestPath = ""
+// });
+// app.UseStaticFiles(new StaticFileOptions {
+//     FileProvider = spaProvider,
+//     RequestPath = ""
+// });
 
-app.MapReverseProxy();
+// app.MapReverseProxy();
 app.MapControllers();
 app.Run();
 
