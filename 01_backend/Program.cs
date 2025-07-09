@@ -32,10 +32,14 @@ builder.Services.AddCors(options =>
         //   .AllowAnyHeader()
         //   .AllowAnyMethod()
         //   .AllowCredentials();   // 一定要加这一行，才能让浏览器带上 Cookie
-        policy
-         .AllowAnyOrigin()
-         .AllowAnyHeader()
-         .AllowAnyMethod();
+       policy
+        .WithOrigins(
+            "https://www.stackradar.me",
+            "http://127.0.0.1:5500",
+            "http://localhost:5500"
+          )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
