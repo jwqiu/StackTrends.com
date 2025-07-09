@@ -39,7 +39,7 @@
                     <div class="w-20 h-0.5 bg-blue-500 mt-1 rounded"></div>
                 </div>
                 <a href="About.html" class="text-sm text-gray-400">About</a>
-                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Admin</a>
+                <a href="#" id="adminLink" class="text-sm text-gray-400">🔒Admin</a>
 
 
 
@@ -138,6 +138,8 @@
 
 
         <script src="config.js"></script>
+        <script src="./auth-utils.js"></script>
+
         <script src="./KeywordSearch.js"></script>
         <script>
             fetch("login-modal.html")
@@ -146,5 +148,12 @@
                     document.getElementById("modalContainer").innerHTML = html;
             });
         </script>
+        <script>
+            document.getElementById("adminLink").addEventListener("click", (e) => {
+                e.preventDefault();
+                checkAndEnterAdminPage();
+            });
+        </script>
+
     </body>
 </html>

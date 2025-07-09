@@ -53,8 +53,10 @@ async function submitTechStack() {
   // 3. 发送 POST 请求
   const res = await fetch(`${API_BASE}/api/TechStack/add`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: "include",
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`  // 如果你使用 JWT 认证，可以在这里添加 Authorization 头
+     },
     body: JSON.stringify({
       category,
       stackName: rawKeyword,
@@ -85,7 +87,9 @@ async function deleteTechStack(id) {
   try {
     const res = await fetch(`${API_BASE}/api/TechStack/delete/${id}`, {
       method: 'DELETE',
-      credentials: "include"
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
+      }
     });
 
     if (res.ok) {
@@ -160,8 +164,10 @@ async function editTechStack(id) {
     });
     const res = await fetch(`${API_BASE}/api/TechStack/update/${id}`, {
       method: 'PUT',
-      headers: {'Content-Type':'application/json'},
-      credentials: "include",
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
+      },
       body: JSON.stringify(payload)
     });
     if (res.status === 401) {
@@ -281,8 +287,9 @@ function setupAddCategoryForm() {
     try {
       const res = await fetch(`${window.API_BASE}/api/category`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
+        },
 
         body: JSON.stringify({ name, groupName })
       });
@@ -354,8 +361,9 @@ async function editCategory(id) {
     try {
       const res = await fetch(`${window.API_BASE}/api/category/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
+        },
 
         body: JSON.stringify(payload)
       });
@@ -394,7 +402,9 @@ async function deleteCategory(id) {
   try {
     const res = await fetch(`${API_BASE}/api/category/${id}`, {
       method: 'DELETE',
-      credentials: "include"
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
+      }
     });
     if (res.status === 204) {
       // 删除成功，刷新列表
@@ -462,53 +472,42 @@ document.addEventListener("DOMContentLoaded", () => {
 //   document.getElementById("loginModal").classList.add("hidden");
 // }
 
-function submitLoginForm() {
-  const form = document.getElementById("loginForm");
-  const formData = new FormData(form);
 
-  fetch(`${window.API_BASE}/api/account/login`, {
-    method: "POST",
-    credentials: "include",    // <— 加这一行
-    body: formData
-  })
-    .then(res => res.ok ? res.json() : Promise.reject("Unauthorized"))
-    .then(data => {
-      if (data.success) {
-        closeLoginModal();
-        sessionStorage.setItem('isAdmin', 'true');
-        sessionStorage.setItem('Username', formData.get('username'));
-        location.reload();
-      } else {
-        showLoginError();
-      }
-    })
-    .catch(err => {
-      console.error("Login failed:", err);
-      showLoginError();
-    });
-}
 
-function closeLoginModal() {
-  document.getElementById("loginModal").classList.add("hidden");
-  document.getElementById("loginError").classList.add("hidden");
-}
 
-function showLoginError() {
-  document.getElementById("loginError").classList.remove("hidden");
-}
-
-function renderNav() {
+function renderAdminUI() {
   const isAdmin = sessionStorage.getItem('isAdmin');
   if (!isAdmin) {
     // 如果没有登录或不是管理员，直接返回
+    const adminContainer = document.getElementById('adminContainer');
+    adminContainer.innerHTML = `Please log in ! ❌`;
+    adminContainer.classList.add('text-gray-600', 'text-center');
     return;
-  }
-  else if (isAdmin === 'true') {
+  } else if (isAdmin === 'true') {
 
     const adminTab = document.getElementById('adminTab');
     // 普通按钮
-    adminTab.textContent = '🔐 Admin';
+    adminTab.textContent = '🔑Admin';
+    const adminName = sessionStorage.getItem('Username');
+    const adminNameTitle = document.getElementById('adminNameTitle');
+    if (adminNameTitle) { 
+      adminNameTitle.textContent = `${adminName}`;
+    }
   }
 }
 
-document.addEventListener('DOMContentLoaded', renderNav);
+document.addEventListener('DOMContentLoaded', renderAdminUI);
+
+function logout() {
+  fetch(`${window.API_BASE}/api/account/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${sessionStorage.getItem("jwt")}`
+    }
+  }).then(() => {
+    sessionStorage.removeItem("jwt");
+    sessionStorage.removeItem("isAdmin");
+    sessionStorage.removeItem("Username");
+    location.reload();
+  });
+}

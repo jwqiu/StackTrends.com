@@ -230,7 +230,7 @@ let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
-    const response = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks');
+    const response = await fetch(`${window.API_BASE}/api/count/tech-stacks`);
     allData = await response.json();
 
     allLevelData = allData
@@ -407,7 +407,7 @@ function renderCategoryTags(data) {
 
 
 function updateJobCount() {
-  fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/job/count')
+  fetch(`${window.API_BASE}/api/job/count`)
     .then(res => res.json())
     .then(data => {
       document.getElementById("job-count").textContent = data.count+" job posts";
@@ -421,7 +421,7 @@ function updateJobCount() {
 
 async function drawExperiencePie() {
   // 1. 请求后端接口
-  const res  = await fetch('https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/by-level');
+  const res  = await fetch(`${window.API_BASE}/api/count/by-level`);
   const data = await res.json();
 
   // 2. 准备标签和数据
@@ -679,7 +679,7 @@ async function renderTopTechStackTableByLevel() {
   // 并发请求三个 level 的数据
   const responses = await Promise.all(
     levels.map(lvl =>
-      fetch(`https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net/api/count/tech-stacks?level=${lvl.key}`)
+      fetch(`${window.API_BASE}/api/count/tech-stacks?level=${lvl.key}`)
         .then(res => res.json())
     )
   );
@@ -763,3 +763,4 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.classList.toggle("hidden");
   });
 });
+

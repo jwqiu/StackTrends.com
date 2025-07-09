@@ -38,7 +38,7 @@
                 </div>
                 <a href="KeywordSearch.html" class="text-sm text-gray-400">Search</a>
                 <a href="About.html" class="text-sm text-gray-400">About</a>
-                <a href="ManageTechStacks.html" class="text-sm text-gray-400" >Admin</a>
+                <a href="#" id="adminLink" class="text-sm text-gray-400">🔒Admin</a>
 
             </div>
         </nav>
@@ -97,12 +97,20 @@
         <div id="modalContainer"></div>
 
         <script src="config.js"></script>
+        <script src="./auth-utils.js"></script>
+
         <script src="./TrackedKeywords.js"></script>
         <script>
             fetch("login-modal.html")
                 .then(res => res.text())
                 .then(html => {
                     document.getElementById("modalContainer").innerHTML = html;
+            });
+        </script>
+        <script>
+            document.getElementById("adminLink").addEventListener("click", (e) => {
+                e.preventDefault();
+                checkAndEnterAdminPage();
             });
         </script>
     </body>
