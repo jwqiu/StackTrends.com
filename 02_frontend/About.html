@@ -44,30 +44,83 @@
             </div>
         </nav>
         <div class="flex flex-row gap-x-8 mt-8 mb-8 container mx-auto">
-            <div class="w-1/4 flex flex-col gap-y-4 bg-white p-8 rounded-lg shadow-lg article-list">
+            <div class="w-1/4 h-full flex flex-col gap-y-4 bg-white p-8 rounded-lg shadow-lg article-list">
                 <p class="text-lg text-gray-600">✍️ Article List</p>
                 <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer" data-id="StackRadar">
                     <p class="text-md font-bold">About the StackRadar</p>
-                    <p class="text-sm text-gray-400">Last updated: 2025/03/01</p>
+                    <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
                 </div>
                 <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer" data-id="Author">
                     <p class="text-md font-bold">About the Creator</p>
-                    <p class="text-sm text-gray-400">Last updated: 2025/03/01</p>
+                    <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
                 </div>
             </div>
             <div class="w-3/4 bg-white p-8 rounded-lg shadow-lg article-content">
                 <div class=" flex flex-col gap-y-4" data-id="StackRadar">
                     <p class="text-5xl font-bold">About the StackRadar</p>
-                    <p class="text-md text-gray-400">Last updated: 2025/03/01</p>
+                    <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
                     <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
-                        <p class="text-md text-gray-600">Article Content</p>
+                        <p class="text-md text-gray-600 "style="white-space: pre-line;">
+                            <span class="font-bold text-blue-500">StackRadar</span> is a project created by a programming student at <span class="font-bold ">Lincoln University</span>, who previously worked as a senior product manager at a tech giant in China. StackRadar aims to help junior developers understand what tech skills are most in demand in New Zealand, so they can better prepare before entering the job market. It also allows users to filter jobs based on their own tech stacks, making the job search more efficient and accurate.
+
+                            The idea behind this platform comes from two personal observations I made during my time as a student and job seeker in New Zealand.
+
+                            <span class="font-bold">First</span>, it seems that all of my classmates understand we can’t rely solely on what the university teaches us to find a job in New Zealand.The typical tech stack we use in school — <span class="font-bold text-blue-500">Python, Flask, Bootstrap, MySQL, and PythonAnywhere</span> — isn’t widely used in the local industry.Everyone is aware of this, but no one seems to take the next step and ask: <span class="font-bold text-blue-500">“If not this, then what?”</span>, I did some research on the most popular tech stacks in New Zealand, but the results I found weren’t very convincing. Most of them were just like someone sharing their personal opinions — ranking so-called “in-demand” skills and saying things like “If you don’t have this skill, you’re in trouble” — without providing any solid data or evidence to back it up.
+
+                            <span class="font-bold">Second</span>, when I was searching for jobs, I realized that the way developers look for jobs today could be much easier. Unlike many other industries, in the developer job market, tech stack fit is often a deciding factor. Nowadays, employers always include their tech stack requirements in ridiculously long job descriptions — sometimes it feels like it takes forever just to read through everything. That’s when I started thinking: “If I could filter jobs based on the tech stacks I know, wouldn’t that make the whole process much easier?” However, Platforms like Seek cover everything, but that also means they won't go deep or address the specific hiring needs of niche industries.
+
+                            This is exactly an area where I knew I could make a difference.
+
+                            After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: i could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind <span class="font-bold text-blue-500">StackRadar</span>.
+
+                            For students like me or other junior developers, there’s one thing I really hope you take away from <span class="font-bold text-blue-500">StackRadar</span>: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
+
+                            For those of you who might be interested in the actual tech stack I used to build <span class="font-bold text-blue-500">StackRadar</span>, here it is:
+
+                            <span class="font-bold ">· Frontend</span>: Javascript, HTML, Tailwind CSS(The Frontend part will be rewritten in React in the near future)
+                            <span class="font-bold ">· Backend</span>: C# with ASP.NET Core Web API (RESTful architecture)
+                            <span class="font-bold ">· Data Collection</span>: Python + Requests + BeautifulSoup
+                            <span class="font-bold ">· Cloud Platform</span>: Microsoft Azure (App Service, Static Web App, PostgreSQL Flexible Server)
+                            <span class="font-bold ">· Database</span>: Postgresql
+                            <a href="https://github.com/jwqiu/StackTrends.com.git" 
+                                class="text-blue-600 hover:underline font-medium">· GitHub Repo : https://github.com/jwqiu/StackTrends.com.git
+                            </a>
+                            Good luck to everyone on your job search journey.
+                            <span class="font-bold">Junwen</span>
+                        </p>
                     </div>
                 </div>
                 <div class=" flex flex-col gap-y-4" style="display: none;" data-id="Author">
                     <p class="text-5xl font-bold">About the Creator</p>
-                    <p class="text-md text-gray-400">Last updated: 2025/03/01</p>
+                    <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
                     <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
-                        <p class="text-md text-gray-600">Article Content</p>
+                        <p class="text-md text-gray-600" style="white-space: pre-line;">
+                            Hi, there:
+
+                            This is junwen, an individual developer and a programming student at <span class="font-bold">Lincoln University</span>.  I'm graduating this November, and I'm currently open to all kinds of developer or software engineering positions, including internships, part-time, and full-time roles (available to start full-time work from November onward).
+
+                            Here’s a quick look at my tech stack:
+
+                            · <span class="font-bold">Languages:</span> C#, Python, JavaScript
+                            · <span class="font-bold">Frontend:</span> HTML, CSS, JavaScript, Bootstrap, Tailwind CSS
+                            · <span class="font-bold">Backend:</span> ASP.NET Core Web API, Flask
+                            · <span class="font-bold">Frameworks / Libraries:</span> React, BeautifulSoup, Leaflet.js, Jinja2
+                            · <span class="font-bold">Database:</span> PostgreSQL, MySQL
+                            · <span class="font-bold">Cloud & DevOps:</span> Microsoft Azure (App Service, Static Web App, PostgreSQL Flexible Server), PythonAnywhere, GitHub Actions, Git, GitHub
+                            · <span class="font-bold">Others:</span> RESTful API design, Web scraping
+
+                            If we're looking purely at coding experience, I may not be the strongest candidate — I’ve only been programming for about a year. But if product design and UI/UX design are also part of the equation, I genuinely believe I might be one of the best junior indie developers in this country, I’ve seen countless poorly designed products — not just from junior developers, but even from some senior ones.
+
+                            I’m probably not the best fit for companies facing major technical bottlenecks that require a senior engineer to architect everything from scratch. <span class="font-bold">But if you're looking for someone who can hit the ground running — someone who can take full ownership of the entire process, from product design and UI/UX to development and project management, and deliver independently — then I genuinely believe I’m one of the strongest candidates you’ll find. </span> <span class="font-bold text-blue-500">In short, I’m someone who can bring an idea to life — entirely on my own.</span> This confidence comes from my extensive experience in the IT industry: I previously worked as a product manager for 9 years, including 6 years at <span class="font-bold text-blue-500">Tencent</span>, the largest internet company in China.
+
+                            That experience not only shaped the way I think about products, but also gave me strong professional habits — like effective cross-functional communication, ability to manage competing priorities, consistently pushing slightly beyond my current capabilities. These are things that many junior, or even intermediate developers, haven’t had the chance to develop yet — and I believe that makes me stand out.
+
+                            If you'd like to know more about me, feel free to check out my <a href="https://www.linkedin.com/in/junwenqiu" class="text-blue-600 hover:underline font-medium" >LinkedIn profile</a>  or reach out to me via email: <a href="mailto:jwqiu1111@gmail.com" class="text-blue-600 hover:underline font-medium">jwqiu1111@gmail.com</a>
+                                                                
+                            Looking forward to connecting with you!
+
+                            Junwen
+                        </p>
                     </div>
                 </div>
             </div>

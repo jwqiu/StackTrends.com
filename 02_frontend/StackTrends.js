@@ -277,6 +277,33 @@ async function loadTechRank() {
   }
 }
 
+async function loadCategoryOptions() {
+    const categories = document.getElementById('category-filters');
+    categories.innerHTML = '';
+
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+    allBtn.dataset.filter = 'all';
+    allBtn.textContent = 'All';
+    categories.appendChild(allBtn);
+
+
+    const res = await fetch(`${API_BASE}/api/category`);
+    const cats = await res.json();
+    cats.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+      btn.dataset.filter = c.name;
+      btn.textContent = c.name;
+      categories.appendChild(btn);
+    });
+
+    if (allBtn) {
+      allBtn.classList.remove('bg-gray-200', 'text-gray-700');
+      allBtn.classList.add('bg-blue-500', 'text-white');
+      allBtn.click();
+    }
+}
 // <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
 
 function renderTechTableRows(data, limit) {
@@ -322,7 +349,7 @@ function renderCategoryTags(data) {
   const categoryOrder = [
     "Frontend",
     "Backend",
-    "Coding Methods",
+    "Coding Methods and Practices",
     "Cloud Platforms",
     "DevOps Tools",
     "Database",
@@ -392,7 +419,7 @@ function renderCategoryTags(data) {
         textClass = 'text-gray-400';
       }
       html += `
-        <div class="aspect-square w-full rounded-lg opacity-80 shadow-lg flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
+        <div class="aspect-square  w-full rounded-lg opacity-80 shadow-lg flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
           <span class="block text-center w-full line-clamp-2 text-lg xl:text-base" title="${name}">${name}</span>
           <div class="text-md lg:text-sm mt-1">${percentage}</div>
         </div>
@@ -639,33 +666,7 @@ function renderLevelOptions() {
 
 }
 
-async function loadCategoryOptions() {
-    const categories = document.getElementById('category-filters');
-    categories.innerHTML = '';
 
-    const allBtn = document.createElement('button');
-    allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-    allBtn.dataset.filter = 'all';
-    allBtn.textContent = 'All';
-    categories.appendChild(allBtn);
-
-
-    const res = await fetch(`${API_BASE}/api/category`);
-    const cats = await res.json();
-    cats.forEach(c => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-      btn.dataset.filter = c.name;
-      btn.textContent = c.name;
-      categories.appendChild(btn);
-    });
-
-    if (allBtn) {
-      allBtn.classList.remove('bg-gray-200', 'text-gray-700');
-      allBtn.classList.add('bg-blue-500', 'text-white');
-      allBtn.click();
-    }
-}
 
 document.addEventListener('DOMContentLoaded', loadCategoryOptions);
 
@@ -712,7 +713,7 @@ async function renderTopTechStackTableByLevel() {
 
   // 按照固定顺序展示
   const categoryOrder = [
-    "Frontend","Backend","Coding Methods","Cloud Platforms",
+    "Frontend","Backend","Coding Methods and Practices","Cloud Platforms",
     "DevOps Tools","Database","AI","Other"
   ];
 
@@ -736,7 +737,7 @@ async function renderTopTechStackTableByLevel() {
         const arr = tableData[cat]?.[lvl.key] || [];
         const displayArr = arr.map((val, idx) => 
           idx === 0 
-            ? `<span class="font-bold text-gray-700">👉${capitalize(val)}</span>`
+            ? `<span class="font-bold text-gray-700">🏅${capitalize(val)}</span>`
             : capitalize(val)
         );
         return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;

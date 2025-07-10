@@ -25,6 +25,8 @@ function renderKeywordHeader() {
   if (searchButton && searchHeader && keywordInput) {
     searchButton.addEventListener('click', () => {
       searchHeader.textContent = keywordInput.value;
+      searchHeader.classList.remove('text-gray-500');
+      searchHeader.classList.add('text-blue-500');
     });
   }
 }
@@ -52,10 +54,10 @@ async function fetchJobCountsForAllLevels() {
 
 function renderHeaderWithCounts(levelCounts) {
   const headerRow = document.querySelector('thead tr');
-  const bodyRow   = document.querySelector('tbody tr');
+  // const bodyRow   = document.querySelector('tbody tr');
 
   headerRow.innerHTML = '<th class="px-4 py-2">#</th>';
-  bodyRow.innerHTML   = '<td class="px-4 py-2">Mention Rate</td>';
+  // bodyRow.innerHTML   = '<td class="px-4 py-2">Mention Rate</td>';
 
   const labelMap = {
     all:          'ALL Jobs',
@@ -75,10 +77,10 @@ function renderHeaderWithCounts(levelCounts) {
     th.innerHTML = `${label}<br>(${count})`;
     headerRow.appendChild(th);
 
-    const td = document.createElement('td');
-    td.className = 'px-3 py-2';
-    td.textContent = ((count / total) * 100).toFixed(1) + '%';
-    bodyRow.appendChild(td);
+    // const td = document.createElement('td');
+    // td.className = 'px-3 py-2';
+    // td.textContent = ((count / total) * 100).toFixed(1) + '%';
+    // bodyRow.appendChild(td);
   });
 }
 
@@ -100,13 +102,16 @@ async function fetchKeywordMentionStats() {
 }
 
 function renderMentionRateRow(data) {
+
+  const keywordInput = document.querySelector("#keywordInput");
   const matchRow = document.getElementById('matchCountRow');
   const rateRow = document.getElementById('mentionRateRow');
   if (!matchRow || !rateRow) return;
 
   // 清空旧内容（保留 label 列）
-  matchRow.innerHTML = '<td class="px-4 py-2">Match Count</td>';
-  rateRow.innerHTML  = '<td class="px-4 py-2">Mention Rate</td>';
+  matchRow.innerHTML = '<td class="px-4 py-2">Job Count<br>(including <strong>' + keywordInput.value + '</strong>)</td>';
+  rateRow.innerHTML  = '<td class="px-4 py-2">% of Jobs Mentioning<br><strong>' + keywordInput.value + '</strong> in Each Type</td>';
+
 
   // 构建等级映射
   const levelOrder = ['Junior', 'Intermediate', 'Senior'];

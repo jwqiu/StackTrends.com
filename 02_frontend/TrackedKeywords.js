@@ -27,7 +27,7 @@ function renderTechStacksByCategory() {
   const categoryToIdMap = {
     "Frontend": "frontend",
     "Backend": "backend",
-    "Coding Methods": "coding-practices",
+    "Coding Methods and Practices": "coding-practices",
     "Cloud Platforms": "cloud-platforms",
     "Database": "database",
     "DevOps Tools": "devops-tools",
