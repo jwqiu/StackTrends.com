@@ -385,7 +385,7 @@ function renderCategoryTags(data) {
       'bg-blue-400', // 0.20 - 0.15
       'bg-blue-300', // 0.15 - 0.10
       'bg-blue-200', // 0.10 - 0.05
-      'bg-gray-200'  // < 0.05
+      'bg-gray-100'  // < 0.05
     ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
@@ -719,7 +719,7 @@ async function renderTopTechStackTableByLevel() {
 
   // 生成表格 HTML
   let html = `
-    <thead class="bg-gray-100 text-blue-600">
+    <thead class=" border-none text-gray-500">
       <tr>
         <th class="px-4 py-4">#</th>
          ${levels.map(l => {
@@ -732,12 +732,12 @@ async function renderTopTechStackTableByLevel() {
   `;
   categoryOrder.forEach(cat => {
     html += `<tr class="">
-      <td class="px-8 py-2">${cat}</td>
+      <td class="px-4 py-2">${cat}</td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
         const displayArr = arr.map((val, idx) => 
           idx === 0 
-            ? `<span class="font-bold text-gray-700">🏅${capitalize(val)}</span>`
+            ? `<span class="font-bold bg-blue-400 shadow-lg rounded-lg px-2 py-1 text-white">${capitalize(val)}</span>`
             : capitalize(val)
         );
         return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;

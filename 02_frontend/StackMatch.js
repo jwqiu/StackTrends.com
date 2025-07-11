@@ -35,9 +35,9 @@ function highlightStacksHtml(stacks, selected) {
   const matched = clean.filter(s => selected.includes(s.toLowerCase()));
   const unmatched = clean.filter(s => !selected.includes(s.toLowerCase()));
   return [
-    ...matched.map(s => `<span class="text-red-500">${capitalize(s)}</span>`),
-    ...unmatched.map(s => `<span>${capitalize(s)}</span>`)
-  ].join(' , ') || 'N/A';
+    ...matched.map(s => `<span class="border bg-blue-400 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
+    ...unmatched.map(s => `<span class="border bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
+  ].join('  ') || 'N/A';
 }
 
 // function highlightMatchingStacks(){
@@ -144,7 +144,7 @@ function renderJobs() {
                 </svg>
                 Tech Requirements:
             </p>
-            <p class="required-tech-stacks text-sm mt-1">
+            <p class="required-tech-stacks flex flex-wrap gap-1 text-sm mt-1">
               ${stacks}
             </p>
           </div>
