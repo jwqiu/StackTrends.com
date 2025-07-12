@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write       # ⭐️ 必须有这行
-  contents: read 
+  id-token: write
+  contents: read
 
 env:
   PYTHON_VERSION: '3.10'
@@ -41,5 +41,3 @@ jobs:
           slot-name: 'Production'
           package: .
 
-
-#Azure Suck！！！！！ TOO complicated to deploy Python project to Azure Function App， Fuck you Too many issue Suck Azure
