@@ -3,8 +3,8 @@
 # azure-monitor-opentelemetry 
 
 azure-functions
+azure-functions-psycopg2
 requests
 openpyxl
 beautifulsoup4
 pandas
-psycopg2-binary
