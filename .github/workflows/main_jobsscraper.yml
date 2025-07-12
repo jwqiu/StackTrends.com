@@ -84,5 +84,6 @@ jobs:
         with:
           app-name: 'jobsScraper'
           slot-name: 'Production'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          package: release.zip
+
           
