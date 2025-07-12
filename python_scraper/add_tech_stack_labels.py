@@ -2,7 +2,7 @@ import pandas as pd
 import re
 from collections import Counter
 import psycopg2
-from connect import get_conn
+from python_scraper.connect import get_conn
 
 
 def load_keywords():
@@ -27,7 +27,6 @@ def load_keywords():
 
     return raw_keywords, normalized_keywords
 
-raw_keywords, normalized_keywords = load_keywords()
 
 # tech_keywords = [
 #     # Frontend 框架
@@ -107,52 +106,6 @@ def load_job_data():
 # 读取 Excel
 # df = pd.read_excel('job_list_with_details.xlsx')  # 假设有 'Job Description' 列
 
-df=load_job_data()
-# 统一小写处理、去除空值
-df['job_des'] = df['job_des'].fillna('').str.lower()
-
-# 初始化统计器
-tech_counter = Counter()
-job_labels = []
-
-# 遍历每条 job description
-for desc in df['job_des']:
-    found = []
-    for keyword in raw_keywords:
-        match_found = False
-
-        # 判断是否是需要特殊处理的符号关键词（如 .net、c#）
-        is_special = any(sym in keyword for sym in ['#', '+', '.', '-', ' '])
-
-        if is_special:
-            if keyword in desc:
-                match_found = True
-        else:
-            if re.search(r'\b' + re.escape(keyword) + r'\b', desc):
-                match_found = True
-
-        if match_found:
-            final_keyword = normalized_keywords.get(keyword, keyword)
-
-            if final_keyword not in found:
-                found.append(final_keyword)
-                tech_counter[final_keyword] += 1
-
-    job_labels.append(', '.join(found))
-# 加入标签列
-df['Tech Tags'] = job_labels
-
-
-
-# 排序并打印统计
-# sorted_tech = tech_counter.most_common()
-# print("技术关键词出现频率：")
-# for tech, count in sorted_tech:
-#     print(f"{tech}: {count}")
-
-# 保存新的 Excel 文件
-# df.to_excel('jobs_with_tech_tags.xlsx', index=False)
-
 def label_job_level(title):
     title = title.lower() if isinstance(title, str) else ''
     if 'senior' in title:
@@ -163,8 +116,6 @@ def label_job_level(title):
         return 'Junior'
     else:
         return 'Other'
-
-df['job_level'] = df['job_title'].apply(label_job_level)
 
 def update_tech_tags_and_levels(df):
     conn = get_conn()
@@ -189,5 +140,59 @@ def update_tech_tags_and_levels(df):
     cursor.close()
     conn.close()
 
-# 最后调用
-update_tech_tags_and_levels(df)
+
+def add_tech_stack_labels():
+    raw_keywords, normalized_keywords = load_keywords()
+
+    df=load_job_data()
+    # 统一小写处理、去除空值
+    df['job_des'] = df['job_des'].fillna('').str.lower()
+
+    # 初始化统计器
+    tech_counter = Counter()
+    job_labels = []
+
+    # 遍历每条 job description
+    for desc in df['job_des']:
+        found = []
+        for keyword in raw_keywords:
+            match_found = False
+
+            # 判断是否是需要特殊处理的符号关键词（如 .net、c#）
+            is_special = any(sym in keyword for sym in ['#', '+', '.', '-', ' '])
+
+            if is_special:
+                if keyword in desc:
+                    match_found = True
+            else:
+                if re.search(r'\b' + re.escape(keyword) + r'\b', desc):
+                    match_found = True
+
+            if match_found:
+                final_keyword = normalized_keywords.get(keyword, keyword)
+
+                if final_keyword not in found:
+                    found.append(final_keyword)
+                    tech_counter[final_keyword] += 1
+
+        job_labels.append(', '.join(found))
+    # 加入标签列
+    df['Tech Tags'] = job_labels
+
+    df['job_level'] = df['job_title'].apply(label_job_level)
+
+    # 最后调用
+    update_tech_tags_and_levels(df)
+
+# 排序并打印统计
+# sorted_tech = tech_counter.most_common()
+# print("技术关键词出现频率：")
+# for tech, count in sorted_tech:
+#     print(f"{tech}: {count}")
+
+# 保存新的 Excel 文件
+# df.to_excel('jobs_with_tech_tags.xlsx', index=False)
+
+
+
+
