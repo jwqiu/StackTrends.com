@@ -9,7 +9,7 @@ import traceback
 
 app = func.FunctionApp()
 
-@app.schedule(schedule="0 0 0 * * 1-5", arg_name="mytimer", run_on_startup=False, use_monitor=True)
+@app.schedule(schedule="0 0 0 * * 1-5", arg_name="mytimer", run_on_startup=True, use_monitor=True)
 def ScheduledScraper(mytimer: func.TimerRequest) -> None:
     logging.info(f"⏰ Timer triggered at {datetime.datetime.utcnow()}")
 
