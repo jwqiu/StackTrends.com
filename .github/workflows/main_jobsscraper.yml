@@ -33,7 +33,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_CD6E75B241364F7EA13CEA7A14181200 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_62798EA4C2434996A8EB79C53FBB8B0A }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6B7AD870CCCB4440B4614F909363232E }}
-          auth-type: ID_TOKEN
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
