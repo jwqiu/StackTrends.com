@@ -3,3 +3,8 @@
 # azure-monitor-opentelemetry 
 
 azure-functions
+requests
+openpyxl
+beautifulsoup4
+pandas
+psycopg2-binary
