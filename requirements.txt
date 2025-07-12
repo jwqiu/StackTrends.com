@@ -3,7 +3,7 @@
 # azure-monitor-opentelemetry 
 
 azure-functions
-azure-functions-psycopg2
+psycopg2-binary
 requests
 openpyxl
 beautifulsoup4
