@@ -24,9 +24,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.10'
 
-      # 只需要登录 Azure，然后直接部署
+      - name: Install dependencies to .python_packages
+        run: |
+          pip install -r requirements.txt --target="./.python_packages/lib/site-packages"
+
+      - name: Zip code (include .python_packages)
+        run: |
+          zip -r release.zip . -x "venv/*" -x ".git/*" -x "*.zip" -x "*.xlsx"
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -39,7 +46,8 @@ jobs:
         with:
           app-name: 'jobsScraper'
           slot-name: 'Production'
-          package: .
+          package: release.zip
+
 
 
 #Azure Suck！！！！！ TOO complicated to deploy Python project to Azure Function App， Fuck you Too many issue Suck Azure
