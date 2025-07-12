@@ -5,6 +5,7 @@ import logging
 from python_scraper.get_raw_jobs_data import get_jobs_data
 from python_scraper.add_tech_stack_labels import add_tech_stack_labels
 from python_scraper.create_tech_stack_rank import create_tech_stack_rank
+import traceback
 
 app = func.FunctionApp()
 
@@ -19,3 +20,4 @@ def ScheduledScraper(mytimer: func.TimerRequest) -> None:
         logging.info("✅ All tasks completed successfully.")
     except Exception as e:
         logging.error(f"❌ Error occurred: {e}")
+        logging.error(traceback.format_exc()) 
