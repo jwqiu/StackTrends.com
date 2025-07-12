@@ -42,4 +42,4 @@ jobs:
           package: .
 
 
-#Azure Suck！！！！！
+#Azure Suck！！！！！ TOO complicated to deploy Python project to Azure Function App
