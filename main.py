@@ -1,0 +1,7 @@
+from python_scraper.get_raw_jobs_data import get_jobs_data
+from python_scraper.add_tech_stack_labels import add_tech_stack_labels
+from python_scraper.create_tech_stack_rank import create_tech_stack_rank
+
+get_jobs_data()
+add_tech_stack_labels()
+create_tech_stack_rank()

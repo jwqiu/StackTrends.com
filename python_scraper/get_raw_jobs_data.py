@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 import psycopg2
 from python_scraper.connect import get_conn
 import logging
+from requests.exceptions import ConnectionError,HTTPError
 
 logging.basicConfig(
     level=logging.INFO,  # 你也可以改为 logging.DEBUG 查看更详细信息
@@ -25,12 +26,42 @@ graphql_url = "https://www.seek.co.nz/graphql"
 # title=['company_id','company_name','job_id','job_title', 'job_url', 'job_des_origin','job_des','sub_id', 'sub_name','location','listed_date','collected_date','listing_year_month']
 
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-    "Accept": "application/json"
-}
+
 
 import requests
+
+def safe_get(url, headers=None, params=None, timeout=30, max_attempts=3):
+    """带重试的 GET 请求"""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            resp = requests.get(url, headers=headers, params=params, timeout=timeout)
+            resp.raise_for_status()
+            return resp
+        except (ConnectionError, HTTPError) as ex:
+            logging.warning(f"safe_get 第 {attempt} 次失败: {ex!r}")
+            # print(f"safe_get 第 {attempt} 次失败: {ex!r}")
+            if attempt < max_attempts:
+                time.sleep(2)
+            else:
+                logging.error(f"safe_get 最后一次尝试失败，URL={url}")
+                # print(f"safe_get 最后一次尝试失败，URL={url}")
+                raise
+
+def safe_post(url, headers=None, json=None, timeout=30, max_attempts=3):
+    for attempt in range(1, max_attempts+1):
+        try:
+            resp = requests.post(url, headers=headers, json=json, timeout=timeout)
+            resp.raise_for_status()
+            return resp
+        except (ConnectionError, HTTPError) as ex:
+            logging.warning(f"safe_post 第 {attempt} 次失败: {ex!r}")
+            # print(f"safe_post 第 {attempt} 次失败: {ex!r}")
+            if attempt < max_attempts:
+                time.sleep(2)
+            else:
+                logging.error(f"safe_post 最后一次尝试失败，URL={url}")
+                # print(f"safe_post 最后一次尝试失败，URL={url}")
+                raise
 
 def get_job_details(graphql_url, job_id, headers):
     payload = {
@@ -55,15 +86,16 @@ def get_job_details(graphql_url, job_id, headers):
             "jobDetailsViewedCorrelationId": "ba18bdfe-fcde-4c06-894a-64ee37a5167a"
         }
     }
-    
-    response = requests.post(graphql_url, headers=headers, json=payload)
-    
+
+    response = safe_post(graphql_url, headers=headers, json=payload)
+
     if response.status_code == 200:
         base_data = response.json()
         job_detail = base_data.get("data", {}).get("jobDetails", {}).get("job", {}).get("content", "NA")
         return job_detail
     else:
         logging.warning(f"获取 job {job_id} 详情失败: {response.status_code}")
+        # print(f"获取 job {job_id} 详情失败: {response.status_code}")
         return "NA"
     
 def clean_html(raw_html):
@@ -101,6 +133,11 @@ def extract_year_month(date_str):
     except Exception:
         return "NA"
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "Accept": "application/json"
+}
+
 def get_jobs_data():
     page = 1
     total_job = 0
@@ -110,8 +147,9 @@ def get_jobs_data():
     while True:
         url=base_url.format(page)
         logging.info(f"正在爬取{url}")
+        # print(f"正在爬取{url}")
 
-        response = requests.get(url, headers=headers)
+        response = safe_get(url, headers=headers)
 
         if response.status_code == 200:
             data = response.json() 
@@ -120,6 +158,7 @@ def get_jobs_data():
 
             if not job_list:
                 logging.info(f"第 {page} 页没有数据，结束")
+                # print(f"第 {page} 页没有数据，结束")
                 break
             
         
@@ -150,6 +189,7 @@ def get_jobs_data():
                 job.append(job_url)    
 
                 logging.info(job_id)
+                # print(job_id)
 
                 
                 # 安全地获取 subclassification 字段
@@ -180,11 +220,13 @@ def get_jobs_data():
                 job_num=job_num+1
 
             logging.info(f"第 {page} 页获取到 {job_num} 个 Job信息")
+            # print(f"第 {page} 页获取到 {job_num} 个 Job信息")
             total_job=total_job+job_num
             page=page+1
 
         else:
             logging.error(f"第 {page} 页请求失败: {response.status_code}")
+            # print(f"第 {page} 页请求失败: {response.status_code}")
             break
 
         time.sleep(random.uniform(1, 3))
@@ -227,7 +269,9 @@ def get_jobs_data():
 
 
     logging.info(f"总共获取到 {total_job} 个 Job ID")
+    # print(f"总共获取到 {total_job} 个 Job ID")
     logging.info(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
+    # print(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
 
 
     # wb.save('job_list_with_details_0618.xlsx')

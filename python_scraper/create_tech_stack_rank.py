@@ -121,6 +121,8 @@ def create_tech_stack_rank():
         rows
     )
 
+    print("技术栈频率统计已更新到数据库。")
+
     conn.commit()
     cur.close()
     conn.close()

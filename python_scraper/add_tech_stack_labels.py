@@ -183,6 +183,7 @@ def add_tech_stack_labels():
 
     # 最后调用
     update_tech_tags_and_levels(df)
+    print("技术栈和级别标记已更新到数据库。")
 
 # 排序并打印统计
 # sorted_tech = tech_counter.most_common()
