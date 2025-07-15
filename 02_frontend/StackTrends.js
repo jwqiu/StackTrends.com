@@ -25,7 +25,7 @@ function initChart(labels, data) {
         data: data,
         borderWidth: 1,
         barPercentage: 1,      // 条在分类格子里占80%高度
-        categoryPercentage: 0.8, // 每个分类格子本身占用可用空间的90%
+        categoryPercentage: 0.7, // 每个分类格子本身占用可用空间的80%
         // barThickness: barThickness,        // 绝对高度，直接控制条的“粗细”
 
         backgroundColor: [
@@ -47,11 +47,12 @@ function initChart(labels, data) {
       responsive: true,
       maintainAspectRatio: false,     // ← 这一行打开
       layout: {
-        padding: {top: 0, bottom: 0} // 让内容紧贴上边
+        padding: { left: 20, top: 0, bottom: 0 }
       },
       scales: {
         y: {
           beginAtZero: true,  // 关闭自动从0开始
+          offset: true,
           // min: 0,             
           // max: 0.5,
           grid: {
@@ -64,7 +65,10 @@ function initChart(labels, data) {
           // ② 刻度值 & 刻度小线 关闭
           ticks: {
             display: true,
-            drawTicks: false
+            drawTicks: false,
+            // align: 'start',
+            crossAlign: 'far',
+            padding: 4
           },
           // ③ 也要把轴本身的 border 关掉
           border: {
@@ -83,7 +87,9 @@ function initChart(labels, data) {
             display: false,      // ✅ 显示标签
             drawTicks: false,   // ❌ 不画刻度小线
             font: { size: 8 },
-            color: '#4b5563'
+            color: '#4b5563',
+            align: 'start'
+
           },
           // ③ 也把 X 轴的主边框线关掉
           border: {
@@ -96,7 +102,7 @@ function initChart(labels, data) {
           display: false
         },
         title: {
-          display: true,
+          display: false,
           text: '              Top 10 Tech Stacks by % of Jobs Mentioned',
           align: 'start', 
           font: { size: 18, weight: 'normal' },
@@ -134,7 +140,7 @@ function initChart(labels, data) {
       },
       elements: {
         bar: {
-          borderRadius: 6, // ✅ 圆角柱状条
+          borderRadius: 10, // ✅ 圆角柱状条
           borderSkipped: false,
           barThickness: barThickness // 控制柱子宽度
         }
@@ -379,13 +385,11 @@ function renderCategoryTags(data) {
 
     let html = "";
     const bgArr = [
-      'bg-blue-700', // ≥ 0.30
-      'bg-blue-600', // 0.30 - 0.25
-      'bg-blue-500', // 0.25 - 0.20
-      'bg-blue-400', // 0.20 - 0.15
-      'bg-blue-300', // 0.15 - 0.10
-      'bg-blue-200', // 0.10 - 0.05
-      'bg-gray-100'  // < 0.05
+      'blue-900', // ≥ 0.30
+      'blue-600', // 0.30 - 0.25
+      'blue-300', // 0.25 - 0.20
+      'blue-100'  // 0.20 - 0.15
+
     ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
@@ -396,32 +400,26 @@ function renderCategoryTags(data) {
       let bgClass = '';
       if (percentageRaw >= 0.30) {
         bgClass = bgArr[0];
-      } else if (percentageRaw >= 0.25) {
-        bgClass = bgArr[1];
       } else if (percentageRaw >= 0.20) {
-        bgClass = bgArr[2];
-      } else if (percentageRaw >= 0.15) {
-        bgClass = bgArr[3];
+        bgClass = bgArr[1];
       } else if (percentageRaw >= 0.10) {
-        bgClass = bgArr[4];
-      } else if (percentageRaw >= 0.05) {
-        bgClass = bgArr[5];
+        bgClass = bgArr[2];
       } else {
-        bgClass = bgArr[6] + ' border border-gray-200'; // 最后一个灰色背景加边框
+        bgClass = bgArr[3] + ''; 
       }
 
       let textClass = '';
       // const bgClass = bgArr[idx % bgArr.length];
       // const textClass = idx < 3 ? 'text-gray-700' : 'text-gray-500';
       if (percentageRaw >= 0.05) {
-        textClass = 'text-white font-semibold';
+        textClass = 'text-white ';
       } else {
-        textClass = 'text-gray-400';
+        textClass = 'text-white';
       }
       html += `
-        <div class="aspect-square  w-full rounded-lg opacity-80 shadow-lg flex flex-col items-center justify-center text-sm  ${bgClass} ${textClass}">
-          <span class="block text-center w-full line-clamp-2 text-lg xl:text-base" title="${name}">${name}</span>
-          <div class="text-md lg:text-sm mt-1">${percentage}</div>
+        <div class="py-4 w-full rounded-lg opacity-90 bg-gradient-to-br shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-blue-100 ${textClass}">
+          <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
+          <div class="text-sm mt-1">${percentage}</div>
         </div>
       `;
     });
