@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>StackRadar</title>
+        <meta name="description" content="Discover the most in-demand tech stacks in New Zealand from real job data.">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
@@ -12,33 +13,35 @@
             }
         </style>
     </head>
-    <body class="relative bg-white flex justify-center items-center min-h-screen p-16">
+    <body class="relative bg-gradient-to-br from-gray-500 via-slate-50 to-slate-100 flex justify-center items-center min-h-screen p-16">
         <div class="absolute top-4 left-4 flex items-center gap-x-1 ">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-700">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
             </svg>
-            <div class="text-xl  text-gray-500">StackRadar</div>
+            <div class="text-xl  text-gray-700">StackRadar</div>
         </div>
-        <div class="bg-white text-start max-w-xl me-4 overflow-hidden">
-            <p class="text-4xl font-bold text-gray-600 mb-1 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.3s_forwards]">
-                Discover the
-            </p>
-            <p class="text-4xl font-bold text-blue-600 text-nowrap mb-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.6s_forwards]">
-                Most in-demand Tech Skills
-            </p>
-            <p class="text-lg text-gray-600 mb-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.9s_forwards]">
-                To help junior developers identify the most in-demand tech stacks in New Zealand, we track the frequency of tech-related keywords from daily job data.
-            </p>
-            <a href="StackTrends.html">
-                <button class="bg-blue-600 font-bold text-white py-2 px-4 rounded-lg opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.2s_forwards] delay-1200">
-                Let’s See
-                </button>
-            </a>
+        <div class="flex gap-2 xl:gap-8 items-center">
+            <div class="text-start max-w-xl me-4 overflow-hidden">
+                <p class="text-4xl font-bold text-gray-600 mb-1 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.3s_forwards]">
+                    Discover the
+                </p>
+                <p class="text-4xl font-bold text-blue-600 text-nowrap mb-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.6s_forwards]">
+                    Most In-Demand Tech Skills
+                </p>
+                <p class="text-lg text-gray-600 mb-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.9s_forwards]">
+                    We help junior developers discover the most in-demand tech stacks in New Zealand by tracking the frequency of tech-related keywords in daily job postings.
+                </p>
+                <a href="StackTrends.html">
+                    <button class="bg-blue-600 font-bold text-white py-4 px-8 rounded-full opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.2s_forwards] delay-1200">
+                    Let’s See
+                    </button>
+                </a>
+            </div>
+            <div class="opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.5s_forwards] delay-1500">
+                <img src="./static/images/TLMS_20240104_1200x628-1.png" class="w-full max-w-2xl rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl" alt="">
+            </div>
         </div>
-        <div class="opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.5s_forwards] delay-1500">
-            <img src="./static/images/TLMS_20240104_1200x628-1.png" class="w-full max-w-xl rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl" alt="">
-        </div>
+        
 
-        <script src="config.js"></script>
     </body>
 </html>
