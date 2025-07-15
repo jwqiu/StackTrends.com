@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>StackRadar</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            keyframes: {
+              fadeUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            },
+            animation: {
+              'fade-up': 'fadeUp 0.8s ease-out forwards'
+            }
+          }
+        }
+      }
+    </script>
+
+  </head>
+  <body class="bg-gray-100">
+    <nav class="bg-white relative shadow p-4 shadow-lg flex justify-between items-center ">
+      <div class="flex items-start flex-col">
+        <a href="index.html">
+          <div class="flex items-center gap-x-1 ms-8">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+            </svg>
+            <div class="text-xl font-bold text-blue-600">StackRadar</div>
+          </div>
+        </a>
+        <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand Tech Skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
+      </div>
+      <button id="menu-toggle" class="lg:hidden text-gray-600 me-4 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <div id="menu" class="hidden 
+      absolute top-full left-0 w-full z-30
+      bg-white shadow-md p-8 border-t
+      flex flex-row gap-y-4 items-center justify-center
+      lg:static lg:flex lg:flex-row lg:me-8 lg:border-none
+      gap-x-6  lg:p-0 lg:shadow-none lg:w-auto
+      ">
+        <div class="md:flex flex-col ">
+          <a href="StackTrends.html" class="text-blue-500 ">StackTrends</a>
+          <div class="w-24 h-0.5 bg-blue-500 mt-1 rounded"></div>
+        </div>
+        <a href="StackMatch.html" class="text-sm text-gray-400">StackMatch</a>
+        <a href="TrackedKeywords.html" class="text-sm text-gray-400">Keywords</a>
+        <a href="KeywordSearch.html" class="text-sm text-gray-400">Search</a>
+        <a href="About.html" class="text-sm text-gray-400">About</a>
+        <a href="#" id="adminLink" class="text-sm text-gray-400">🔒Admin</a>
+
+      </div>
+
+      
+    </nav>
+    <div class="p-8 mx-auto max-w-8xl">
+      <!-- 第1个模块 -->
+      <div class="mb-8">
+        <div class="mb-8  bg-white shadow-lg rounded-lg p-8 ">
+          <div class="mb-3">
+            <p >
+              <span class="text-xl font-bold">Most Mentioned Tech Stacks (Overall)</span>
+              <span class="text-gray-400 text-sm ms-1 mb-0 ">
+                | in 
+                <span class="text-blue-600 " id="job-count">
+                  # 
+                </span> collected since April 2025
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col lg:flex-row lg:items-center " >
+            <!-- <label for="" class="mt-0  text-sm text-gray-400 text-nowrap mb-0 me-2">Filter By Category :</label> -->
+            <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0">
+              <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="all">All</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Cloud Platforms">Cloud Platforms</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Frontend">Frontend</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Backend">Backend</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="DevOps Tools">DevOps</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Database">Database</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Version Control">Version Control </button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="API">API</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Operating System">Operating System</button>
+              <button class="filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm" data-filter="Other">Other</button> -->
+            </div>
+            
+          </div>
+        </div>
+        
+        <div class="">
+          <div class="w-full mx-auto mt-0">
+            <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  mt-4 ">
+              <div class="lg:w-1/2 bg-white shadow-lg rounded-lg p-4">
+                <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
+              </div>
+              <div class="lg:w-1/2 w-full">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                  <div class="max-h-[600px] overflow-auto">
+                    <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
+                      <thead class="sticky top-0 z-10 bg-gray-100">
+                        <tr class="border">
+                          <th class="border px-4 py-2 font-semibold">Category</th>
+                          <th class="border px-4 py-2 font-semibold text-nowrap">Tech Stack</th>
+                          <th class="border px-4 py-2 font-semibold">Mentions</th>
+                          <th class="border px-4 py-2 font-semibold">Percentage</th>
+                        </tr>
+                      </thead>
+                      <tbody id="techTable">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 第2个模块 -->
+      <div>
+        <div class=" bg-white shadow-lg rounded-lg p-8 mb-8">
+          <div class="flex flex-col mb-0 ">
+            <div class="flex flex-col gap-y-2 mb-3 ">
+              <p >
+                  <span class="text-xl font-bold">Top 5 Tech Stacks in Each Category</span>
+                  <span class="text-gray-400 text-sm mb-0 ms-2 ">
+                      | Based on 
+                      <span class="text-blue-600  text-md" id="job-count-2">
+                        # 
+                      </span> 
+                        collected since April 2025
+                  </span>
+              </p>
+            </div>
+            <div class="flex items-center gap-x-2 mt-4 lg:mt-0 text-sm text-gray-500">
+              <span>More Mentioned</span>
+              <div class="w-40 h-3 bg-gradient-to-l from-blue-100 via-blue-400 to-blue-900 rounded-full shadow-inner"></div>
+              <span>Less Mentioned</span>
+            </div>
+          </div>
+          
+          <div class="flex flex-col" style="display: none;">
+            <label for="" class=" mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
+            <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <div class="" style="display: none;">
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="  bg-white  shadow-lg rounded-lg  p-8 pr-0 ">
+              <div class="min-w-[400px] max-w-[550px] mx-auto">
+                <canvas id="experiencePie"  ></canvas>
+              </div>
+            </div>
+            <div class="  bg-white shadow-lg rounded-lg p-4"> 
+              <div class="flex flex-col items-center justify-center">
+                <p class="text-xl font-normal text-gray-600 mb-8 text-center mt-1">
+                  Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )
+                </p>
+                <div class=" p-2 w-full" id="dynamicCategoryTags"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
+              <h1 class="text-xl text-center mb-4">🧑‍💻 Coding Skills</h1>
+              <div class="flex flex-row grid grid-cols-3 gap-3">
+                <div >
+                    <p class="mb-2 text-center text-gray-500 h-10">Frontend</p>
+                    <div class="flex flex-col gap-y-3" id="Frontend">
+
+
+                    </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-gray-500 text-center  h-10">Backend</p>
+                  <div class="flex flex-col gap-y-3" id="Backend">
+                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                      Darkest
+                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                      Dark
+                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                      Light
+                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                      Lightest
+                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                    </div> -->
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-gray-500 text-center  h-10">Coding Practices</p>
+                  <div class="flex flex-col gap-y-3" id="Coding Methods and Practices">
+                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                      Darkest
+                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                      Dark
+                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                      Light
+                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                      Lightest
+                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
+              <h1 class="text-xl text-center mb-4">🛠️ Platforms & Tools</h1>
+              <div class="flex flex-row grid grid-cols-3 gap-3">
+                <div >
+                  <p class="mb-2 text-gray-500 text-center h-10">Cloud Platforms</p>
+                  <div class="flex flex-col gap-y-3" id="Cloud Platforms">
+                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                      Darkest
+                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                      Dark
+                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                      Light
+                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                      Lightest
+                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                    </div> -->
+                    
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-gray-500 text-center  h-10">Database</p>
+                  <div class="flex flex-col gap-y-3" id="Database">
+                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                      Darkest
+                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                      Dark
+                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                      Light
+                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                      Lightest
+                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                    </div> -->
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-gray-500 text-center  h-10">DevOps Tools</p>
+                  <div class="flex flex-col gap-y-3" id="DevOps Tools">
+                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                      Darkest
+                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                      Dark
+                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                      Light
+                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                    </div>
+                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                      Lightest
+                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8" style="display: none;">
+            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
+              <h1 class="text-xl font-bold mb-0">🤖 AI</h1>
+              <div class="">
+                <div class="flex flex-col gap-2" id="AI">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                  
+                </div>
+              </div>
+
+
+            </div>
+            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
+              <h1 class="text-xl font-bold mb-0">➕ Other</h1>
+              <div class="">
+                <div class="flex flex-col gap-2" id="Other">
+                  <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                    Darkest
+                    <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                    Dark
+                    <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                    Light
+                    <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                  </div>
+                  <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                    Lightest
+                    <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                  </div> -->
+                  
+                </div>
+              </div>
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 第3个模块 -->
+
+      <div class=" bg-white shadow-lg rounded-lg p-8 mt-8">
+        <div class=" mb-0">
+          <p ><span class="text-xl font-bold ">Top Tech Stacks by Experience Level</span><span class="text-gray-400 text-sm mb-0 ms-2"> | Based on <span class="text-blue-600  text-md" id="job-count-3"># </span> collected since April 2025</span></p>
+        </div>
+        <div class="overflow-x-auto mt-6 ">
+          <!-- <table class="min-w-full text-sm text-center border border-gray-300 rounded-lg shadow-md">
+            <thead class="bg-blue-500 text-white font-semibold">
+              <tr>
+                <th class="px-4 py-2">Tech Stack</th>
+                <th class="px-4 py-2">🧑‍🎓 Junior&Graduate</th>
+                <th class="px-4 py-2">👨‍💻 Intermediate</th>
+                <th class="px-4 py-2">👨‍💼 Senior</th>
+              </tr>
+            </thead>
+            <tbody class=" text-gray-800">
+              
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Frontend</td>
+                <td class="px-4 py-2">Real-time apps, SPAs</td>
+                <td class="px-4 py-2">Angular / Node.js</td>
+                <td class="px-4 py-2">Moderate</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Backend</td>
+                <td class="px-4 py-2">Dashboards, UIs</td>
+                <td class="px-4 py-2">React / Node.js</td>
+                <td class="px-4 py-2">Moderate</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Coding Methods</td>
+                <td class="px-4 py-2">CMS, Blogs</td>
+                <td class="px-4 py-2">PHP / MySQL</td>
+                <td class="px-4 py-2">Easy</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Cloud Platforms</td>
+                <td class="px-4 py-2">Static Sites</td>
+                <td class="px-4 py-2">JavaScript / APIs</td>
+                <td class="px-4 py-2">Low</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">DevOps Tools</td>
+                <td class="px-4 py-2">Rapid Prototyping</td>
+                <td class="px-4 py-2">Python / Django</td>
+                <td class="px-4 py-2">Moderate</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Database</td>
+                <td class="px-4 py-2">Enterprise Apps</td>
+                <td class="px-4 py-2">Java / Spring</td>
+                <td class="px-4 py-2">High</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">AI</td>
+                <td class="px-4 py-2">Cross-platform Apps</td>
+                <td class="px-4 py-2">Dart</td>
+                <td class="px-4 py-2">Moderate</td>
+              </tr>
+              <tr class="border-t border-gray-300">
+                <td class="px-4 py-2">Other</td>
+                <td class="px-4 py-2">Startups, MVPs</td>
+                <td class="px-4 py-2">Ruby / Rails</td>
+                <td class="px-4 py-2">Easy</td>
+              </tr>
+              
+            </tbody>
+          </table> -->
+          <table id="topTechStackTable" class="min-w-full text-sm text-center border border-gray-300 rounded-lg shadow-md border-none"></table>
+
+        </div>
+
+      </div>
+    </div>
+    <div id="modalContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script>
+      // 确保 ChartDataLabels 已经加载
+      Chart.register(ChartDataLabels);
+    </script>
+    <script src="config.js"></script>
+    <!-- <script type="module" src="mockData.js"></script> -->
+    <script src="./auth-utils.js"></script>
+
+    <script type="module" src="./StackTrends.js"></script>
+    <script>
+        fetch("login-modal.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("modalContainer").innerHTML = html;
+        });
+    </script>
+    <script>
+      document.getElementById("adminLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        checkAndEnterAdminPage();
+      });
+    </script>
+
+  </body>
+</html>

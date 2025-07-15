@@ -135,8 +135,10 @@ function initChart(labels, data) {
           color: '#374151', // text-gray-800
           formatter: function(value) {
             return `${(value * 100).toFixed(2)}%`;
-          }
-        }
+          },
+          animation: { duration: 0 } 
+        },
+
       },
       elements: {
         bar: {
@@ -144,12 +146,35 @@ function initChart(labels, data) {
           borderSkipped: false,
           barThickness: barThickness // 控制柱子宽度
         }
+      },
+      animation: {
+        delay: function (context) {
+          const index = context.dataIndex;
+          return index * 100;
+        },
+        duration: 800,
+        easing: 'easeOutQuart',
+        animations: {
+          x: false,
+          y: false,
+          radius: false,
+          colors: false,
+          borderWidth: false,
+          tension: false
+        }
       }
     }
+   
   });
-
 }
 
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && topChart) {
+    // 重置动画状态并立即重绘（无动画）
+    topChart.reset();
+    topChart.update({ duration: 0 });
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // populateTable(mockData);
@@ -386,9 +411,9 @@ function renderCategoryTags(data) {
     let html = "";
     const bgArr = [
       'blue-900', // ≥ 0.30
-      'blue-600', // 0.30 - 0.25
-      'blue-300', // 0.25 - 0.20
-      'blue-100'  // 0.20 - 0.15
+      'blue-700', // 0.30 - 0.25
+      'blue-500', // 0.25 - 0.20
+      'blue-300'  // 0.20 - 0.15
 
     ];
     techList.forEach((item, idx) => {
@@ -417,7 +442,7 @@ function renderCategoryTags(data) {
         textClass = 'text-white';
       }
       html += `
-        <div class="py-4 w-full rounded-lg opacity-90 bg-gradient-to-br shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-blue-100 ${textClass}">
+        <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-br shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-blue-100 ${textClass}">
           <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
           <div class="text-sm mt-1">${percentage}</div>
         </div>
@@ -426,6 +451,9 @@ function renderCategoryTags(data) {
 
       // 填充到对应div
     container.innerHTML = html;
+
+    initFadeInOnView();
+
   });
 
 }
@@ -763,3 +791,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function initFadeInOnView() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.remove('opacity-0');
+        entry.target.classList.add('animate-fade-up');
+        observer.unobserve(entry.target); // 播放一次就不再监听
+      }
+    });
+  }, {
+    threshold: 0.5  // 进入 30% 就触发
+  });
+
+  document.querySelectorAll('.js-fade-in').forEach(el => {
+    observer.observe(el);
+  });
+}
