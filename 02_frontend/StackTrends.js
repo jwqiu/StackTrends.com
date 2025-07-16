@@ -166,6 +166,7 @@ function initChart(labels, data) {
     }
    
   });
+  // window.dispatchEvent(new Event('resize'));
 }
 
 document.addEventListener('visibilitychange', () => {
