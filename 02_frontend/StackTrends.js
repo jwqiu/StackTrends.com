@@ -422,6 +422,8 @@ function renderCategoryTags(data) {
       const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       const percentageRaw = item.percentage ?? item.Percentage;
       const percentage = (percentageRaw * 100).toFixed(2) + '%';
+      const percentageWidth = percentage;
+
 
       let bgClass = '';
       if (percentageRaw >= 0.30) {
@@ -443,10 +445,15 @@ function renderCategoryTags(data) {
         textClass = 'text-white';
       }
       html += `
-        <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
-          <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
-          <div class="text-sm mt-1">${percentage}</div>
-        </div>
+          <div class="py-4 w-full rounded-lg overflow-hidden opacity-0 js-fade-in shadow-lg relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gray-100"></div>
+            <div class="absolute top-0 left-0 h-full bg-blue-500" style="width: ${percentage}"></div>
+            <div class="relative z-10 flex flex-col items-center justify-center">
+              <span class="block text-center w-full truncate text-md font-semibold text-gray-500"  title="${name}">${name}</span>
+              <div class="text-sm mt-1 text-gray-500" >${percentage}</div>
+            </div>
+          </div>
+
       `;
     });
 
@@ -459,6 +466,10 @@ function renderCategoryTags(data) {
 
 }
 
+        // <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
+        //   <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
+        //   <div class="text-sm mt-1">${percentage}</div>
+        // </div>
 
 function updateJobCount() {
   fetch(`${window.API_BASE}/api/job/count`)
