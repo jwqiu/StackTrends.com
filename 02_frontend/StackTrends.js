@@ -443,7 +443,7 @@ function renderCategoryTags(data) {
         textClass = 'text-white';
       }
       html += `
-        <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-br shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-blue-100 ${textClass}">
+        <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
           <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
           <div class="text-sm mt-1">${percentage}</div>
         </div>
@@ -467,6 +467,7 @@ function updateJobCount() {
       document.getElementById("job-count").textContent = data.count+" job posts";
       document.getElementById("job-count-2").textContent = data.count+" job posts";
       document.getElementById("job-count-3").textContent = data.count+" job posts";
+      document.getElementById("job-count-4").textContent = data.count+" job posts";
 
 
     })
