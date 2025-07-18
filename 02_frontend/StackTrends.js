@@ -445,11 +445,11 @@ function renderCategoryTags(data) {
         textClass = 'text-white';
       }
       html += `
-          <div class="py-4 w-full rounded-lg overflow-hidden opacity-0 js-fade-in shadow-lg relative">
+          <div class="py-4 w-full rounded-2xl overflow-hidden opacity-0 js-fade-in shadow-lg relative">
             <div class="absolute top-0 left-0 w-full h-full bg-gray-100"></div>
-            <div class="absolute top-0 left-0 h-full bg-blue-500" style="width: ${percentage}"></div>
+            <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-bg-blue-100 " style="width: ${percentage}"></div>
             <div class="relative z-10 flex flex-col items-center justify-center">
-              <span class="block text-center w-full truncate text-md font-semibold text-gray-500"  title="${name}">${name}</span>
+              <span class="block text-center w-full truncate text-md text-gray-500 "  title="${name}">${name}</span>
               <div class="text-sm mt-1 text-gray-500" >${percentage}</div>
             </div>
           </div>
