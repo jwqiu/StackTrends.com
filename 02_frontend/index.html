@@ -13,35 +13,62 @@
             }
         </style>
     </head>
-    <body class="relative bg-gradient-to-br from-gray-500 via-slate-50 to-slate-100 flex justify-center items-center min-h-screen p-16">
+    <body class="relative bg-gradient-to-r from-gray-500 via-slate-50 to-slate-100 flex justify-center items-center min-h-screen p-16">
         <div class="absolute top-4 left-4 flex items-center gap-x-1 ">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-700">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
             </svg>
-            <div class="text-xl  text-gray-700">StackRadar</div>
+            <div class="text-xl font-bold text-blue-700">StackRadar</div>
         </div>
-        <div class="flex flex-col p-8 xl:p-0 xl:flex-row gap-4 xl:gap-x-8 xl:items-center items-start gap-y-8 xl:gap-y-0 ">
-            <div class="text-start max-w-xl me-4 mb-6 xl:mb-0">
+        <div class="flex flex-col p-8 xl:p-0 xl:flex-row gap-4 xl:gap-x-24 xl:items-center items-start gap-y-8 xl:gap-y-0 ">
+            <div class="text-start max-w-xl  me-4 mb-4 xl:mb-0">
                 <p class="text-3xl xl:text-4xl font-bold text-gray-600 mb-1 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.3s_forwards]">
                     Discover the
                 </p>
-                <p class="text-3xl xl:text-4xl font-bold text-blue-600 text-nowrap mb-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.6s_forwards]">
+                <p class="text-3xl xl:text-5xl font-bold text-blue-600 text-nowrap mb-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.6s_forwards]">
                     Most In-Demand Tech Skills
                 </p>
                 <p class="text-lg text-gray-600 mb-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.9s_forwards]">
                     We help junior developers discover the most in-demand tech stacks in New Zealand by tracking the frequency of tech-related keywords in daily job postings.
                 </p>
+
+                <div class="flex w-full mb-8  opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.2s_forwards] delay-1200">
+                    <div class="w-1/3 flex justify-start">
+                        <div class="text-center">
+                            <div class="font-bold text-3xl text-blue-600" id="jobsCount">#</div>
+                            <div class="capitalize text-md text-gray-600">Jobs Collected</div>
+                        </div>
+                    </div>
+
+                    <div class="w-1/3 flex justify-center">
+                        <div class="text-center">
+                            <span class="font-bold text-3xl  text-blue-600" id="companiesCount">#</span>
+                            <br>
+                            <span class="capitalize text-md text-gray-600">Companies Collected</span>
+                        </div>
+                    </div>
+                    <div class="w-1/3 flex justify-end">
+                        <div class="text-center">
+                            <span class="font-bold text-3xl  text-blue-600" id="techKeywordsCount">#</span>
+                            <br>
+                            <span class="capitalize text-md text-gray-600" >Tech Keywords</span>
+                        </div>
+                    </div>
+                </div>
+
                 <a href="StackTrends.html">
-                    <button class="bg-blue-600 font-bold text-white py-4 px-8 rounded-full opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.2s_forwards] delay-1200">
-                    Let’s See
+                    <button class="bg-blue-600 font-bold text-white w-full xl:w-auto py-3 px-12 shadow-lg rounded-full opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.5s_forwards] delay-1200">
+                    Explore Insights
                     </button>
                 </a>
             </div>
-            <div class="opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.5s_forwards] delay-1500">
-                <img src="./static/images/TLMS_20240104_1200x628-1.png" class="w-full max-w-2xl rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl" alt="">
+            <div class="opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.8s_forwards] delay-1500">
+                <img src="./static/images/TLMS_20240104_1200x628-1.png" class="w-full max-w-xl xl:max-w-3xl rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl" alt="">
             </div>
         </div>
-        
+        <script src="config.js"></script>
+        <script src="./index.js"></script>
+
 
     </body>
 </html>

@@ -39,4 +39,17 @@ namespace StackTrends.Models
         public double Percentage { get; set; }
     }
 
+    public class CompaniesCount
+    {
+        public int Company_Id { get; set; }
+        public int Jobs_Count { get; set; }
+        public string? Company_name { get; set; }
+    }
+
+    public class KeywordsCount
+    {
+        public int Count { get; set; }
+    }
+
+
 }

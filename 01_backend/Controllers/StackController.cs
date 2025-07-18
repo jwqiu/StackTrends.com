@@ -86,7 +86,7 @@ public class TechStackController : ControllerBase
             // 如果找不到该记录，返回 404
             return NotFound();       // HTTP 404
     }
-    
+
     [HttpPut("update/{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechStack stack)
@@ -102,7 +102,7 @@ public class TechStackController : ControllerBase
         ";
 
         await using var cmd = new NpgsqlCommand(sql, _conn);
-        cmd.Parameters.AddWithValue("category", stack.Category   ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("category", stack.Category ?? (object)DBNull.Value);
         cmd.Parameters.AddWithValue("rawKeyword", stack.StackName ?? (object)DBNull.Value);
         cmd.Parameters.AddWithValue("normalizedKeyword", stack.NormalizedStackName ?? (object)DBNull.Value);
         cmd.Parameters.AddWithValue("id", id);
@@ -168,6 +168,25 @@ public class TechStackController : ControllerBase
         // 3) 都没有命中，返回原始 keyword
         await _conn.CloseAsync();
         return Ok(new { normalized = keyword });
+    }
+
+    [HttpGet("count")]
+    public async Task<ActionResult<object>> GetRawKeywordTotalCount()
+    {
+        var sql = @"
+            SELECT COUNT(raw_keyword)
+            FROM public.tech_stacks_list;
+        ";
+
+        await _conn.OpenAsync();
+
+        using var cmd = new NpgsqlCommand(sql, _conn);
+        var result = await cmd.ExecuteScalarAsync();
+        var count = Convert.ToInt32(result ?? 0);
+
+        await _conn.CloseAsync();
+
+        return Ok(new { count }); 
     }
 
 }
