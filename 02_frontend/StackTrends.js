@@ -187,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTopTechStackTableByLevel();
     })
     .catch(err => console.error(err));
+  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`);
 });
 
 // window.addEventListener('resize', syncChartHeight);
@@ -819,5 +820,84 @@ function initFadeInOnView() {
 
   document.querySelectorAll('.js-fade-in').forEach(el => {
     observer.observe(el);
+  });
+}
+
+// renderCompanies.js
+export async function renderTechStackByCompany(containerId, apiUrl) {
+  // 1. 拉数据
+  const res  = await fetch(apiUrl);
+  const rows = await res.json();
+
+  const cntRes       = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
+  const cntRows      = await cntRes.json();
+  const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
+
+  // 2. 按 company 分组
+  const byCompany = {};
+  rows.forEach(r => {
+    byCompany[r.company_Id] ??= {
+      id:   r.company_Id,
+      name: r.company_Name,
+      cats: {}
+    };
+    const cats = byCompany[r.company_Id].cats;
+    // (cats[r.category] ??= []).push(r.technology);
+    (cats[r.category] ??= []).push({
+      technology: r.technology,
+      percentage: r.percentage
+    });
+  });
+
+  // 3. 渲染到容器
+  const container = document.getElementById(containerId);
+  // Object.values(byCompany).forEach(comp => {
+  Object.values(byCompany)
+    .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
+    .forEach(comp => {
+    const card = document.createElement('div');
+    card.dataset.companyId = comp.id;
+    card.className = 'flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
+    // 公司名
+    // 先设置 data-id
+    card.dataset.companyId = comp.id;
+
+    // 计算职位数
+    const jc = jobsCountMap[comp.id] || 0;
+
+    // 直接插入 HTML
+    card.insertAdjacentHTML('beforeend', `
+      <div class="">
+        <p class="text-xl font-bold text-blue-600 truncate">${comp.name}</p>
+        <p class="text-sm text-gray-600">${jc} Job Postings</p>
+      </div>
+    `);
+
+
+    // 按固定顺序渲染 4 个分类，每组取前三
+    ['Frontend','Backend','Cloud Platforms','Database']
+      .forEach(cat => {
+        const col = document.createElement('div');
+        col.className = 'flex flex-col gap-1 h-[100px] min-w-[150px] items-center text-center  justify-center';
+      //   (comp.cats[cat] || []).slice(0,3)
+      //   .forEach(tech => {
+      //     const p = document.createElement('p');
+      //     p.textContent = tech.charAt(0).toUpperCase() + tech.slice(1);
+      //     col.append(p);
+      //   });
+      //   card.append(col);
+      // });
+        (comp.cats[cat] || []).slice(0,3)
+        .forEach(item => {
+          const p = document.createElement('p');
+          // 首字母大写 + 百分比同一行
+          const techName = item.technology.charAt(0).toUpperCase() + item.technology.slice(1);
+          p.textContent = `${techName} ${(item.percentage * 100).toFixed(2)}%`;
+          col.append(p);
+        });
+
+        card.append(col);
+      });
+    container.append(card);
   });
 }

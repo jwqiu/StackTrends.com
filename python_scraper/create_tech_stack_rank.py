@@ -1,35 +1,39 @@
+import sys
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from collections import Counter
 import pandas as pd
 from python_scraper.connect import get_conn
 from psycopg2.extras import execute_values
 
 
-# 从 jobs 表中读取所有技术标签
-def load_tags(level='all'):
+def load_tags(level=None, company_id=None):
     conn = get_conn()
     cur = conn.cursor()
+
+    base_sql = "SELECT tech_tags FROM jobs WHERE tech_tags IS NOT NULL"
+    params = []
+
     if level and level.lower() != 'all':
-        sql = """
-            SELECT tech_tags
-            FROM jobs
-            WHERE tech_tags IS NOT NULL
-              AND job_level = %s
-        """
-        cur.execute(sql, (level,))
-    else:
-        sql = """
-            SELECT tech_tags
-            FROM jobs
-            WHERE tech_tags IS NOT NULL
-        """
-        cur.execute(sql)
+        base_sql += " AND job_level = %s"
+        params.append(level)
+
+    if company_id:
+        base_sql += " AND company_id = %s"
+        params.append(company_id)
+
+    cur.execute(base_sql, tuple(params))
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
     all_tags = []
     for row in rows:
-        tags = row[0].split(',')  # 假设逗号分隔
+        tags = row[0].split(',')  # 逗号分隔
         tags = [t.strip().lower() for t in tags if t.strip()]
         all_tags.extend(tags)
     return all_tags
@@ -62,7 +66,7 @@ def create_tech_stack_rank():
         else:
             cur.execute("SELECT COUNT(*) FROM jobs")
 
-        total_jobs = cur.fetchone()[0]
+        total_jobs = cur.fetchone()[0] # type: ignore
         cur.close()
         conn.close()
 
@@ -126,3 +130,105 @@ def create_tech_stack_rank():
     conn.commit()
     cur.close()
     conn.close()
+
+
+def create_tech_stack_rank_by_company():
+    from collections import Counter
+    import pandas as pd
+    from psycopg2.extras import execute_values
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # 获取 top 20 公司
+    cur.execute("""
+        SELECT company_id, company_name
+        FROM job_counts_by_company
+        ORDER BY jobs_count DESC
+        LIMIT 20
+    """)
+    top_companies = cur.fetchall()  # [(id1, name1), (id2, name2), ...]
+
+    # 加载 tech → category 映射
+    cur.execute("SELECT raw_keyword, category FROM tech_stacks_list")
+    category_map = {k.lower(): v for k, v in cur.fetchall()}
+
+    cur.close()
+    conn.close()
+
+    all_dfs = []
+
+    for company_id, company_name in top_companies:
+        # 加载该公司所有职位的 tags
+        tags = load_tags(company_id=company_id)  # 你需要支持 company_id 参数
+        tag_counter = Counter(tags)
+
+        # 获取该公司职位总数
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM jobs WHERE company_id = %s", (company_id,))
+        total_jobs = cur.fetchone()[0] # type: ignore
+        cur.close()
+        conn.close()
+
+        # 计算频率 DataFrame
+        df = pd.DataFrame(tag_counter.items(), columns=['technology', 'Mentions'])
+        df['Mentions'] = df['Mentions'].astype(int)
+        df['Percentage'] = df['Mentions'] / total_jobs
+
+        df['Category'] = df['technology'].str.lower().map(category_map).fillna('Other')
+        # 排序：Category 升序、Mentions 降序
+        df = df.sort_values(['Category', 'Mentions'], ascending=[True, False])
+        # 分组取每组前三
+        df = df.groupby('Category', group_keys=False).head(3)
+
+        df['Company_ID'] = company_id
+        df['Company_Name'] = company_name
+
+        all_dfs.append(df)
+
+    final_df = pd.concat(all_dfs, ignore_index=True)
+
+    # 保存结果表
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS tech_stack_rank_by_company")
+    cur.execute("""
+        CREATE TABLE tech_stack_rank_by_company (
+            company_id    BIGINT,
+            company_name  TEXT,
+            category      TEXT,
+            technology    TEXT,
+            mentions      INTEGER,
+            percentage    NUMERIC
+        )
+    """)
+
+    rows = [
+        (
+            row['Company_ID'],
+            row['Company_Name'],
+            row['Category'],
+            row['technology'],
+            int(row['Mentions']),
+            float(row['Percentage'])
+        )
+        for _, row in final_df.iterrows()
+    ]
+
+    execute_values(
+        cur,
+        """
+        INSERT INTO tech_stack_rank_by_company
+        (company_id, company_name, category, technology, mentions, percentage)
+        VALUES %s
+        """,
+        rows
+    )
+
+    print("按公司维度的技术栈排名已写入数据库。")
+    conn.commit()
+    cur.close()
+    conn.close()
+
+create_tech_stack_rank_by_company()

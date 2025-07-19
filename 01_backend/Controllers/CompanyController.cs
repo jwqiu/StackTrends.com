@@ -18,38 +18,29 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet("jobs-count")]
-    public async Task<ActionResult<IEnumerable<CompaniesCount>>> GetCompanyJobCountRawSql()
+    public async Task<ActionResult<IEnumerable<CompaniesCount>>> GetTop20CompaniesByJobCount()
     {
-        var result = new List<CompaniesCount>();
-
-        var sql = @"
-            SELECT 
-                company_id, 
-                COUNT(*) AS jobs_count, 
-                company_name
-            FROM 
-                public.jobs
-            GROUP BY 
-                company_id, company_name
-            ORDER BY 
-                jobs_count DESC;
+        const string sql = @"
+            SELECT company_id, company_name, jobs_count
+            FROM public.job_counts_by_company
+            ORDER BY jobs_count DESC
+            LIMIT 20;
         ";
 
+        var result = new List<CompaniesCount>();
+
         await _conn.OpenAsync();
-
-        using var cmd = new NpgsqlCommand(sql, _conn);
+        using var cmd    = new NpgsqlCommand(sql, _conn);
         using var reader = await cmd.ExecuteReaderAsync();
-
         while (await reader.ReadAsync())
         {
             result.Add(new CompaniesCount
             {
-                Company_Id = reader.GetInt32(0),
-                Jobs_Count = reader.GetInt32(1),
-                Company_name = reader.IsDBNull(2) ? null : reader.GetString(2)
+                Company_Id     = (int)reader.GetInt64(0),
+                Company_name   = reader.IsDBNull(1) ? null : reader.GetString(1),
+                Jobs_Count     = (int)reader.GetInt64(2)
             });
         }
-
         await _conn.CloseAsync();
 
         return Ok(result);
@@ -72,6 +63,44 @@ public class CompaniesController : ControllerBase
         await _conn.CloseAsync();
 
         return Ok(new { count });
+    }
+
+    [HttpGet("tech-stack-rank")]
+    public async Task<ActionResult<IEnumerable<TechStackRankByCompany>>> GetTechStackRank()
+    {
+        var sql = @"
+            SELECT 
+                company_id,
+                company_name,
+                category,
+                technology,
+                mentions,
+                percentage
+            FROM public.tech_stack_rank_by_company
+            ORDER BY company_id, category, mentions DESC
+        ";
+
+        var result = new List<TechStackRankByCompany>();
+
+        await _conn.OpenAsync();
+        using var cmd    = new NpgsqlCommand(sql, _conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            result.Add(new TechStackRankByCompany
+            {
+                Company_Id     = reader.GetInt64(0),
+                Company_Name   = reader.IsDBNull(1) ? null : reader.GetString(1),
+                Category       = reader.IsDBNull(2) ? null : reader.GetString(2),
+                Technology     = reader.IsDBNull(3) ? null : reader.GetString(3),
+                Mentions       = reader.GetInt32(4),
+                Percentage     = reader.GetDecimal(5)
+            });
+        }
+        await _conn.CloseAsync();
+
+        return Ok(result);
     }
 
 

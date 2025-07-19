@@ -1,3 +1,10 @@
+# import sys
+# import os
+
+# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# if project_root not in sys.path:
+#     sys.path.insert(0, project_root)
+
 import pandas as pd
 import re
 from collections import Counter
@@ -98,7 +105,7 @@ def load_job_data():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM jobs")
     rows = cursor.fetchall()
-    colnames = [desc[0] for desc in cursor.description]  # 获取列名
+    colnames = [desc[0] for desc in cursor.description]  # 获取列名 # type: ignore
     cursor.close()
     conn.close()
     return pd.DataFrame(rows, columns=colnames) 
