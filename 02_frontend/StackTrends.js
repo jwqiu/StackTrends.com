@@ -425,7 +425,6 @@ function renderCategoryTags(data) {
       const percentage = (percentageRaw * 100).toFixed(2) + '%';
       const percentageWidth = percentage;
 
-
       let bgClass = '';
       if (percentageRaw >= 0.30) {
         bgClass = bgArr[0];
@@ -438,25 +437,25 @@ function renderCategoryTags(data) {
       }
 
       let textClass = '';
-      // const bgClass = bgArr[idx % bgArr.length];
-      // const textClass = idx < 3 ? 'text-gray-700' : 'text-gray-500';
       if (percentageRaw >= 0.05) {
         textClass = 'text-white ';
       } else {
         textClass = 'text-white';
       }
-      html += `
-          <div class="py-4 w-full rounded-2xl overflow-hidden opacity-0 js-fade-in shadow-lg relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gray-100"></div>
-            <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-bg-blue-100 " style="width: ${percentage}"></div>
-            <div class="relative z-10 flex flex-col items-center justify-center">
-              <span class="block text-center w-full truncate text-md text-gray-500 "  title="${name}">${name}</span>
-              <div class="text-sm mt-1 text-gray-500" >${percentage}</div>
-            </div>
-          </div>
 
+      html += `
+        <div class="py-6 w-full rounded-md overflow-hidden opacity-0 js-fade-in shadow-lg relative">
+          <div class="absolute top-0 left-0 w-full h-full bg-gray-100"></div>
+          <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
+          <div class="relative z-10 flex items-center justify-center h-full">
+            <span class="block text-center w-full truncate text-sm text-gray-500" title="${name}">
+            ${name}${idx === 0 ? `<span class="ml-2 text-sm text-gray-500">(${percentage})</span>` : ''}
+            </span>
+          </div>
+        </div>
       `;
     });
+
 
       // 填充到对应div
     container.innerHTML = html;
@@ -742,10 +741,9 @@ async function renderTopTechStackTableByLevel() {
     });
     // 只保留 mentions 前3
     Object.entries(grouped).forEach(([cat, arr2]) => {
-      const top3 = arr2
+    const top3 = arr2
       .sort((a, b) => b.ment - a.ment)
-      .slice(0, 3)
-      .map(x => `${capitalize(x.tech)} (${(x.perc * 100).toFixed(2)}%)`);
+      .slice(0, 3);
       if (!tableData[cat]) tableData[cat] = {};
       tableData[cat][lvl.key] = top3;
     });
@@ -754,17 +752,17 @@ async function renderTopTechStackTableByLevel() {
   // 按照固定顺序展示
   const categoryOrder = [
     "Frontend","Backend","Coding Methods and Practices","Cloud Platforms",
-    "DevOps Tools","Database","AI","Other"
+    "DevOps Tools","Database","AI"
   ];
 
   // 生成表格 HTML
   let html = `
     <thead class=" border-none text-gray-500">
       <tr>
-        <th class="px-4 py-4">#</th>
+        <th class="px-4 py-2">#</th>
          ${levels.map(l => {
             const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
-            return `<th class="px-4 py-4 text-lg text-center">${l.label} <span class="text-sm text-gray-400">(${count} jobs)</span></th>`;
+            return `<th class="px-4 font-normal py-2 text-lg text-center">${l.label}<br> <span class="text-sm text-gray-400">(${count} jobs)</span></th>`;
           }).join("")}
       </tr>
     </thead>
@@ -772,15 +770,35 @@ async function renderTopTechStackTableByLevel() {
   `;
   categoryOrder.forEach(cat => {
     html += `<tr class="">
-      <td class="px-4 py-2">${cat}</td>
+      <td class="px-0 py-2">${cat}</td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
-        const displayArr = arr.map((val, idx) => 
-          idx === 0 
-            ? `<span class="font-bold bg-blue-400 shadow-lg rounded-lg px-2 py-1 text-white">${capitalize(val)}</span>`
-            : capitalize(val)
-        );
-        return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('<br>') : '-'}</td>`;
+        // const displayArr = arr.map((val, idx) => 
+        //   idx === 0 
+        //     ? `<span class="font-bold bg-blue-400 w-full inline-block shadow-lg rounded-lg px-2 py-1 text-white">${capitalize(val)}</span>`
+        //     : capitalize(val)
+        // );*/
+        const displayArr = arr.map((val, idx) => {
+          // val 现在应该是对象 { tech, ment, perc }
+          // if (idx === 0) {
+            const width = `${(val.perc * 100).toFixed(2)}%`;
+            const label = idx === 0
+              ? `${capitalize(val.tech)} (${width})`
+              : `${capitalize(val.tech)}`;            
+              // const label = `${capitalize(val.tech)}`;
+
+            return `
+              <span class="relative block bg-gray-100 rounded-md  shadow-lg px-0 mb-2 py-2">
+                <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${width};"></span>
+                <span class="relative z-10  text-gray-500 px-2">${label}</span>
+              </span>
+            `;
+          // } else {
+          //   // 其他普通文字
+          //   return `${capitalize(val.tech)} (${(val.perc * 100).toFixed(2)}%)`;
+          // }
+        });
+        return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('') : '-'}</td>`;
       }).join("")}
     </tr>`;
   });
@@ -851,67 +869,78 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
 
   // 3. 渲染到容器
   const container = document.getElementById(containerId);
+  const frag = document.createDocumentFragment();
   // Object.values(byCompany).forEach(comp => {
   Object.values(byCompany)
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
     const card = document.createElement('div');
-    card.dataset.companyId = comp.id;
-    card.className = 'opacity-0 js-fade-in flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
-    // 公司名
-    // 先设置 data-id
-    card.dataset.companyId = comp.id;
+      card.dataset.companyId = comp.id;
+      card.className = 'opacity-0 js-fade-in flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-blue-300 hover:to-white';
+      // 公司名
+      // 先设置 data-id
+      card.dataset.companyId = comp.id;
 
-    // 计算职位数
-    const jc = jobsCountMap[comp.id] || 0;
+      // 计算职位数
+      const jc = jobsCountMap[comp.id] || 0;
 
-    // 直接插入 HTML
-    card.insertAdjacentHTML('beforeend', `
-      <div class="">
-        <p class="text-xl font-bold text-blue-600 truncate">${comp.name}</p>
-        <p class="text-sm text-gray-600">${jc} Job Postings</p>
-      </div>
+      // 直接插入 HTML
+      card.insertAdjacentHTML('beforeend', `
+        <div class="">
+          <p class="text-xl font-bold text-blue-600 truncate">${comp.name}</p>
+          <p class="text-sm text-gray-600">${jc} Job Postings</p>
+        </div>
     `);
+
+    frag.appendChild(card);
 
 
     // 按固定顺序渲染 4 个分类，每组取前三
-    ['Frontend','Backend','Cloud Platforms','Database']
-      .forEach(cat => {
-        const col = document.createElement('div');
-        col.className = 'flex flex-col gap-1 h-[100px] min-w-[150px] text-gray-500 items-center text-center  justify-center';
-      //   (comp.cats[cat] || []).slice(0,3)
-      //   .forEach(tech => {
-      //     const p = document.createElement('p');
-      //     p.textContent = tech.charAt(0).toUpperCase() + tech.slice(1);
-      //     col.append(p);
-      //   });
-      //   card.append(col);
-      // });
-        (comp.cats[cat] || []).slice(0,3)
-        .forEach(item => {
-          const p = document.createElement('p');
-          // 首字母大写 + 百分比同一行
-          const techName = item.technology.charAt(0).toUpperCase() + item.technology.slice(1);
-          p.textContent = `${techName} ${(item.percentage * 100).toFixed(2)}%`;
-          col.append(p);
-        });
+    ['Frontend','Backend','Cloud Platforms','Database'].forEach(cat => {
+      const arr = (comp.cats[cat] || []).slice(0, 3);
 
-        card.append(col);
-      });
-    container.append(card);
+      // 拼接每个技术的进度条段落
+      const colHtml = arr.map((item, idx) => {
+        const techName = item.technology.charAt(0).toUpperCase() + item.technology.slice(1);
+        const percentage = (item.percentage * 100).toFixed(2) + '%';
+        return `
+          <span class="relative block bg-gray-100 rounded-md shadow-lg px-0 mb-2 py-2 overflow-hidden min-w-[120px] w-full">
+            <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${percentage};"></span>
+            <span class="relative z-10 text-gray-500 text-sm  px-2" style="white-space:nowrap;">
+              ${techName}${idx === 0 ? ` ${percentage}` : ''}
+            </span>
+          </span>
+        `;
+      }).join('');
+
+      const col = document.createElement('div');
+      col.className = 'flex flex-col gap-0 h-[150px] min-w-[150px] text-gray-500 items-center text-center justify-center w-full';
+      col.innerHTML = colHtml;
+
+      card.append(col);
+    });
+
+
   });
-  initNewFadeInOnView();
+  container.appendChild(frag);
+  initCompanyCardFadeInOnView(); // 只在最后调用一次
 }
 
-function initNewFadeInOnView() {
+function initCompanyCardFadeInOnView() {
+  const cards = Array.from(document.querySelectorAll('.js-fade-in'));
+  const trigger = document.getElementById('companySectionTitle');
   const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.remove('opacity-0');
-        entry.target.classList.add('animate-fade-up');
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
-  document.querySelectorAll('.js-fade-in').forEach(el => observer.observe(el));
+    if (entries.some(entry => entry.isIntersecting)) {
+      // 立即显示第一张，其余每张间隔20ms（可调整到你觉得顺滑为止）
+      cards.forEach((el, idx) => {
+        setTimeout(() => {
+          el.classList.remove('opacity-0');
+          el.classList.add('opacity-100', 'animate-fade-up');
+        }, idx * 50);
+      });
+      obs.disconnect();
+    }
+  }, { threshold: 0 }); // 只要一点点进入就触发
+
+  observer.observe(trigger);
 }
