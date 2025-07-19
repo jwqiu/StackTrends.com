@@ -857,7 +857,7 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
     .forEach(comp => {
     const card = document.createElement('div');
     card.dataset.companyId = comp.id;
-    card.className = 'flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
+    card.className = 'opacity-0 js-fade-in flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
     // 公司名
     // 先设置 data-id
     card.dataset.companyId = comp.id;
@@ -878,7 +878,7 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
     ['Frontend','Backend','Cloud Platforms','Database']
       .forEach(cat => {
         const col = document.createElement('div');
-        col.className = 'flex flex-col gap-1 h-[100px] min-w-[150px] items-center text-center  justify-center';
+        col.className = 'flex flex-col gap-1 h-[100px] min-w-[150px] text-gray-500 items-center text-center  justify-center';
       //   (comp.cats[cat] || []).slice(0,3)
       //   .forEach(tech => {
       //     const p = document.createElement('p');
@@ -900,4 +900,18 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
       });
     container.append(card);
   });
+  initNewFadeInOnView();
+}
+
+function initNewFadeInOnView() {
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.remove('opacity-0');
+        entry.target.classList.add('animate-fade-up');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.js-fade-in').forEach(el => observer.observe(el));
 }
