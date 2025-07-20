@@ -449,10 +449,10 @@ function renderCategoryTags(data) {
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-gray-200 to-gray-100"></div>
             <div class="absolute top-0 left-0 h-full bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
             <div class="relative z-10 flex items-center group-hover:justify-center h-full px-2">
-              <span class="text-sm text-gray-600 text-shadow   hidden group-hover:inline group-hover:opacity-100 transition-opacity duration-200">
+              <span class="text-sm text-gray-600 text-shadow font-bold  hidden group-hover:inline group-hover:opacity-100 transition-opacity duration-200">
                 ${percentage}
               </span>
-              <span class="w-full text-md text-end  group-hover:font-bold  truncate text-sm text-gray-600  " title="${name}">
+              <span class="w-full text-md text-center  group-hover:font-bold group-hover:hidden truncate text-sm text-gray-600  " title="${name}">
                 ${name}
               </span>
             
