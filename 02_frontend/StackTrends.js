@@ -444,13 +444,21 @@ function renderCategoryTags(data) {
       }
 
       html += `
-        <div class="py-6 w-full rounded-md overflow-hidden opacity-0 js-fade-in shadow-lg relative">
-          <div class="absolute top-0 left-0 w-full h-full bg-gray-100"></div>
-          <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
-          <div class="relative z-10 flex items-center justify-center h-full">
-            <span class="block text-center w-full truncate text-sm text-gray-500" title="${name}">
-            ${name}${idx === 0 ? `<span class="ml-2 text-sm text-gray-500">(${percentage})</span>` : ''}
-            </span>
+        <div class="opacity-0 js-fade-in">
+          <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105  shadow-lg relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-gray-200 to-gray-100"></div>
+            <div class="absolute top-0 left-0 h-full bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
+            <div class="relative z-10 flex items-center group-hover:justify-center h-full px-2">
+              <span class="text-sm text-gray-600 text-shadow   hidden group-hover:inline group-hover:opacity-100 transition-opacity duration-200">
+                ${percentage}
+              </span>
+              <span class="w-full text-md text-end  group-hover:font-bold  truncate text-sm text-gray-600  " title="${name}">
+                ${name}
+              </span>
+            
+              
+             
+            </div>
           </div>
         </div>
       `;
@@ -466,10 +474,13 @@ function renderCategoryTags(data) {
 
 }
 
-        // <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
-        //   <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
-        //   <div class="text-sm mt-1">${percentage}</div>
-        // </div>
+// <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
+//   <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
+//   <div class="text-sm mt-1">${percentage}</div>
+// </div>
+
+// ${idx === 0 ? `<span class="ml-2 text-sm text-gray-500">(${percentage})</span>` : ''}
+
 
 function updateJobCount() {
   fetch(`${window.API_BASE}/api/job/count`)
@@ -782,15 +793,16 @@ async function renderTopTechStackTableByLevel() {
           // val 现在应该是对象 { tech, ment, perc }
           // if (idx === 0) {
             const width = `${(val.perc * 100).toFixed(2)}%`;
-            const label = idx === 0
-              ? `${capitalize(val.tech)} (${width})`
-              : `${capitalize(val.tech)}`;            
+            const label = `${capitalize(val.tech)}`;            
               // const label = `${capitalize(val.tech)}`;
 
             return `
-              <span class="relative block bg-gray-100 rounded-md  shadow-lg px-0 mb-2 py-2">
-                <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${width};"></span>
-                <span class="relative z-10  text-gray-500 px-2">${label}</span>
+              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-gray-100 flex justify-between rounded-md group shadow-lg px-0 mb-2 py-2 ">
+                <span class="absolute left-0 top-0 h-full  rounded-md bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100" style="width: ${width};"></span>
+                <span class="px-2 z-10  text-sm text-gray-700 text-shadow    opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  ${width}
+                </span>
+                <span class=" z-10 inline-block w-full text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
               </span>
             `;
           // } else {
@@ -874,9 +886,14 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
   Object.values(byCompany)
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
-    const card = document.createElement('div');
+      const outer = document.createElement('div');
+      outer.className = 'opacity-0 js-fade-in'; // 外层负责 fadeUp 动画
+
+      const card = document.createElement('div');
       card.dataset.companyId = comp.id;
-      card.className = 'opacity-0 js-fade-in flex flex-col gap-6 bg-gradient-to-r from-blue-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-blue-300 hover:to-white';
+      card.className = 'flex flex-col gap-6 bg-gradient-to-r from-gray-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-blue-300 hover:to-white';
+
+      outer.appendChild(card); // 把 card 放进外壳
       // 公司名
       // 先设置 data-id
       card.dataset.companyId = comp.id;
@@ -906,8 +923,8 @@ export async function renderTechStackByCompany(containerId, apiUrl) {
         return `
           <span class="relative block bg-gray-100 rounded-md shadow-lg px-0 mb-2 py-2 overflow-hidden min-w-[120px] w-full">
             <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${percentage};"></span>
-            <span class="relative z-10 text-gray-500 text-sm  px-2" style="white-space:nowrap;">
-              ${techName}${idx === 0 ? ` ${percentage}` : ''}
+            <span class="relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2" style="white-space:nowrap;">
+              ${techName}
             </span>
           </span>
         `;
