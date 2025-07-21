@@ -185,7 +185,16 @@ def get_jobs_data():
 
                 job.append(company_id)
 
-                job.append(job_data.get('companyName') or job_data.get('name') or "N/A")
+                # job.append(job_data.get('companyName') or job_data.get('name') or "N/A")
+                companyName = (
+                    job_data.get('companyName') or
+                    (job_data.get('advertiser') or {}).get('description') or
+                    (job_data.get('employer') or {}).get('name') or
+                    job_data.get('name') or
+                    "N/A"
+                )
+                job.append(companyName)
+
                 job.append(job_data['id'])
                 job.append(job_data['title'])
 

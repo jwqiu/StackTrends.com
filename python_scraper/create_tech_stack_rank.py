@@ -231,4 +231,3 @@ def create_tech_stack_rank_by_company():
     cur.close()
     conn.close()
 
-create_tech_stack_rank_by_company()
