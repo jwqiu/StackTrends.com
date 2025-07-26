@@ -6,7 +6,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gray-100">
+    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300">
         <nav class="bg-white relative shadow p-4 shadow-lg flex justify-between items-center ">
             <div class="flex items-start flex-col">
                 <a href="index.html">
@@ -14,7 +14,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
                         </svg>
-                        <div class="text-xl font-bold text-blue-600">SkillsRadar</div>
+                        <div class="text-xl font-serif font-bold text-blue-600">SkillsRadar</div>
                     </div>
                 </a>
                 <p class="mt-0 ms-9 text-sm text-gray-500">Discover the most in-demand Tech Skills from <span class="font-bold text-gray-500">Real Job Data</span></p>
@@ -49,21 +49,21 @@
             <div class="w-full md:w-1/4 h-full min-w-[300px] flex flex-col gap-y-4 bg-white p-8 rounded-lg shadow-lg article-list">
                 <p class="text-lg text-gray-600">✍️ Article List</p>
                 <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer hover:border-2 hover:border-blue-500 hover:scale-105 " data-id="StackRadar">
-                    <p class="text-md font-bold">About the StackRadar</p>
+                    <p class="text-md text-gray-500 font-bold">About the SkillsRadar</p>
                     <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
                 </div>
                 <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer hover:border-2 hover:border-blue-500 hover:scale-105 " data-id="Author">
-                    <p class="text-md font-bold">About the Creator</p>
+                    <p class="text-md text-gray-500 font-bold">About the Creator</p>
                     <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
                 </div>
             </div>
-            <div class="w-full md:w-3/4 bg-white p-8 rounded-lg shadow-lg article-content">
+            <div class="w-full md:w-3/4 bg-white p-12 rounded-lg shadow-lg article-content">
                 <div class=" flex flex-col gap-y-4" data-id="StackRadar">
-                    <p class="text-5xl font-bold">About the StackRadar</p>
+                    <p class="text-5xl text-gray-500 font-bold">About the SkillsRadar</p>
                     <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
                     <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
                         <p class="text-md text-gray-600 "style="white-space: pre-line;">
-                            <span class=" text-blue-500">StackRadar</span> is a project created by a programming student at <span class="font-bold ">Lincoln University</span>, who previously worked as a senior product manager at a tech giant in China. StackRadar aims to help junior developers understand what tech skills are most in demand in New Zealand, so they can better prepare before entering the job market. It also allows users to filter jobs based on their own tech stacks, making the job search more efficient and accurate.
+                            <span class=" text-blue-500">SkillsRadar</span> is a project created by a programming student at <span class="font-bold ">Lincoln University</span>, who previously worked as a senior product manager at a tech giant in China. SkillsRadar aims to help junior developers understand what tech skills are most in demand in New Zealand, so they can better prepare before entering the job market. It also allows users to filter jobs based on their own tech stacks, making the job search more efficient and accurate.
 
                             The idea behind this platform comes from two personal observations.
 
@@ -73,11 +73,11 @@
 
                             This is exactly an area where I knew I could make a difference.
 
-                            After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: <br><br> <span class="text-blue-500">I could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind <span class="">StackRadar</span>.</span>
+                            After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: <br><br> <span class="text-blue-500">I could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind <span class="">SkillsRadar</span>.</span>
 
-                            For students like me or other junior developers, there’s one thing I really hope you take away from <span class="text-blue-500">StackRadar</span>: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
+                            For students like me or other junior developers, there’s one thing I really hope you take away from <span class="text-blue-500">SkillsRadar</span>: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
 
-                            For those of you who might be interested in the actual tech stack I used to build <span class="">StackRadar</span>, here it is:
+                            For those of you who might be interested in the actual tech stack I used to build <span class="">SkillsRadar</span>, here it is:
 
                             <span class="font-bold ">· Frontend</span>: Javascript, HTML, Tailwind CSS(The Frontend part will be rewritten in React in the near future)
                             <span class="font-bold ">· Backend</span>: C# with ASP.NET Core Web API (RESTful architecture)
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class=" flex flex-col gap-y-4" style="display: none;" data-id="Author">
-                    <p class="text-5xl font-bold">About the Creator</p>
+                    <p class="text-5xl text-gray-500 font-bold">About the Creator</p>
                     <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
                     <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-4">
                         <p class="text-md text-gray-600" style="white-space: pre-line;">
