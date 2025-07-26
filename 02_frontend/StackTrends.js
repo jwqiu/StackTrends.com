@@ -961,3 +961,31 @@ function initCompanyCardFadeInOnView() {
 
   observer.observe(trigger);
 }
+
+function initParticles() {
+  tsParticles.load("tsparticles", {
+    background: {
+      color: { value: "transparent" }
+    },
+    particles: {
+      number: { value: 80 },
+      color: { value: "#6B7280" },
+      shape: { type: "circle" },
+      opacity: { value: 0.5 },
+      size: { value: 3 },
+      move: { enable: true, speed: 1 },
+      links: {
+        enable: true,
+        distance: 150,
+        color: "#9CA3AF",
+        opacity: 0.4,
+        width: 1
+      }
+    },
+    fullScreen: { enable: false }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  initParticles();
+});

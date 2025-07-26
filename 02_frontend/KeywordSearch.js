@@ -246,7 +246,9 @@ function showMoreJobs() {
     div.classList.add(
       'job-row',                  // 标记行
       'flex','justify-between','items-center',
-      'p-4','rounded-lg','shadow',
+      'p-4','rounded-lg','shadow','hover:border-blue-500','hover:scale-105','hover:bg-blue-100','hover:border-2','hover:border-blue-300',
+      'transition-transform','duration-300',
+      'cursor-pointer',           // 鼠标悬停时显示手型
       defaultBg                   // 默认背景
     );
 

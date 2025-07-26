@@ -116,7 +116,7 @@ function renderJobs() {
     // 可自定义图片路径和其它字段
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
-        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-300 hover:border-2">
+        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
           <h3 class="font-bold text-lg text-grey-700">${job.jobTitle}</h3>
           <p class="text-sm text-gray-600 mt-1 ">
             ${job.companyName ?? 'N/A'} 
