@@ -1,6 +1,6 @@
-# SkillsRadar
+# StackRadar
 
-**SkillsRadar** is a project created by a programming student at **Lincoln University**, who previously worked as a **senior product manager** at a tech giant in China. SkillsRadar aims to help junior developers understand what tech skills are most in demand in **New Zealand**, so they can better prepare before entering the job market. It also allows users to **filter jobs based on their own tech stacks**, making the job search more efficient and accurate.
+**StackRadar** is a project created by a programming student at **Lincoln University**, who previously worked as a **senior product manager** at a tech giant in China. StackRadar aims to help junior developers understand what tech skills are most in demand in **New Zealand**, so they can better prepare before entering the job market. It also allows users to **filter jobs based on their own tech stacks**, making the job search more efficient and accurate.
 
 ---
 
@@ -18,13 +18,13 @@ However, platforms like Seek cover everything, but that also means they won't go
 
 This is exactly an area where I knew I could make a difference.
 
-After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: i could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind SkillsRadar.
+After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: i could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind StackRadar.
 
-For students like me or other junior developers, there’s one thing I really hope you take away from SkillsRadar: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
+For students like me or other junior developers, there’s one thing I really hope you take away from StackRadar: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
 
 ---
 
-For those of you who might be interested in the actual tech stack I used to build SkillsRadar, here it is:
+For those of you who might be interested in the actual tech stack I used to build StackRadar, here it is:
 
 - **Frontend**: Javascript, HTML, Tailwind CSS (The Frontend part will be rewritten in React in the near future)  
 - **Backend**: C# with ASP.NET Core Web API (RESTful architecture)  
