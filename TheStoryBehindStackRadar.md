@@ -6,12 +6,12 @@
 
 The idea behind this platform comes from two personal observations I made during my time as a student and job seeker in New Zealand.
 
-First, it seems that all of my classmates understand we can’t rely solely on what the university teaches us to find a job in New Zealand. The typical tech stack we use in school — `Python`, `Flask`, `Bootstrap`, `MySQL`, and `PythonAnywhere` — isn’t widely used in the local industry. Everyone is aware of this, but no one seems to take the next step and ask:  
+1️⃣ First, it seems that all of my classmates understand we can’t rely solely on what the university teaches us to find a job in New Zealand. The typical tech stack we use in school — `Python`, `Flask`, `Bootstrap`, `MySQL`, and `PythonAnywhere` — isn’t widely used in the local industry. Everyone is aware of this, but no one seems to take the next step and ask:  
 > “If not this, then what?”
 
 I did some research on the most popular tech stacks in New Zealand, but the results I found weren’t very convincing. Most of them were just like someone sharing their personal opinions — ranking so-called “in-demand” skills and saying things like “If you don’t have this skill, you’re in trouble” — without providing any solid data or evidence to back it up.
 
-Second, when I was searching for jobs, I realized that the way developers look for jobs today could be much easier. Unlike many other industries, in the developer job market, tech stack fit is often a deciding factor. Nowadays, employers always include their tech stack requirements in ridiculously long job descriptions — sometimes it feels like it takes forever just to read through everything. That’s when I started thinking:  
+2️⃣ Second, when I was searching for jobs, I realized that the way developers look for jobs today could be much easier. Unlike many other industries, in the developer job market, tech stack fit is often a deciding factor. Nowadays, employers always include their tech stack requirements in ridiculously long job descriptions — sometimes it feels like it takes forever just to read through everything. That’s when I started thinking:  
 > “If I could filter jobs based on the tech stacks I know, wouldn’t that make the whole process much easier?”
 
 However, platforms like Seek cover everything, but that also means they won't go deep or address the specific hiring needs of niche industries.
