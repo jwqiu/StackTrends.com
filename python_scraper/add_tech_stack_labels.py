@@ -9,7 +9,7 @@ import pandas as pd
 import re
 from collections import Counter
 import psycopg2
-from python_scraper.connect import get_conn
+from .connect import get_conn
 
 
 def load_keywords():

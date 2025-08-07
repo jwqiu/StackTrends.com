@@ -8,3 +8,10 @@
 
 connect.py
 **/appsettings.json
+
+# 忽略 python_scraper 中的虚拟环境和缓存
+python_scraper/venv/
+python_scraper/__pycache__/
+python_scraper/*.pyc
+python_scraper/local.settings.json
+python_scraper/python_packages/

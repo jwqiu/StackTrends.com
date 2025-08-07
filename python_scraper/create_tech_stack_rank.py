@@ -7,7 +7,7 @@ if project_root not in sys.path:
 
 from collections import Counter
 import pandas as pd
-from python_scraper.connect import get_conn
+from .connect import get_conn
 from psycopg2.extras import execute_values
 
 

@@ -14,7 +14,7 @@ import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import psycopg2
-from python_scraper.connect import get_conn
+from .connect import get_conn
 import logging
 from requests.exceptions import ConnectionError,HTTPError
 

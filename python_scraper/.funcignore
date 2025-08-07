@@ -1,0 +1,13 @@
+# Ignore local virtual environment
+venv/
+__pycache__/
+.python_packages
+*.pyc
+
+# Don't deploy local settings
+local.settings.json
+
+# Ignore git
+.git/
+.vscode/
+
