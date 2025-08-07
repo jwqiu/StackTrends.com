@@ -2,6 +2,9 @@
 
 StackRadar is a full-stack web platform that helps junior developers in New Zealand understand in-demand tech stacks and filter jobs based on their skills.
 
+### 🔗 Live Site  
+ [Visit StackRadar Online](https://www.stackradar.me)
+
 ### 🖼️ Screenshot: 
 
 ![Landing Page](./stackradar_landing_page.png)
