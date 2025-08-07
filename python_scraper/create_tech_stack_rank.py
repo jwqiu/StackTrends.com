@@ -131,6 +131,30 @@ def create_tech_stack_rank():
     cur.close()
     conn.close()
 
+def update_job_counts_by_company():
+    """
+    刷新 job_counts_by_company 表，统计每家公司职位总数
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # 删除旧表，重建新表
+    cur.execute("DROP TABLE IF EXISTS job_counts_by_company")
+    cur.execute("""
+        CREATE TABLE job_counts_by_company AS
+        SELECT 
+            company_id, 
+            company_name, 
+            COUNT(*) AS jobs_count
+        FROM jobs
+        GROUP BY company_id, company_name
+        ORDER BY jobs_count DESC
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("job_counts_by_company表已刷新。")
+
 
 def create_tech_stack_rank_by_company():
     from collections import Counter
@@ -139,6 +163,8 @@ def create_tech_stack_rank_by_company():
 
     conn = get_conn()
     cur = conn.cursor()
+
+    update_job_counts_by_company()
 
     # 获取 top 20 公司
     cur.execute("""
@@ -230,4 +256,5 @@ def create_tech_stack_rank_by_company():
     conn.commit()
     cur.close()
     conn.close()
+
 
