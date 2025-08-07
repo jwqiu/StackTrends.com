@@ -29,6 +29,7 @@ This makes the app fully data-driven and easy to maintain.
 
 ### 📁 Folder Overview
 
+```bash
 STACKTRENDS.COM/
 ├── 01_backend/                  # ASP.NET Core Web API (C#)
 ├── 02_frontend/                 # HTML + Tailwind CSS + Javascript (to be migrated to React)
