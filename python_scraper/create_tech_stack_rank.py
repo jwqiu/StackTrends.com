@@ -257,4 +257,34 @@ def create_tech_stack_rank_by_company():
     cur.close()
     conn.close()
 
+def update_landing_summary():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # 统计三个数值
+    cur.execute("SELECT COUNT(*) FROM public.jobs")
+    result = cur.fetchone()
+    jobs_count = result[0] if result else 0
+
+    cur.execute("SELECT COUNT(DISTINCT company_id) FROM public.jobs")
+    result = cur.fetchone()
+    company_count = result[0] if result else 0
+
+    cur.execute("SELECT COUNT(raw_keyword) FROM public.tech_stacks_list")
+    result = cur.fetchone()
+    keyword_count = result[0] if result else 0
+
+    # 插入统计数据
+    cur.execute("""
+        INSERT INTO landing_summary (jobs_count, company_count, keyword_count)
+        VALUES (%s, %s, %s)
+    """, (jobs_count, company_count, keyword_count))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print("✅ landing_summary 数据已更新。")
+
+
 

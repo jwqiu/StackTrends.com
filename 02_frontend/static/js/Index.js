@@ -1,35 +1,49 @@
 document.addEventListener("DOMContentLoaded" ,() => {
-    getJobsCount();
-    getCompaniesCount();
-    getTechKeywordsCount();
+    // getJobsCount();
+    // getCompaniesCount();
+    // getTechKeywordsCount();
+    getLandingSummaryCounts();
+    initParticles();
 });
 
-function getJobsCount() {
-    fetch(`${window.API_BASE}/api/job/count`)
+// function getJobsCount() {
+//     fetch(`${window.API_BASE}/api/job/count`)
+//         .then(res => res.json())
+//         .then(data => {
+//             document.getElementById("jobsCount").textContent = data.count;
+//         })
+//         .catch(err => console.error("Job count fetch failed:", err));
+// }
+
+// function getCompaniesCount() {
+//     fetch(`${window.API_BASE}/api/companies/count`)
+//         .then(response => response.json())
+//         .then(data => {
+//             document.getElementById('companiesCount').innerText = data.count;
+//         })
+//         .catch(error => console.error('Error fetching companies count:', error));
+// }
+
+// function getTechKeywordsCount() {
+//     fetch(`${window.API_BASE}/api/techstack/count`)
+//         .then(response => response.json())
+//         .then(data => {
+//             document.getElementById('techKeywordsCount').innerText = data.count;
+//         })
+//         .catch(error => console.error('Error fetching tech stack count:', error));
+// }
+
+function getLandingSummaryCounts() {
+    fetch(`${window.API_BASE}/api/count/landing-summary`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById("jobsCount").textContent = data.count;
+            document.getElementById("jobsCount").textContent = data.jobsCount;
+            document.getElementById("companiesCount").textContent = data.companyCount;
+            document.getElementById("techKeywordsCount").textContent = data.keywordCount;
         })
-        .catch(err => console.error("Job count fetch failed:", err));
+        .catch(err => console.error("Landing summary fetch failed:", err));
 }
 
-function getCompaniesCount() {
-    fetch(`${window.API_BASE}/api/companies/count`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('companiesCount').innerText = data.count;
-        })
-        .catch(error => console.error('Error fetching companies count:', error));
-}
-
-function getTechKeywordsCount() {
-    fetch(`${window.API_BASE}/api/techstack/count`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('techKeywordsCount').innerText = data.count;
-        })
-        .catch(error => console.error('Error fetching tech stack count:', error));
-}
 
 function initParticles() {
   tsParticles.load("tsparticles", {
@@ -54,7 +68,3 @@ function initParticles() {
     fullScreen: { enable: false }
   });
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  initParticles();
-});
