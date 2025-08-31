@@ -40,6 +40,12 @@ function getLandingSummaryCounts() {
             document.getElementById("jobsCount").textContent = data.jobsCount;
             document.getElementById("companiesCount").textContent = data.companyCount;
             document.getElementById("techKeywordsCount").textContent = data.keywordCount;
+
+            const btn = document.getElementById("exploreBtn");
+            btn.textContent = "Start Exploring";
+            btn.classList.remove("bg-gray-300", "cursor-not-allowed");
+            btn.classList.add("bg-blue-600", "hover:bg-blue-800", "hover:scale-105", "transition-colors", "duration-300", "hover:shadow-xl");
+            btn.removeAttribute("disabled");
         })
         .catch(err => console.error("Landing summary fetch failed:", err));
 }
