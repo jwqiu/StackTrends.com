@@ -6,7 +6,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300">
+    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-w-[700px]"> ">
         <nav class="bg-white relative shadow p-4 shadow-lg flex justify-between items-center">
             <div class="flex items-start flex-col">
                 <a href="index.html">
@@ -58,13 +58,13 @@
             <p class="text-sm text-gray-500">⚠️ Please note: if your keyword contains special characters, they may be ignored in the search, and results may not be fully accurate.</p>
 
         </div>
+        <div class="mt-4 container mx-auto flex items-center">
+            <p class="text-sm text-gray-400">Keyword Frequency For:</p>
+            <p id="searchKeyword" class="text-lg ms-2 ">Python</p>
+        </div>
+        <div class="container mx-auto flex flex-col    rounded-lg shadow-lg mt-4 p-8 bg-white items-center ">
 
-        <div class="container mx-auto flex flex-col lg:flex-row  gap-x-8 rounded-lg shadow-lg mt-8 p-8 bg-white items-center ">
-            <div>
-                <p class="text-sm text-gray-400">Results for</p>
-                <p id="searchKeyword" class="text-5xl mb-6 lg:mb-0 mt-0">Python</p>
-            </div>
-            <table class="w-[87.5%] lg:w-full text-sm text-center">
+            <table class="w-full text-sm text-center me-6">
                 <thead class=" text-gray-500 font-semibold">
                     <tr class="">
                         <th class="px-4 py-2">#</th>
@@ -76,14 +76,14 @@
                 </thead>
                 <tbody class=" text-gray-800" id="mentionRateTable">
                     <tr id="matchCountRow" class=" border-gray-300">
-                        <td class="px-4 py-2">Match Count</td>
+                        <td class="px-2 py-2">Match Count</td>
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">#</td>
                     </tr>
                     <tr id="mentionRateRow" class=" border-gray-300">
-                        <td class="px-4 py-2">Mention Rate</td>
+                        <td class="px-2 py-2">Mention Rate</td>
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">#</td>

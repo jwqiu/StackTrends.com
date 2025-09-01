@@ -26,7 +26,7 @@ function renderKeywordHeader() {
     searchButton.addEventListener('click', () => {
       searchHeader.textContent = keywordInput.value;
       searchHeader.classList.remove('text-gray-500');
-      searchHeader.classList.add('text-blue-500');
+      searchHeader.classList.add('text-gray-600');
     });
   }
 }
@@ -109,8 +109,8 @@ function renderMentionRateRow(data) {
   if (!matchRow || !rateRow) return;
 
   // 清空旧内容（保留 label 列）
-  matchRow.innerHTML = '<td class="px-4 py-2">Job Count<br>(including <strong>' + keywordInput.value + '</strong>)</td>';
-  rateRow.innerHTML  = '<td class="px-4 py-2">% of Jobs Mentioning<br><strong>' + keywordInput.value + '</strong> in Each Type</td>';
+  matchRow.innerHTML = '<td class="px-4 py-2">Total Jobs with <strong>' + keywordInput.value + '</strong></td>';
+  rateRow.innerHTML  = '<td class="px-4 py-2">% of Jobs Mentioning<br><strong>' + keywordInput.value + '</strong></td>';
 
 
   // 构建等级映射
