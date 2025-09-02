@@ -166,12 +166,12 @@ def create_tech_stack_rank_by_company():
 
     update_job_counts_by_company()
 
-    # 获取 top 20 公司
+    # 找出职位数超过10的公司
     cur.execute("""
         SELECT company_id, company_name
         FROM job_counts_by_company
+        WHERE jobs_count > 10
         ORDER BY jobs_count DESC
-        LIMIT 20
     """)
     top_companies = cur.fetchall()  # [(id1, name1), (id2, name2), ...]
 

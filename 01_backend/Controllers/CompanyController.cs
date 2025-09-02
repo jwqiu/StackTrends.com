@@ -23,8 +23,8 @@ public class CompaniesController : ControllerBase
         const string sql = @"
             SELECT company_id, company_name, jobs_count
             FROM public.job_counts_by_company
-            ORDER BY jobs_count DESC
-            LIMIT 20;
+            WHERE jobs_count > 10
+            ORDER BY jobs_count DESC;
         ";
 
         var result = new List<CompaniesCount>();
@@ -66,24 +66,35 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet("tech-stack-rank")]
-    public async Task<ActionResult<IEnumerable<TechStackRankByCompany>>> GetTechStackRank()
+    public async Task<ActionResult<IEnumerable<TechStackRankByCompany>>> GetTechStackRank(
+    [FromQuery] int? companyLimit = null)
+
     {
-        var sql = @"
-            SELECT 
-                company_id,
-                company_name,
-                category,
-                technology,
-                mentions,
-                percentage
-            FROM public.tech_stack_rank_by_company
-            ORDER BY company_id, category, mentions DESC
-        ";
+        var sql = companyLimit.HasValue
+        ? @"
+        WITH top_companies AS (
+        SELECT company_id, jobs_count
+        FROM public.job_counts_by_company
+        ORDER BY jobs_count DESC
+        LIMIT @companyLimit
+        )
+        SELECT t.company_id, t.company_name, t.category, t.technology, t.mentions, t.percentage
+        FROM public.tech_stack_rank_by_company t
+        JOIN top_companies c ON c.company_id = t.company_id
+        ORDER BY c.jobs_count DESC, t.company_id, t.category, t.mentions DESC;"
+        : @"
+        SELECT t.company_id, t.company_name, t.category, t.technology, t.mentions, t.percentage
+        FROM public.tech_stack_rank_by_company t
+        LEFT JOIN public.job_counts_by_company jc ON jc.company_id = t.company_id
+        ORDER BY COALESCE(jc.jobs_count,0) DESC, t.company_id, t.category, t.mentions DESC;";
+
 
         var result = new List<TechStackRankByCompany>();
 
         await _conn.OpenAsync();
-        using var cmd    = new NpgsqlCommand(sql, _conn);
+        using var cmd = new NpgsqlCommand(sql, _conn);
+        if (companyLimit.HasValue)
+            cmd.Parameters.AddWithValue("companyLimit", companyLimit.Value);
         using var reader = await cmd.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())

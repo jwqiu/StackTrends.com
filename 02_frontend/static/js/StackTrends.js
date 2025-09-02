@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTopTechStackTableByLevel();
     })
     .catch(err => console.error(err));
-  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`);
+  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`, 20);
 });
 
 // window.addEventListener('resize', syncChartHeight);
@@ -854,9 +854,12 @@ function initFadeInOnView() {
 }
 
 // renderCompanies.js
-export async function renderTechStackByCompany(containerId, apiUrl) {
+export async function renderTechStackByCompany(containerId, apiUrl, companyLimit = 20) {
   // 1. 拉数据
-  const res  = await fetch(apiUrl);
+  // const res  = await fetch(apiUrl);
+  const url = new URL(apiUrl, window.location.origin);   // 兼容相对/绝对地址
+  url.searchParams.set('companyLimit', String(companyLimit));
+  const res = await fetch(url.toString());
   const rows = await res.json();
 
   const cntRes       = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
