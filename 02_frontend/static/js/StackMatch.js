@@ -698,6 +698,8 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
   const frag = document.createDocumentFragment();
   const ORDER = ['Frontend', 'Backend', 'Cloud Platforms', 'Database'];
 
+  let renderedAny = false; // ⭐ 标记有没有渲染到公司
+
   Object.values(byCompany)
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
@@ -711,6 +713,8 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
         const hasAnyMatch = allTechsLower.some(t => selectedSet.has(t));
         if (!hasAnyMatch) return; // 跳过本公司（forEach 的本次迭代）
       }
+
+      renderedAny = true; // 有公司被渲染
 
       const jc = jobsCountMap[comp.id] || 0;
 
@@ -740,22 +744,30 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
         const pills = document.createElement('div');
         pills.className = 'flex gap-x-2 ms-4';
 
-        techs.forEach(t => {
-          if (!t) return;
-          const pill = document.createElement('p');
+        if (techs.length === 0) {
+          // ⭐ 如果该类没有任何技术栈
+          const noneEl = document.createElement('p');
+          noneEl.className = 'text-gray-400 italic';
+          noneEl.textContent = 'Not specified in job postings';
+          pills.appendChild(noneEl);
+        } else {
 
-          // 高亮：selectedStacks 命中的蓝底白字
-          const isSelected = selectedSet.has(norm(t));
-          pill.className = isSelected
-            ? 'px-3 py-1 bg-blue-500 text-white rounded-lg'
-            : 'px-3 py-1 bg-white text-gray-700 rounded-lg';
+          techs.forEach(t => {
+            if (!t) return;
+            const pill = document.createElement('p');
 
-          const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+            // 高亮：selectedStacks 命中的蓝底白字
+            const isSelected = selectedSet.has(norm(t));
+            pill.className = isSelected
+              ? 'px-3 py-1 bg-blue-500 text-white rounded-lg'
+              : 'px-3 py-1 bg-white text-gray-700 rounded-lg';
 
-          pill.textContent = cap(t);
-          pills.appendChild(pill);
-        });
+            const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
+            pill.textContent = cap(t);
+            pills.appendChild(pill);
+          });
+        } 
         row.appendChild(pills);
         gray.appendChild(row);
       });
@@ -765,7 +777,12 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
     });
 
   container.innerHTML = '';
-  container.appendChild(frag);
+  if (renderedAny) {
+    container.appendChild(frag);
+  } else {
+    // ⭐ 没有匹配公司时提示
+    container.innerHTML = '<p class="text-center text-gray-500 p-8 bg-white italic rounded-lg"> 🤷 No matching companies for your selected tech stack</p>';
+  }
 }
 
 
