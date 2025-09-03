@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (target) target.style.display = "flex";
 
             // 取消所有高亮
-        articleButtons.forEach(btn => btn.classList.remove("bg-blue-100"));
+        articleButtons.forEach(btn => btn.classList.remove("border-2", "border-blue-500"));
 
         // 给当前点击项加高亮
-        button.classList.add("bg-blue-100");
+        button.classList.add("border-2", "border-blue-500");
 
     });
 
