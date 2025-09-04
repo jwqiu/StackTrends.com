@@ -735,14 +735,15 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
         const techs = (comp.cats[catLabel] || []).slice(0, perCategory);
 
         const row = document.createElement('div');
-        row.className = 'w-full rounded-lg flex justify-start items-center px-4';
+        row.className = 'w-full rounded-lg flex flex-col justify-start  ';
 
         const nameEl = document.createElement('p');
         nameEl.textContent = catLabel;
+        nameEl.className = 'mb-1 text-gray-500 text-sm';
         row.appendChild(nameEl);
 
         const pills = document.createElement('div');
-        pills.className = 'flex gap-x-2 ms-4';
+        pills.className = 'flex  gap-x-2 ';
 
         if (techs.length === 0) {
           // ⭐ 如果该类没有任何技术栈

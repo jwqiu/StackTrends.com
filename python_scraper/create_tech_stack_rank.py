@@ -206,7 +206,7 @@ def create_tech_stack_rank_by_company():
         # 排序：Category 升序、Mentions 降序
         df = df.sort_values(['Category', 'Mentions'], ascending=[True, False])
         # 分组取每组前三
-        df = df.groupby('Category', group_keys=False).head(3)
+        df = df.groupby('Category', group_keys=False).head(5)
 
         df['Company_ID'] = company_id
         df['Company_Name'] = company_name
