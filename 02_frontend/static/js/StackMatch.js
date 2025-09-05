@@ -104,7 +104,7 @@ function highlightStacksHtml(stacks, selected) {
   const matched = clean.filter(s => selected.includes(s.toLowerCase()));
   const unmatched = clean.filter(s => !selected.includes(s.toLowerCase()));
   return [
-    ...matched.map(s => `<span class=" bg-blue-400 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
+    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
     ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
   ].join('  ') || 'N/A';
 }
@@ -333,9 +333,14 @@ function renderSelectedStacks() {
     });
     // 绑定移除按钮
     container.querySelectorAll(".remove-btn").forEach(btn => {
-        btn.onclick = function() {
+        btn.onclick = async function() {
             selectedStacks = selectedStacks.filter(n => n !== btn.dataset.name);
             renderSelectedStacks();
+
+            currentPage = 1;
+            allJobs = [];
+            await loadJobs();
+            await getFilterResultsCount();
         };
     });
     // highlightMatchingStacks();
@@ -360,6 +365,14 @@ function renderSelectedStacksCompaniesSection() {
         btn.onclick = function() {
             selectedStacks_companies = selectedStacks_companies.filter(n => n !== btn.dataset.name);
             renderSelectedStacksCompaniesSection();
+
+            // ⬇️ 手动触发公司筛选
+            renderTechStackByCompany(
+              'companiesContainer',
+              `${window.API_BASE}/api/companies/tech-stack-rank`,
+              5,
+              selectedStacks_companies
+            );
         };
     });
     // highlightMatchingStacks();
@@ -679,15 +692,29 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
 
   // 2) 按公司聚合
+  // const byCompany = {};
+  // rows.forEach(r => {
+  //   const cid = r.company_Id;
+  //   byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
+  //   (byCompany[cid].cats[r.category] ??= []).push((r.technology ?? '').trim());
+  // });
   const byCompany = {};
   rows.forEach(r => {
     const cid = r.company_Id;
     byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
-    (byCompany[cid].cats[r.category] ??= []).push((r.technology ?? '').trim());
+    (byCompany[cid].cats[r.category] ??= []).push({
+      tech: (r.technology ?? '').trim(),
+      percentage: r.percentage ?? r.Percentage ?? 0
+    });
   });
 
   // ⭐ 归一化所选技能，准备过滤
-  const norm = s => (s ?? '').toString().trim().toLowerCase();
+  // const norm = s => (s ?? '').toString().trim().toLowerCase();
+  const norm = x =>
+  (typeof x === 'string' ? x : (x?.tech ?? ''))
+    .toString()
+    .trim()
+    .toLowerCase();
   const selectedSet = new Set((selectedStacks_companies || []).map(norm).filter(Boolean));
   const shouldFilter = selectedSet.size > 0;
 
@@ -705,6 +732,11 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
     .forEach(comp => {
       // ⭐ 若需要过滤，先用“公司完整技术列表”判断是否有任一匹配
       if (shouldFilter) {
+        // 统一取出技术名；兼容字符串或 {tech, percentage}
+        const labelOf = x => (typeof x === 'string' ? x : (x?.tech ?? ''));
+        // 统一小写化
+        const norm = x => labelOf(x).trim().toLowerCase();
+
         const allTechsLower = Object.values(comp.cats)
           .flat()
           .map(norm)
@@ -756,16 +788,41 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
           techs.forEach(t => {
             if (!t) return;
             const pill = document.createElement('p');
-
+            const label = typeof t === 'string' ? t : (t?.tech ?? '');
+                   
             // 高亮：selectedStacks 命中的蓝底白字
-            const isSelected = selectedSet.has(norm(t));
-            pill.className = isSelected
-              ? 'px-3 py-1 bg-blue-500 text-white rounded-lg'
-              : 'px-3 py-1 bg-white text-gray-700 rounded-lg';
+            // const isSelected = selectedSet.has(norm(t));
 
+
+            const isSelected = selectedSet.has(norm(label));
             const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
-            pill.textContent = cap(t);
+            if (isSelected) {
+              pill.className = 'px-3 py-1 bg-blue-500 text-white rounded-lg relative overflow-hidden';
+              const text = document.createElement('span');
+              text.textContent = cap(label);
+              pill.appendChild(text);
+
+            } else {
+              pill.className = 'px-3 py-1 bg-white text-gray-700 rounded-lg relative overflow-hidden';
+              // ⬇️ ② 计算百分比（兼容 0–1 / 0–100）
+              const pct = (t.percentage <= 1 ? t.percentage * 100 : t.percentage) || 0;
+
+              // ⬇️ ③ 插入进度条（仅背景条，样式参考你的示例）
+              const bar = document.createElement('span');
+              bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-gray-300 to-gray-100';
+              bar.style.width = pct.toFixed(1) + '%';
+              pill.appendChild(bar);
+
+              // ⬇️ ④ 保持原有文字渲染（会在进度条之上）
+              const text = document.createElement('span');
+              text.className = 'relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2 whitespace-nowrap';
+              text.textContent = cap(label);
+              pill.appendChild(text);
+            }
+
+            // const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+   
             pills.appendChild(pill);
           });
         } 
