@@ -29,10 +29,16 @@ namespace StackTrends.Models
     public class JobCountByLevelDto
     {
         public string Level { get; set; } = default!;   // e.g. "Senior", "Junior"…
-        public int Count     { get; set; }              // 该级别下的职位总数
+        public int Count { get; set; }              // 该级别下的职位总数
+        }
+        
+    public sealed class JobCountByMonthDto
+    {
+        public string YearMonth { get; set; } = "";  // e.g. "2025/04"
+        public int Count { get; set; }
     }
 
-	
+    
 }
 
 

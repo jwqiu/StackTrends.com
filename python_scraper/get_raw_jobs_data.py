@@ -291,3 +291,34 @@ def get_jobs_data():
 
 
     # wb.save('job_list_with_details_0618.xlsx')
+
+def count_jobs_by_month():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS jobs_count_by_month (
+            listing_year_month TEXT PRIMARY KEY,
+            jobs_count INT
+        );
+    """)
+
+    # 先清空再插入最新统计
+    cur.execute("TRUNCATE jobs_count_by_month;")
+
+    cur.execute("""
+        INSERT INTO jobs_count_by_month (listing_year_month, jobs_count)
+        SELECT 
+            listing_year_month, 
+            COUNT(*) AS jobs_count
+        FROM jobs
+        GROUP BY listing_year_month
+        ORDER BY listing_year_month;
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    logging.info(f"jobs_count_by_month 表已更新。")
+

@@ -13,23 +13,6 @@ public class JobController : ControllerBase
         _conn = conn;
     }
 
-    // 🔍 1. 获取匹配职位列表（根据选中的 stacks / 日期 / 经验等级）
-    // [HttpPost("match")]
-    // public IActionResult GetMatchingJobs([FromBody] JobFilterRequest request)
-    // {
-    //     var result = _jobService.GetMatchingJobs(request);
-    //     return Ok(result);
-    // }
-
-    // 🔝 2. 获取 Top 技术栈（左侧推荐列表用）
-    // [HttpGet("top-techstacks")]
-    // public IActionResult GetTopTechStacks()
-    // {
-    //     var result = _jobService.GetTopUsedStacks();
-    //     return Ok(result);
-    // }
-
-    // 🧪 3. 获取所有职位（无过滤，用于调试）
     [HttpGet("all")]
     public async Task<IActionResult> GetAllJobs(
         int page = 1,
@@ -223,6 +206,7 @@ public class JobController : ControllerBase
         await _conn.CloseAsync();
         return Ok(list);
     }
+
     [HttpGet("search/by-keyword")]
     public async Task<ActionResult<List<Job>>> SearchJobsByKeyword([FromQuery] string keyword)
     {
@@ -276,5 +260,33 @@ public class JobController : ControllerBase
         await _conn.CloseAsync();
         return Ok(jobs);
     }
+
+    [HttpGet("count/by-month")]
+    public async Task<ActionResult<IEnumerable<JobCountByMonthDto>>> GetCountByMonth()
+    {
+        var list = new List<JobCountByMonthDto>();
+        await _conn.OpenAsync();
+
+        const string sql = @"
+            SELECT listing_year_month, jobs_count
+            FROM jobs_count_by_month
+            ORDER BY to_date(replace(listing_year_month,'/','-') || '-01','YYYY-MM-DD');
+        ";
+
+        await using var cmd = new NpgsqlCommand(sql, _conn);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            list.Add(new JobCountByMonthDto
+            {
+                YearMonth = reader.GetString(reader.GetOrdinal("listing_year_month")),
+                Count     = reader.GetInt32(reader.GetOrdinal("jobs_count"))
+            });
+        }
+
+        await _conn.CloseAsync();
+        return Ok(list);
+    }
+
 
 }

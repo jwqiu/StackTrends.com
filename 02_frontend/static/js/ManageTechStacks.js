@@ -114,9 +114,6 @@ async function deleteTechStack(id) {
   }
 }
 
-
-
-
 async function editTechStack(id) {
   const tr = document.querySelector(`#tech-stacks-body tr[data-id="${id}"]`);
   if (!tr) return;
@@ -182,28 +179,38 @@ async function editTechStack(id) {
   actionTd.querySelector('[data-action="cancel"]').onclick = () => loadTechStacks();
 }
 
-function setupMenuToggle() {
-  const menuCategory = document.getElementById('menu-category');
-  const menuStack = document.getElementById('menu-stack');
-  const categoryDiv = document.getElementById('category-panel');
-  const stackKeywordDiv = document.getElementById('stack-keyword-panel');
+function setupMenu() {
+  const mapping = {
+    'menu-dashboard': 'dashboard-panel',
+    'menu-category': 'category-panel',
+    'menu-stack': 'stack-keyword-panel'
+  };
 
-  if (!menuCategory || !menuStack || !categoryDiv || !stackKeywordDiv) return;
+  const menuItems = Object.keys(mapping).map(id => document.getElementById(id));
+  const panels = Object.values(mapping).map(id => document.getElementById(id));
 
-  menuCategory.addEventListener('click', (e) => {
-    e.preventDefault();
-    categoryDiv.style.display = 'block';
-    stackKeywordDiv.style.display = 'none';
+  menuItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+
+      // 1) 菜单高亮
+      menuItems.forEach(i => i.classList.remove('bg-blue-500','text-white'));
+      item.classList.add('bg-blue-500','text-white');
+
+      // 2) 面板切换
+      panels.forEach(p => p.style.display = 'none');
+      document.getElementById(mapping[item.id]).style.display = 'block';
+    });
   });
 
-  menuStack.addEventListener('click', (e) => {
-    e.preventDefault();
-    categoryDiv.style.display = 'none';
-    stackKeywordDiv.style.display = 'block';
-  });
+  // 默认选中 dashboard
+  menuItems[0].classList.add('bg-blue-500','text-white');
+  panels.forEach(p => p.style.display = 'none');
+  document.getElementById(mapping[menuItems[0].id]).style.display = 'block';
 }
 
-document.addEventListener('DOMContentLoaded', setupMenuToggle);
+
+document.addEventListener('DOMContentLoaded', setupMenu);
 
 let allCategories = [];
 
@@ -423,26 +430,27 @@ async function deleteCategory(id) {
   }
 }
 
-function initSidebarMenuHighlight() {
-  const menuItems = [
-    document.getElementById('menu-category'),
-    document.getElementById('menu-stack')
-  ];
+// function initSidebarMenuHighlight() {
+//   const menuItems = [
+//     document.getElementById('menu-dashboard'),
+//     document.getElementById('menu-category'),
+//     document.getElementById('menu-stack'),
+//   ];
 
-  menuItems.forEach(item => {
-    item.addEventListener('click', function (e) {
-      e.preventDefault();
-      menuItems.forEach(i => i.classList.remove('bg-blue-100', 'text-blue-500', ));
-      this.classList.add('bg-blue-100', 'text-blue-500', );
-    });
-  });
+//   menuItems.forEach(item => {
+//     item.addEventListener('click', function (e) {
+//       e.preventDefault();
+//       menuItems.forEach(i => i.classList.remove('bg-blue-500', 'text-white', ));
+//       this.classList.add('bg-blue-500', 'text-white', );
+//     });
+//   });
 
-  // 可选：默认选中第一个
-  menuItems[0].classList.add('bg-blue-100', 'text-blue-500', );
-}
+//   // 可选：默认选中第一个
+//   menuItems[0].classList.add('bg-blue-500', 'text-white', );
+// }
 
-// 页面加载后调用
-document.addEventListener('DOMContentLoaded', initSidebarMenuHighlight);
+// // 页面加载后调用
+// document.addEventListener('DOMContentLoaded', initSidebarMenuHighlight);
 
 async function loadCategoryOptions() {
     const select = document.getElementById('category');
@@ -511,3 +519,84 @@ function logout() {
     location.reload();
   });
 }
+
+function getLandingSummaryCounts() {
+  fetch(`${window.API_BASE}/api/count/landing-summary`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("jobsCount").textContent = data.jobsCount;
+        document.getElementById("companiesCount").textContent = data.companyCount;
+        document.getElementById("techKeywordsCount").textContent = data.keywordCount;
+
+    })
+    .catch(err => console.error("Landing summary fetch failed:", err));
+}
+
+document.addEventListener('DOMContentLoaded', getLandingSummaryCounts);
+
+async function renderJobsChart() {
+  try {
+    // 请求后端接口
+    const res = await fetch(`${API_BASE}/api/job/count/by-month`);
+    const data = await res.json();
+
+    // 处理数据
+    const labels = data.map(d => d.yearMonth);
+    const counts = data.map(d => d.count);
+
+    // 找到 canvas
+    const ctx = document.getElementById('jobsChart');
+    if (!ctx) {
+      console.error("jobsChart canvas not found");
+      return;
+    }
+
+    // 创建柱状图
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Jobs Count per Month',
+          data: counts,
+          backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind 蓝
+          borderColor: 'rgba(37, 99, 235, 1)',        // 深蓝
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Job Postings by Month'
+          },
+          datalabels: {
+            anchor: 'end',
+            align: 'end',
+            color: '#2c2e33ff',
+            font: { weight: '' },
+            formatter: (value) => value
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Year/Month' }
+          },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Jobs Count' }
+          }
+        }
+      },
+      plugins: [ChartDataLabels] // ⬅️ 注册 datalabels 插件
+    });
+  } catch (err) {
+    console.error("Failed to load jobs chart:", err);
+  }
+}
+
+// 页面加载后执行
+document.addEventListener("DOMContentLoaded", renderJobsChart);
+
