@@ -46,6 +46,10 @@ function getLandingSummaryCounts() {
             btn.classList.remove("bg-gray-300", "cursor-not-allowed");
             btn.classList.add("bg-blue-600", "hover:bg-blue-800", "hover:scale-105", "transition-colors", "duration-300", "hover:shadow-xl");
             btn.removeAttribute("disabled");
+            const hint = document.getElementById("coldStartHint");
+            if (hint) {
+                hint.style.display = "none";
+            }
         })
         .catch(err => console.error("Landing summary fetch failed:", err));
 }
