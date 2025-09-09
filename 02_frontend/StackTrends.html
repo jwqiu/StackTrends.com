@@ -31,7 +31,7 @@
   <body class="bg-gray-100 min-w-[625px] ">
     <div id="tsparticles" class="fixed inset-0 -z-10"></div>
 
-    <nav class=" relative  bg-white lg:bg-transparent py-6 shadow-lg lg:shadow-none flex justify-between items-center   ">
+    <nav class=" relative border bg-white/50  py-6 shadow-lg lg:shadow-none flex justify-between items-center   ">
       <div class="flex items-start flex-col">
         <a href="index.html">
           <div class="flex items-center gap-x-1 ms-8">
@@ -71,7 +71,7 @@
     </nav>
     <div class="p-8 mx-auto max-w-[1150px]  ">
       <!-- 第1个模块 -->
-      <div class="mb-24 mt-8 ">
+      <div class="mb-12 xl:mb-24 xl:mt-4 ">
         <div class=" rounded-lg flex justify-between items-center">
           <div class="mb-6 flex flex-col">
               <span class="text-xl font-bold mb-0">Most Mentioned Tech Skills </span>
@@ -121,7 +121,7 @@
       </div>
       <!-- 第2个模块 -->
 
-      <div class="mb-24">
+      <div class="mb-12 xl:mb-24">
         <div class=" rounded-lg  mb-6">
           <div class="flex justify-between items-center mb-0 ">
             <div class="flex flex-col  ">
@@ -286,7 +286,7 @@
       </div>
       <!-- 第3个模块 -->
 
-      <div class="mb-24">
+      <div class="mb-12 xl:mb-24">
         <div class=" mb-6 flex flex-col">
             <span class="text-xl font-bold ">Differences in Required Tech Skills by Experience Level</span>
             <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-3"># </span> collected since April 2025</span>
@@ -303,7 +303,7 @@
       </div>
       <!-- 第4个模块 -->
 
-      <div class="mb-12">
+      <div class="mb-8 xl:mb-12">
         <div class="flex flex-col" id="companySectionTitle">
             <span class="text-xl font-bold ">Differences in Required Tech Skills by Companies(Top20)</span>
             <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-4"># </span> collected since April 2025</span>
@@ -312,11 +312,31 @@
           <div class="flex flex-row text-center ">
             <!-- 类别列 -->
             <div class="flex flex-col gap-y-6 p-8  text-gray-400">
-              <div class=" h-[50px]  flex items-center justify-center truncate mt-8 ">Companies</div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">Frontend</div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">Backend</div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">Cloud Platforms</div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">Database</div>
+              <div class=" h-[50px]  flex items-center justify-center truncate mt-8 ">
+                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
+                  Companies
+                </div>
+              </div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">
+                  <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
+                    Frontend
+                  </div>
+              </div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">
+                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
+                  Backend
+                </div>
+              </div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">
+                <div class="px-6 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
+                  Cloud Platforms
+                </div>
+              </div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">
+                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
+                  Database
+                </div>
+              </div>
             </div>
             <div class="overflow-x-auto max-w-full">
               <div id="companiesContainer"

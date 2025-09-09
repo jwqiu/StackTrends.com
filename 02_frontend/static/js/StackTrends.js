@@ -399,7 +399,8 @@ async function loadCategoryOptions() {
   });
 
   // 切换展开/收起
-  trigger.addEventListener('click', () => {
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation(); // 阻止冒泡，避免点 trigger 就直接触发全局关闭
     menu.classList.toggle('hidden');
   });
 
@@ -408,6 +409,14 @@ async function loadCategoryOptions() {
 
   // 默认触发一次 All
   allBtn.click();
+
+  // 点击外部收起
+  document.addEventListener('click', (e) => {
+    if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+
 }
 
 
@@ -840,7 +849,7 @@ async function renderTopTechStackTableByLevel() {
 
   // 生成表格 HTML
   let html = `
-    <thead class=" border-none text-gray-500">
+    <thead class=" border-none text-gray-700">
       <tr>
         <th class="px-4 py-2">#</th>
          ${levels.map(l => {
@@ -853,7 +862,11 @@ async function renderTopTechStackTableByLevel() {
   `;
   categoryOrder.forEach(cat => {
     html += `<tr class="">
-      <td class="px-0 py-2 text-gray-500">${cat}</td>
+      <td class="">
+        <div class="px-4 py-2 text-gray-600 font-semibold">
+          ${cat}
+        </div>
+      </td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
         // const displayArr = arr.map((val, idx) => 
