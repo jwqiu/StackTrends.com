@@ -310,34 +310,106 @@ async function loadTechRank() {
   }
 }
 
+// async function loadCategoryOptions() {
+//     const categories = document.getElementById('category-filters');
+//     categories.innerHTML = '';
+
+//     const allBtn = document.createElement('button');
+//     allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+//     allBtn.dataset.filter = 'all';
+//     allBtn.textContent = 'All';
+//     categories.appendChild(allBtn);
+
+
+//     const res = await fetch(`${API_BASE}/api/category`);
+//     const cats = await res.json();
+//     cats.forEach(c => {
+//       const btn = document.createElement('button');
+//       btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
+//       btn.dataset.filter = c.name;
+//       btn.textContent = c.name;
+//       categories.appendChild(btn);
+//     });
+
+//     if (allBtn) {
+//       allBtn.classList.remove('bg-gray-200', 'text-gray-700');
+//       allBtn.classList.add('bg-blue-500', 'text-white');
+//       allBtn.click();
+//     }
+// }
+
 async function loadCategoryOptions() {
-    const categories = document.getElementById('category-filters');
-    categories.innerHTML = '';
+  const root = document.getElementById('category-filters');
+  root.innerHTML = '';
 
-    const allBtn = document.createElement('button');
-    allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-    allBtn.dataset.filter = 'all';
-    allBtn.textContent = 'All';
-    categories.appendChild(allBtn);
+  // 触发按钮容器
+  const trigger = document.createElement('div');
+  trigger.className =
+    'flex items-center justify-between px-6 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white/80   ';
+  
+  // 左侧文字
+  const triggerLabel = document.createElement('span');
+  triggerLabel.textContent = 'All';
 
+  // 右侧 SVG 图标
+  const triggerIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  triggerIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  triggerIcon.setAttribute('fill', 'none');
+  triggerIcon.setAttribute('viewBox', '0 0 24 24');
+  triggerIcon.setAttribute('stroke-width', '1.5');
+  triggerIcon.setAttribute('stroke', 'currentColor');
+  triggerIcon.classList.add('w-5', 'h-5');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  path.setAttribute('d', 'm19.5 8.25-7.5 7.5-7.5-7.5');
+  triggerIcon.appendChild(path);
 
-    const res = await fetch(`${API_BASE}/api/category`);
-    const cats = await res.json();
-    cats.forEach(c => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-      btn.dataset.filter = c.name;
-      btn.textContent = c.name;
-      categories.appendChild(btn);
+  trigger.appendChild(triggerLabel);
+  trigger.appendChild(triggerIcon);
+
+  // 下拉容器
+  const menu = document.createElement('div');
+  menu.className =
+    'absolute right-0 mt-2 w-60 p-4 flex flex-col gap-y-2 bg-white rounded-xl shadow-xl hidden flex flex-col z-10';
+
+  // 工厂函数：生成按钮
+  const makeBtn = (label) => {
+    const btn = document.createElement('button');
+    btn.className =
+      'filter-btn bg-white text-left rounded-lg px-3 py-1 text-lg hover:bg-blue-100';
+    btn.dataset.filter = label;
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      triggerLabel.textContent = label;  // 改变显示文字
+      menu.classList.add('hidden');      // 收起菜单
     });
+    return btn;
+  };
 
-    if (allBtn) {
-      allBtn.classList.remove('bg-gray-200', 'text-gray-700');
-      allBtn.classList.add('bg-blue-500', 'text-white');
-      allBtn.click();
-    }
+  // 默认 All
+  const allBtn = makeBtn('All');
+  menu.appendChild(allBtn);
+
+  // 获取分类
+  const res = await fetch(`${API_BASE}/api/category`);
+  const cats = await res.json();
+  cats.forEach(c => {
+    menu.appendChild(makeBtn(c.name));
+  });
+
+  // 切换展开/收起
+  trigger.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+  root.appendChild(trigger);
+  root.appendChild(menu);
+
+  // 默认触发一次 All
+  allBtn.click();
 }
-// <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
+
 
 function renderTechTableRows(data, limit) {
   const tbody = document.getElementById('techTable');
@@ -781,7 +853,7 @@ async function renderTopTechStackTableByLevel() {
   `;
   categoryOrder.forEach(cat => {
     html += `<tr class="">
-      <td class="px-0 py-2">${cat}</td>
+      <td class="px-0 py-2 text-gray-500">${cat}</td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
         // const displayArr = arr.map((val, idx) => 

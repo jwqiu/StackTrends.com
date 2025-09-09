@@ -31,7 +31,7 @@
   <body class="bg-gray-100 min-w-[625px] ">
     <div id="tsparticles" class="fixed inset-0 -z-10"></div>
 
-    <nav class=" relative bg-white lg:bg-transparent py-6 shadow-lg lg:shadow-none flex justify-between items-center  ">
+    <nav class=" relative  bg-white lg:bg-transparent py-6 shadow-lg lg:shadow-none flex justify-between items-center   ">
       <div class="flex items-start flex-col">
         <a href="index.html">
           <div class="flex items-center gap-x-1 ms-8">
@@ -69,33 +69,30 @@
 
       
     </nav>
-    <div class="p-8 mx-auto max-w-[1200px] ">
+    <div class="p-8 mx-auto max-w-[1150px]  ">
       <!-- 第1个模块 -->
-      <div class="mb-16 mt-4">
-        <div class="mb-10  rounded-lg  ">
-          <div class="mb-3">
-            <p >
-              <span class="text-xl font-bold">Most Mentioned Tech Skills (Overall)</span>
-              <span class="text-gray-400 text-sm ms-1 mb-0 ">
-                | in 
-                <span class="text-blue-600 " id="job-count">
+      <div class="mb-24 mt-8 ">
+        <div class=" rounded-lg flex justify-between items-center">
+          <div class="mb-6 flex flex-col">
+              <span class="text-xl font-bold mb-0">Most Mentioned Tech Skills </span>
+              <span class="text-gray-400 text-sm  mb-0 ">
+                * in 
+                <span class=" " id="job-count">
                   # 
                 </span> collected since April 2025
               </span>
-            </p>
           </div>
-          <div class="flex flex-col lg:flex-row lg:items-center " >
-            <!-- <label for="" class="mt-0  text-sm text-gray-400 text-nowrap mb-0 me-2">Filter By Category :</label> -->
-            <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0">
+          <div class="flex flex-col mb-6 lg:flex-row lg:items-center " >
+            <!-- <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0"> -->
+              <div id="category-filters" class=" relative"></div>
               
-            </div>
-            
           </div>
+            
         </div>
         
         <div class="">
           <div class="w-full mx-auto mt-0">
-            <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  mt-4 ">
+            <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  ">
               <div class="lg:w-1/2 bg-white shadow-lg rounded-lg p-4 min-h-[400px] opacity-80 " >
                 <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
               </div>
@@ -123,20 +120,19 @@
         </div>
       </div>
       <!-- 第2个模块 -->
-      <div class="mb-16">
-        <div class="  rounded-lg  mb-8">
-          <div class="flex flex-col mb-0 ">
-            <div class="flex flex-col gap-y-2 mb-3 ">
-              <p >
-                  <span class="text-xl font-bold">Top 5 Tech Skills in Each Category</span>
-                  <span class="text-gray-400 text-sm mb-0 ms-2 ">
-                      | Based on 
-                      <span class="text-blue-600  text-md" id="job-count-2">
-                        # 
-                      </span> 
-                        collected since April 2025
-                  </span>
-              </p>
+
+      <div class="mb-24">
+        <div class=" rounded-lg  mb-6">
+          <div class="flex justify-between items-center mb-0 ">
+            <div class="flex flex-col  ">
+                <span class="text-xl font-bold">Top 5 Tech Skills in Each Category</span>
+                <span class="text-gray-400 text-sm mb-0  ">
+                    * Based on
+                    <span class="" id="job-count-2">
+                      #
+                    </span>
+                      collected since April 2025
+                </span>
             </div>
             <!-- <div class="flex items-center gap-x-2 mt-4 lg:mt-0 text-sm text-gray-500">
               <span>More Mentioned</span>
@@ -144,7 +140,7 @@
               <span>Less Mentioned</span>
             </div> -->
             <div class="flex flex-col items-start justify-start">
-               <div class="text-sm text-gray-400 font-medium text-start mb-1">
+              <div class="text-sm text-gray-400 font-medium text-start mb-1">
                 *Blue Width = % of jobs mentioning this tech skill
               </div>
 
@@ -154,9 +150,6 @@
                 <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-100 rounded-l" style="width: 70%"></div>
               </div>
             </div>
-           
-
-            
           </div>
           
           <div class="flex flex-col" style="display: none;">
@@ -258,7 +251,7 @@
                 <div>
                   <p class="mb-2 text-gray-500 text-center  h-10">DevOps Tools</p>
                   <div class="flex flex-col gap-y-3" id="DevOps Tools">
-                   
+                  
                   </div>
                 </div>
               </div>
@@ -292,9 +285,11 @@
         </div>
       </div>
       <!-- 第3个模块 -->
-      <div class="mb-16">
-        <div class=" mb-8">
-          <p ><span class="text-xl font-bold ">Differences in Required Tech Skills by Experience Level</span><span class="text-gray-400 text-sm mb-0 ms-2"> | Based on <span class="text-blue-600  text-md" id="job-count-3"># </span> collected since April 2025</span></p>
+
+      <div class="mb-24">
+        <div class=" mb-6 flex flex-col">
+            <span class="text-xl font-bold ">Differences in Required Tech Skills by Experience Level</span>
+            <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-3"># </span> collected since April 2025</span>
         </div>
         <div class=" bg-white shadow-lg rounded-lg px-8 py-4 opacity-80">
   
@@ -306,34 +301,33 @@
 
         </div>
       </div>
-
-
       <!-- 第4个模块 -->
-      <div class="" id="companySectionTitle">
-        <p class=""><span class="text-xl font-bold ">Differences in Required Tech Skills by Companies(Top20)</span><span class="text-gray-400 text-sm mb-0 ms-2"> | Based on <span class="text-blue-600  text-md" id="job-count-4"># </span> collected since April 2025</span></p>
-      </div>
-      <div class=" bg-white shadow-lg rounded-lg p-8 mt-8" >
-        <div class="flex flex-row text-center ">
-          <!-- 类别列 -->
-          <div class="flex flex-col gap-6 p-16">
-            <div class="  flex items-center justify-center truncate">Companies&<br>Tech Skills</div>
-            <div class=" h-[150px] flex items-center justify-center">Frontend</div>
-            <div class=" h-[150px] flex items-center justify-center">Backend</div>
-            <div class=" h-[150px] flex items-center justify-center">Cloud Platforms</div>
-            <div class=" h-[150px] flex items-center justify-center">Database</div>
-          </div>
-          <div class="overflow-x-auto max-w-full">
-            <div id="companiesContainer"
-                class="flex flex-row gap-6 overflow-visible p-8 ">
-            </div>
-          </div>
-          
+
+      <div class="mb-12">
+        <div class="flex flex-col" id="companySectionTitle">
+            <span class="text-xl font-bold ">Differences in Required Tech Skills by Companies(Top20)</span>
+            <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-4"># </span> collected since April 2025</span>
         </div>
-
-
-
-
+        <div class=" bg-white shadow-lg rounded-lg p-8 mt-6" >
+          <div class="flex flex-row text-center ">
+            <!-- 类别列 -->
+            <div class="flex flex-col gap-y-6 p-8  text-gray-400">
+              <div class=" h-[50px]  flex items-center justify-center truncate mt-8 ">Companies</div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">Frontend</div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">Backend</div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">Cloud Platforms</div>
+              <div class=" h-[150px]  px-4 flex items-center justify-center">Database</div>
+            </div>
+            <div class="overflow-x-auto max-w-full">
+              <div id="companiesContainer"
+                  class="flex flex-row gap-6 overflow-visible p-8 ">
+              </div>
+            </div>
+            
+          </div>
+        </div>
       </div>
+
     </div>
     <div id="modalContainer"></div>
 
