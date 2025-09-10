@@ -525,9 +525,9 @@ function renderCategoryTags(data) {
       }
 
       html += `
-        <div class="opacity-0 js-fade-in">
+        <div class="">
           <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105  shadow-lg relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-gray-200 to-gray-100"></div>
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-white to-white"></div>
             <div class="absolute top-0 left-0 h-full bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
             <div class="relative z-10 flex items-center group-hover:justify-center h-full px-2">
               <span class="text-sm text-gray-600 text-shadow font-bold  hidden group-hover:inline group-hover:opacity-100 transition-opacity duration-200">
@@ -862,10 +862,12 @@ async function renderTopTechStackTableByLevel() {
   `;
   categoryOrder.forEach(cat => {
     html += `<tr class="">
-      <td class="">
-        <div class="px-0 bg-gray-200 rounded-full w-24 py-2 text-gray-600 text-lg font-semibold">
-          ${cat}
+      <td class="px-4 py-2">
+        <div class="relative w-16 h-16 flex items-center justify-center ">
+          <span class="relative text-lg font-bold text-gray-600 z-10">${cat}</span>
+          <span class="absolute inset-0 bg-gray-200 rounded-full"></span>
         </div>
+
       </td>
       ${levels.map(lvl => {
         const arr = tableData[cat]?.[lvl.key] || [];
@@ -882,7 +884,7 @@ async function renderTopTechStackTableByLevel() {
               // const label = `${capitalize(val.tech)}`;
 
             return `
-              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-gray-100 flex justify-between rounded-md group shadow-lg px-0 mb-2 py-2 ">
+              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group shadow-lg px-0 mb-2 py-2 ">
                 <span class="absolute left-0 top-0 h-full  rounded-md bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100" style="width: ${width};"></span>
                 <span class="px-2 z-10  text-sm text-gray-700 text-shadow    opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   ${width}
@@ -930,7 +932,7 @@ function initFadeInOnView() {
       }
     });
   }, {
-    threshold: 0.5  // 进入 30% 就触发
+    threshold: 0.3  // 进入 30% 就触发
   });
 
   document.querySelectorAll('.js-fade-in').forEach(el => {
@@ -1009,7 +1011,7 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
         const techName = item.technology.charAt(0).toUpperCase() + item.technology.slice(1);
         const percentage = (item.percentage * 100).toFixed(2) + '%';
         return `
-          <span class="relative block bg-gray-100 rounded-md shadow-lg px-0 mb-2 py-2 overflow-hidden min-w-[120px] w-full">
+          <span class="relative block bg-white rounded-md shadow-lg px-0 mb-2 py-2 overflow-hidden min-w-[120px] w-full">
             <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${percentage};"></span>
             <span class="relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2" style="white-space:nowrap;">
               ${techName}
