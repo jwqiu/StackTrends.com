@@ -28,10 +28,10 @@
 
 
   </head>
-  <body class="bg-gray-100 min-w-[625px] ">
-    <div id="tsparticles" class="fixed inset-0 -z-10"></div>
+  <body class="min-w-[625px] ">
+    <!-- <div id="tsparticles" class="fixed inset-0 -z-10"></div> -->
 
-    <nav class=" relative border bg-white/50  py-6 shadow-lg lg:shadow-none flex justify-between items-center   ">
+    <nav class=" relative bg-white  py-6 shadow-lg  flex justify-between items-center   ">
       <div class="flex items-start flex-col">
         <a href="index.html">
           <div class="flex items-center gap-x-1 ms-8">
@@ -69,286 +69,296 @@
 
       
     </nav>
-    <div class="p-8 mx-auto max-w-[1150px]  ">
+    <!-- <div class="p-8 mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px]">  -->
       <!-- 第1个模块 -->
-      <div class="mb-12 xl:mb-24 xl:mt-4 ">
-        <div class=" rounded-lg flex justify-between items-center">
-          <div class="mb-6 flex flex-col">
-              <span class="text-xl font-bold mb-0">Most Mentioned Tech Skills </span>
-              <span class="text-gray-400 text-sm  mb-0 ">
-                * in 
-                <span class=" " id="job-count">
-                  # 
-                </span> collected since April 2025
-              </span>
-          </div>
-          <div class="flex flex-col mb-6 lg:flex-row lg:items-center " >
-            <!-- <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0"> -->
-              <div id="category-filters" class=" relative"></div>
-              
-          </div>
-            
-        </div>
-        
-        <div class="">
-          <div class="w-full mx-auto mt-0">
-            <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  ">
-              <div class="lg:w-1/2 bg-white shadow-lg rounded-lg p-4 min-h-[400px] opacity-80 " >
-                <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
-              </div>
-              <div class="lg:w-1/2 w-full opacity-80">
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <div class="max-h-[600px] overflow-auto">
-                    <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
-                      <thead class="sticky top-0 z-10 bg-gray-100">
-                        <tr class="border">
-                          <th class="border px-4 py-2 font-semibold">Category</th>
-                          <th class="border px-4 py-2 font-semibold text-nowrap">Tech Skill</th>
-                          <th class="border px-4 py-2 font-semibold">Mentions</th>
-                          <th class="border px-4 py-2 font-semibold">Percentage</th>
-                        </tr>
-                      </thead>
-                      <tbody id="techTable">
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- 第2个模块 -->
-
-      <div class="mb-12 xl:mb-24">
-        <div class=" rounded-lg  mb-6">
-          <div class="flex justify-between items-center mb-0 ">
-            <div class="flex flex-col  ">
-                <span class="text-xl font-bold">Top 5 Tech Skills in Each Category</span>
-                <span class="text-gray-400 text-sm mb-0  ">
-                    * Based on
-                    <span class="" id="job-count-2">
-                      #
-                    </span>
-                      collected since April 2025
+      <div class="w-full bg-gradient-to-r from-white to-blue-200 p-16">
+        <div class=" mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px] ">
+          <div class=" rounded-lg flex justify-between items-center">
+            <div class="mb-6 flex flex-col">
+                <span class="text-2xl font-bold mb-0">Most Mentioned Tech Skills </span>
+                <span class="text-gray-400 text-sm  mb-0 ">
+                  *in 
+                  <span class=" " id="job-count">
+                    # 
+                  </span> collected since April 2025
                 </span>
             </div>
-            <!-- <div class="flex items-center gap-x-2 mt-4 lg:mt-0 text-sm text-gray-500">
-              <span>More Mentioned</span>
-              <div class="w-40 h-3 bg-gradient-to-l from-blue-100 via-blue-400 to-blue-900 rounded-full shadow-inner"></div>
-              <span>Less Mentioned</span>
-            </div> -->
-            <div class="flex flex-col items-start justify-start">
-              <div class="text-sm text-gray-400 font-medium text-start mb-1">
-                *Blue Width = % of jobs mentioning this tech skill
-              </div>
-
-              <!-- 进度条形式的图例 -->
-              <div class="w-full max-w-sm h-4 bg-gray-200 rounded relative overflow-hidden shadow-inner ">
-                <!-- 蓝色渐变部分：只是个示意 -->
-                <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-100 rounded-l" style="width: 70%"></div>
-              </div>
+            <div class="flex flex-col mb-6 lg:flex-row lg:items-center " >
+              <!-- <div id="category-filters" class="flex gap-x-2 gap-y-2 flex-wrap mt-2 lg:mt-0"> -->
+                <div id="category-filters" class=" relative"></div>
+                
             </div>
+              
           </div>
           
-          <div class="flex flex-col" style="display: none;">
-            <label for="" class=" mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
-            <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
-          </div>
-        </div>
-        <div class="" style="display: none;">
-          <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="  bg-white  shadow-lg rounded-lg  p-8 pr-0 ">
-              <div class="min-w-[400px] max-w-[550px] mx-auto">
-                <canvas id="experiencePie"  ></canvas>
-              </div>
-            </div>
-            <div class="  bg-white shadow-lg rounded-lg p-4"> 
-              <div class="flex flex-col items-center justify-center">
-                <p class="text-xl font-normal text-gray-600 mb-8 text-center mt-1">
-                  Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )
-                </p>
-                <div class=" p-2 w-full" id="dynamicCategoryTags"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="">
-          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 opacity-80">
-              <h1 class="text-xl text-center mb-4">🧑‍💻 Coding Skills</h1>
-              <div class="flex flex-row grid grid-cols-3 gap-3">
-                <div >
-                    <p class="mb-2 text-center text-gray-500 h-10">Frontend</p>
-                    <div class="flex flex-col gap-y-3" id="Frontend">
-
-
-                    </div>
+          <div class="">
+            <div class="w-full mx-auto mt-0">
+              <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  ">
+                <div class="lg:w-1/2 bg-white shadow-lg rounded-lg p-4 min-h-[400px] border  " >
+                  <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
                 </div>
-                <div>
-                  <p class="mb-2 text-gray-500 text-center  h-10">Backend</p>
-                  <div class="flex flex-col gap-y-3" id="Backend">
-                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
-                      Darkest
-                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                <div class="lg:w-1/2 w-full ">
+                  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="max-h-[600px] overflow-auto">
+                      <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
+                        <thead class="sticky top-0 z-10 bg-gray-100">
+                          <tr class="border">
+                            <th class="border px-4 py-2 font-semibold">Category</th>
+                            <th class="border px-4 py-2 font-semibold text-nowrap">Tech Skill</th>
+                            <th class="border px-4 py-2 font-semibold">Mentions</th>
+                            <th class="border px-4 py-2 font-semibold">Percentage</th>
+                          </tr>
+                        </thead>
+                        <tbody id="techTable">
+                        </tbody>
+                      </table>
                     </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
-                      Dark
-                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
-                    </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
-                      Light
-                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
-                    </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
-                      Lightest
-                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
-                    </div> -->
                   </div>
                 </div>
-                <div>
-                  <p class="mb-2 text-gray-500 text-center  h-10">Coding Practices</p>
-                  <div class="flex flex-col gap-y-3" id="Coding Methods and Practices">
-                    <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
-                      Darkest
-                      <div class="text-xs mt-1 opacity-70">#0B3D91</div>
-                    </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
-                      Dark
-                      <div class="text-xs mt-1 opacity-70">#0074D9</div>
-                    </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
-                      Light
-                      <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
-                    </div>
-                    <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
-                      Lightest
-                      <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
-                    </div> -->
-                  </div>
-                </div>
+
               </div>
-
-
-            </div>
-            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 opacity-80"> 
-              <h1 class="text-xl text-center mb-4">🛠️ Platforms & Tools</h1>
-              <div class="flex flex-row grid grid-cols-3 gap-3">
-                <div >
-                  <p class="mb-2 text-gray-500 text-center h-10">Cloud Platforms</p>
-                  <div class="flex flex-col gap-y-3" id="Cloud Platforms">
-                    
-                    
-                  </div>
-                </div>
-                <div>
-                  <p class="mb-2 text-gray-500 text-center  h-10">Database</p>
-                  <div class="flex flex-col gap-y-3" id="Database">
-                    
-                  </div>
-                </div>
-                <div>
-                  <p class="mb-2 text-gray-500 text-center  h-10">DevOps Tools</p>
-                  <div class="flex flex-col gap-y-3" id="DevOps Tools">
-                  
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8" style="display: none;">
-            <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
-              <h1 class="text-xl font-bold mb-0">🤖 AI</h1>
-              <div class="">
-                <div class="flex flex-col gap-2" id="AI">
-                  
-                  
-                </div>
-              </div>
-
-
-            </div>
-            <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
-              <h1 class="text-xl font-bold mb-0">➕ Other</h1>
-              <div class="">
-                <div class="flex flex-col gap-2" id="Other">
-                  
-                  
-                </div>
-              </div>
-              
-              
             </div>
           </div>
         </div>
       </div>
+      
+      <!-- 第2个模块 -->
+      <div class="w-full bg-white p-16">
+        <div class="mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px]">
+          <div class=" rounded-lg  mb-6">
+            <div class="flex justify-between items-center mb-0 ">
+              <div class="flex flex-col  ">
+                  <span class="text-2xl font-bold">Top 5 Tech Skills in Each Category</span>
+                  <span class="text-gray-400 text-sm mb-0  ">
+                      *Based on
+                      <span class="" id="job-count-2">
+                        #
+                      </span>
+                        collected since April 2025
+                  </span>
+              </div>
+              <!-- <div class="flex items-center gap-x-2 mt-4 lg:mt-0 text-sm text-gray-500">
+                <span>More Mentioned</span>
+                <div class="w-40 h-3 bg-gradient-to-l from-blue-100 via-blue-400 to-blue-900 rounded-full shadow-inner"></div>
+                <span>Less Mentioned</span>
+              </div> -->
+              <div class="flex flex-col items-start justify-start">
+                <div class="text-sm text-gray-400 font-medium text-start mb-1">
+                  *Blue Width = % of jobs mentioning this tech skill
+                </div>
+
+                <!-- 进度条形式的图例 -->
+                <div class="w-full max-w-sm h-4 bg-gray-200 rounded relative overflow-hidden shadow-inner ">
+                  <!-- 蓝色渐变部分：只是个示意 -->
+                  <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-100 rounded-l" style="width: 70%"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-col" style="display: none;">
+              <label for="" class=" mb-3 text-gray-400 text-nowrap">Select Experience Level:</label>
+              <div id="experienceLevel" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+          <div class="" style="display: none;">
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div class="  bg-white  shadow-lg rounded-lg  p-8 pr-0 ">
+                <div class="min-w-[400px] max-w-[550px] mx-auto">
+                  <canvas id="experiencePie"  ></canvas>
+                </div>
+              </div>
+              <div class="  bg-white shadow-lg rounded-lg p-4"> 
+                <div class="flex flex-col items-center justify-center">
+                  <p class="text-xl font-normal text-gray-600 mb-8 text-center mt-1">
+                    Tech Stack Profile For ( <span class="text-blue-500 font-bold" id="jobLevel">#</span> Levels )
+                  </p>
+                  <div class=" p-2 w-full" id="dynamicCategoryTags"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="">
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-y-3 bg-white border shadow-lg rounded-lg  p-8 ">
+                <h1 class="text-xl text-center mb-4">🧑‍💻 Coding Skills</h1>
+                <div class="flex flex-row grid grid-cols-3 gap-3">
+                  <div >
+                      <p class="mb-2 text-center text-gray-500 h-10">Frontend</p>
+                      <div class="flex flex-col gap-y-3" id="Frontend">
+
+
+                      </div>
+                  </div>
+                  <div>
+                    <p class="mb-2 text-gray-500 text-center  h-10">Backend</p>
+                    <div class="flex flex-col gap-y-3" id="Backend">
+                      <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                        Darkest
+                        <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                        Dark
+                        <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                        Light
+                        <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                        Lightest
+                        <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                      </div> -->
+                    </div>
+                  </div>
+                  <div>
+                    <p class="mb-2 text-gray-500 text-center  h-10">Coding Practices</p>
+                    <div class="flex flex-col gap-y-3" id="Coding Methods and Practices">
+                      <!-- <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#60a5fa]">
+                        Darkest
+                        <div class="text-xs mt-1 opacity-70">#0B3D91</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#93c5fd]">
+                        Dark
+                        <div class="text-xs mt-1 opacity-70">#0074D9</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-white text-sm font-semibold bg-[#bfdbfe]">
+                        Light
+                        <div class="text-xs mt-1 opacity-70">#7FDBFF</div>
+                      </div>
+                      <div class="aspect-square w-full flex flex-col items-center justify-center text-gray-800 text-sm font-semibold bg-[#E0E0E0]">
+                        Lightest
+                        <div class="text-xs mt-1 opacity-70">#E0E0E0</div>
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+              <div class=" flex flex-col gap-y-3 bg-white border  shadow-lg rounded-lg  p-8 "> 
+                <h1 class="text-xl text-center mb-4">🛠️ Platforms & Tools</h1>
+                <div class="flex flex-row grid grid-cols-3 gap-3">
+                  <div >
+                    <p class="mb-2 text-gray-500 text-center h-10">Cloud Platforms</p>
+                    <div class="flex flex-col gap-y-3" id="Cloud Platforms">
+                      
+                      
+                    </div>
+                  </div>
+                  <div>
+                    <p class="mb-2 text-gray-500 text-center  h-10">Database</p>
+                    <div class="flex flex-col gap-y-3" id="Database">
+                      
+                    </div>
+                  </div>
+                  <div>
+                    <p class="mb-2 text-gray-500 text-center  h-10">DevOps Tools</p>
+                    <div class="flex flex-col gap-y-3" id="DevOps Tools">
+                    
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8" style="display: none;">
+              <div class="flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8 ">
+                <h1 class="text-xl font-bold mb-0">🤖 AI</h1>
+                <div class="">
+                  <div class="flex flex-col gap-2" id="AI">
+                    
+                    
+                  </div>
+                </div>
+
+
+              </div>
+              <div class=" flex flex-col gap-y-3 bg-white  shadow-lg rounded-lg  p-8"> 
+                <h1 class="text-xl font-bold mb-0">➕ Other</h1>
+                <div class="">
+                  <div class="flex flex-col gap-2" id="Other">
+                    
+                    
+                  </div>
+                </div>
+                
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 第3个模块 -->
+      <div class="w-full  bg-gradient-to-r from-white to-blue-200 p-16">
+        <div class="mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px]">
+          <div class=" mb-6 flex flex-col">
+              <span class="text-2xl text-center font-bold ">Differences in Required Tech Skills by Experience Level</span>
+              <span class="text-gray-400 text-sm mb-0 text-center">* Based on <span class="" id="job-count-3"># </span> collected since April 2025</span>
+          </div>
+          <div class="  rounded-lg px-8 py-4 ">
+    
+            <div class="overflow-x-auto  ">
+              
+              <table id="topTechStackTable" class="min-w-full text-sm text-center border border-gray-300 rounded-lg shadow-md border-none"></table>
 
-      <div class="mb-12 xl:mb-24">
-        <div class=" mb-6 flex flex-col">
-            <span class="text-xl font-bold ">Differences in Required Tech Skills by Experience Level</span>
-            <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-3"># </span> collected since April 2025</span>
-        </div>
-        <div class=" bg-white shadow-lg rounded-lg px-8 py-4 opacity-80">
-  
-          <div class="overflow-x-auto  ">
-            
-            <table id="topTechStackTable" class="min-w-full text-sm text-center border border-gray-300 rounded-lg shadow-md border-none"></table>
+            </div>
 
           </div>
-
         </div>
       </div>
+
       <!-- 第4个模块 -->
-
-      <div class="mb-8 xl:mb-12">
-        <div class="flex flex-col" id="companySectionTitle">
-            <span class="text-xl font-bold ">Differences in Required Tech Skills by Companies(Top20)</span>
-            <span class="text-gray-400 text-sm mb-0 ">* Based on <span class="" id="job-count-4"># </span> collected since April 2025</span>
-        </div>
-        <div class=" bg-white shadow-lg rounded-lg p-8 mt-6" >
-          <div class="flex flex-row text-center ">
-            <!-- 类别列 -->
-            <div class="flex flex-col gap-y-6 p-8  text-gray-400">
-              <div class=" h-[50px]  flex items-center justify-center truncate mt-8 ">
-                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
-                  Companies
-                </div>
-              </div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">
-                  <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
-                    Frontend
+      <div class="w-full bg-white p-16">
+        <div class="mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px]">
+          <div class="flex flex-col" id="companySectionTitle">
+              <span class="text-2xl text-center font-bold ">Differences in Required Tech Skills by Companies(Top20)</span>
+              <span class="text-gray-400 text-sm mb-0 text-center">* Based on <span class="" id="job-count-4"># </span> collected since April 2025</span>
+          </div>
+          <div class=" rounded-lg p-8 " >
+            <div class="flex flex-row text-center ">
+              <!-- 类别列 -->
+              <div class="flex flex-col gap-y-6 p-8  text-gray-400">
+                <div class=" h-[50px]  flex items-center justify-center truncate mt-8 ">
+                  <div class="px-4 py-2 bg-gray-200 rounded-full text-lg text-gray-600 font-semibold">
+                    Companies
                   </div>
-              </div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">
-                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
-                  Backend
+                </div>
+                <div class=" h-[150px]  px-4 flex items-center justify-center">
+                    <div class="px-4 py-2 bg-gray-200 rounded-full text-lg text-gray-600 font-semibold">
+                      Frontend
+                    </div>
+                </div>
+                <div class=" h-[150px]  px-4 flex items-center justify-center">
+                  <div class="px-4 py-2 bg-gray-200 rounded-full text-lg text-gray-600 font-semibold">
+                    Backend
+                  </div>
+                </div>
+                <div class=" h-[150px]  px-4 flex items-center justify-center">
+                  <div class="px-6 py-2 bg-gray-200 rounded-full text-lg text-gray-600 font-semibold">
+                    Cloud Platforms
+                  </div>
+                </div>
+                <div class=" h-[150px]  px-4 flex items-center justify-center">
+                  <div class="px-4 py-2 bg-gray-200 rounded-full text-lg text-gray-600 font-semibold">
+                    Database
+                  </div>
                 </div>
               </div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">
-                <div class="px-6 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
-                  Cloud Platforms
+              <div class="overflow-x-auto max-w-full">
+                <div id="companiesContainer"
+                    class="flex flex-row gap-6 overflow-visible p-8 ">
                 </div>
               </div>
-              <div class=" h-[150px]  px-4 flex items-center justify-center">
-                <div class="px-4 py-2 bg-gray-200 rounded-full text-gray-600 font-semibold">
-                  Database
-                </div>
-              </div>
+              
             </div>
-            <div class="overflow-x-auto max-w-full">
-              <div id="companiesContainer"
-                  class="flex flex-row gap-6 overflow-visible p-8 ">
-              </div>
-            </div>
-            
           </div>
         </div>
       </div>
+
 
     </div>
+    
     <div id="modalContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>

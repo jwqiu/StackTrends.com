@@ -345,7 +345,7 @@ async function loadCategoryOptions() {
   // 触发按钮容器
   const trigger = document.createElement('div');
   trigger.className =
-    'flex items-center justify-between px-6 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white/80   ';
+    'flex items-center justify-between px-6 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
   
   // 左侧文字
   const triggerLabel = document.createElement('span');
@@ -371,7 +371,7 @@ async function loadCategoryOptions() {
   // 下拉容器
   const menu = document.createElement('div');
   menu.className =
-    'absolute right-0 mt-2 w-60 p-4 flex flex-col gap-y-2 bg-white rounded-xl shadow-xl hidden flex flex-col z-10';
+    'absolute right-0 mt-2 w-60 p-4 flex flex-col gap-y-2 bg-white rounded-xl shadow-xl hidden flex flex-col z-40';
 
   // 工厂函数：生成按钮
   const makeBtn = (label) => {
@@ -851,7 +851,7 @@ async function renderTopTechStackTableByLevel() {
   let html = `
     <thead class=" border-none text-gray-700">
       <tr>
-        <th class="px-4 py-2">#</th>
+        <th class="px-0 py-2"></th>
          ${levels.map(l => {
             const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
             return `<th class="px-4 font-normal py-2 text-lg text-center">${l.label}<br> <span class="text-sm text-gray-400">(${count} jobs)</span></th>`;
@@ -863,7 +863,7 @@ async function renderTopTechStackTableByLevel() {
   categoryOrder.forEach(cat => {
     html += `<tr class="">
       <td class="">
-        <div class="px-4 py-2 text-gray-600 font-semibold">
+        <div class="px-0 bg-gray-200 rounded-full w-24 py-2 text-gray-600 text-lg font-semibold">
           ${cat}
         </div>
       </td>
@@ -1050,30 +1050,30 @@ function initCompanyCardFadeInOnView() {
   observer.observe(trigger);
 }
 
-function initParticles() {
-  tsParticles.load("tsparticles", {
-    background: {
-      color: { value: "transparent" }
-    },
-    particles: {
-      number: { value: 80 },
-      color: { value: "#6B7280" },
-      shape: { type: "circle" },
-      opacity: { value: 0.5 },
-      size: { value: 3 },
-      move: { enable: true, speed: 1 },
-      links: {
-        enable: true,
-        distance: 150,
-        color: "#9CA3AF",
-        opacity: 0.4,
-        width: 1
-      }
-    },
-    fullScreen: { enable: false }
-  });
-}
+// function initParticles() {
+//   tsParticles.load("tsparticles", {
+//     background: {
+//       color: { value: "transparent" }
+//     },
+//     particles: {
+//       number: { value: 80 },
+//       color: { value: "#6B7280" },
+//       shape: { type: "circle" },
+//       opacity: { value: 0.5 },
+//       size: { value: 3 },
+//       move: { enable: true, speed: 1 },
+//       links: {
+//         enable: true,
+//         distance: 150,
+//         color: "#9CA3AF",
+//         opacity: 0.4,
+//         width: 1
+//       }
+//     },
+//     fullScreen: { enable: false }
+//   });
+// }
 
-document.addEventListener("DOMContentLoaded", function () {
-  initParticles();
-});
+// document.addEventListener("DOMContentLoaded", function () {
+//   initParticles();
+// });

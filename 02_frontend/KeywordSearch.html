@@ -6,7 +6,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-w-[700px]">
+    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-w-[700px]   ">
         <nav class="bg-white relative shadow py-6 shadow-lg flex justify-between items-center">
             <div class="flex items-start flex-col">
                 <a href="index.html">
@@ -47,95 +47,100 @@
 
             </div>
         </nav>
-        <div class="flex flex-col  mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
-            <div class="flex gap-x-8 mb-3" >   
-                 <div class="w-full text-center bg-white rounded-lg shadow-lg">
-                    <input id="keywordInput" type="text" placeholder="Search for keywords..." class="border border-gray-300 p-2 rounded-lg w-full">
+        <div class='max-w-[1150px] 2xl:max-w-[1300px] mx-auto p-8 '>
+            <div class="flex flex-col  mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
+                <div class="flex gap-x-8 mb-3" >   
+                    <div class="w-full text-center bg-white rounded-lg shadow-lg">
+                        <input id="keywordInput" type="text" placeholder="Search for keywords..." class="border border-gray-300 p-2 rounded-lg w-full">
+                    </div>
+                    <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
                 </div>
-                <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
+
+                <p class="text-sm text-gray-500">⚠️ Please note: if your keyword contains special characters, they may be ignored in the search, and results may not be fully accurate.</p>
+
             </div>
+            <div class="mt-4 container mx-auto flex items-center">
+                <p class="text-sm text-gray-400">Keyword Frequency For:</p>
+                <p id="searchKeyword" class="text-lg ms-2 ">Python</p>
+            </div>
+            <div class="container mx-auto flex flex-col    rounded-lg shadow-lg mt-4 p-8 bg-white items-center ">
 
-            <p class="text-sm text-gray-500">⚠️ Please note: if your keyword contains special characters, they may be ignored in the search, and results may not be fully accurate.</p>
+                <table class="w-full text-sm text-center me-6">
+                    <thead class=" text-gray-500 font-semibold">
+                        <tr class="">
+                            <th class="px-4 py-2">#</th>
+                            <th class="px-4 py-2">ALL Jobs(xx)</th>
+                            <th class="px-4 py-2">🧑‍🎓Junior&Graduate(xx)</th>
+                            <th class="px-4 py-2">👨‍💻Intermediate(xx)</th>
+                            <th class="px-4 py-2">👨‍💼Senior(xx)</th>
+                        </tr>
+                    </thead>
+                    <tbody class=" text-gray-800" id="mentionRateTable">
+                        <tr id="matchCountRow" class=" border-gray-300">
+                            <td class="px-2 py-2">Match Count</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                        </tr>
+                        <tr id="mentionRateRow" class=" border-gray-300">
+                            <td class="px-2 py-2">Mention Rate</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">#</td>
+                        </tr>
 
-        </div>
-        <div class="mt-4 container mx-auto flex items-center">
-            <p class="text-sm text-gray-400">Keyword Frequency For:</p>
-            <p id="searchKeyword" class="text-lg ms-2 ">Python</p>
-        </div>
-        <div class="container mx-auto flex flex-col    rounded-lg shadow-lg mt-4 p-8 bg-white items-center ">
-
-            <table class="w-full text-sm text-center me-6">
-                <thead class=" text-gray-500 font-semibold">
-                    <tr class="">
-                        <th class="px-4 py-2">#</th>
-                        <th class="px-4 py-2">ALL Jobs(xx)</th>
-                        <th class="px-4 py-2">🧑‍🎓Junior&Graduate(xx)</th>
-                        <th class="px-4 py-2">👨‍💻Intermediate(xx)</th>
-                        <th class="px-4 py-2">👨‍💼Senior(xx)</th>
-                    </tr>
-                </thead>
-                <tbody class=" text-gray-800" id="mentionRateTable">
-                    <tr id="matchCountRow" class=" border-gray-300">
-                        <td class="px-2 py-2">Match Count</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                    </tr>
-                    <tr id="mentionRateRow" class=" border-gray-300">
-                        <td class="px-2 py-2">Mention Rate</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">#</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-        <div class="container mx-auto mt-8 gap-x-8  grid  grid-cols-2  ">
-            <div class="bg-white rounded-lg shadow-lg p-8  ">
-                <h1 class="text-xl font-bold ">💼 Matching Job List</h1>
-                <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
-    
-                    <!-- <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                        <p>Job Title 1</p>
-                        <div>
-                            <p class="text-gray-400 text-sm">Posted on</p>
-                            <p class="text-gray-500">#2023-01-01</p>
+                    </tbody>
+                </table>
+            </div>
+            <div class="container mx-auto mt-8 gap-x-8  grid  grid-cols-2  ">
+                <div class="bg-white rounded-lg shadow-lg p-8  ">
+                    <h1 class="text-xl font-bold ">💼 Matching Job List</h1>
+                    <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
+        
+                        <!-- <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                            <p>Job Title 1</p>
+                            <div>
+                                <p class="text-gray-400 text-sm">Posted on</p>
+                                <p class="text-gray-500">#2023-01-01</p>
+                            </div>
+                            
                         </div>
-                        
+
+                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                            <p>Job Title 2</p>
+                            <div>
+                                <p class="text-gray-400 text-sm">Posted on</p>
+                                <p class="text-gray-500">#2023-01-02</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
+                            <p>Job Title 3</p>
+                            <div>
+                                <p class="text-gray-400 text-sm">Posted on</p>
+                                <p class="text-gray-500">#2023-01-03</p>
+                            </div>
+                        </div> -->
+                    </div>
+                    <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
+                </div>
+
+                <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px]  sticky top-4 self-start ">
+                    <p class="text-xl font-bold">💬 How this tech skill is mentioned in job ads</p>
+
+                    <div class="bg-gray-100 w-full rounded-lg shadow-lg max-h-[800px] overflow-y-auto p-4" id="jobDescriptionContainer">
+                        <p class="text-gray-500 p-4">This area will be populated with the actual job description relevant to your keyword when a job is selected.</p>
                     </div>
 
-                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                        <p>Job Title 2</p>
-                        <div>
-                            <p class="text-gray-400 text-sm">Posted on</p>
-                            <p class="text-gray-500">#2023-01-02</p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                        <p>Job Title 3</p>
-                        <div>
-                            <p class="text-gray-400 text-sm">Posted on</p>
-                            <p class="text-gray-500">#2023-01-03</p>
-                        </div>
-                    </div> -->
                 </div>
-                <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
+                
             </div>
-
-            <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px]  sticky top-4 self-start ">
-                <p class="text-xl font-bold">💬 How this tech skill is mentioned in job ads</p>
-
-                <div class="bg-gray-100 w-full rounded-lg shadow-lg max-h-[800px] overflow-y-auto p-4" id="jobDescriptionContainer">
-                    <p class="text-gray-500 p-4">This area will be populated with the actual job description relevant to your keyword when a job is selected.</p>
-                </div>
-
-            </div>
+        </div>
             
-        </div>
+
+
         <div id="modalContainer"></div>
 
 

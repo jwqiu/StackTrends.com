@@ -1,3 +1,5 @@
+const API_BASE = window.API_BASE;
+
 document.addEventListener("DOMContentLoaded" ,() => {
     // getJobsCount();
     // getCompaniesCount();
