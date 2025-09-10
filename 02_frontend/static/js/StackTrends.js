@@ -345,7 +345,7 @@ async function loadCategoryOptions() {
   // 触发按钮容器
   const trigger = document.createElement('div');
   trigger.className =
-    'flex items-center justify-between px-6 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
+    'flex items-center justify-between px-8 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
   
   // 左侧文字
   const triggerLabel = document.createElement('span');
