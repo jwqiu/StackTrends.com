@@ -3,7 +3,7 @@
 StackRadar is a full-stack web platform that helps junior developers in New Zealand understand in-demand tech stacks and filter jobs based on their skills.
 
 ### 🔗 Live Site  
- [Visit StackRadar Online](https://www.stackradar.me)
+[Visit StackRadar Online](https://www.stackradar.me)
 
 ### 🖼️ Screenshot: 
 
@@ -22,9 +22,9 @@ Curious about the origin of this project?
 - **Database**: PostgreSQL on Azure（PostgreSQL Flexible Server）
 - **Deployment**: Azure App Service + Static Web App
 
-## System Architecture
+## 🏗️ System Architecture
 
-[System Architecture](./docs/system_architecture.jpg)
+![System Architecture](./docs/system_architecture.jpg)
 
 ## 🧩 Project Structure & Modules
 
