@@ -7,12 +7,12 @@ StackRadar is a full-stack web platform that helps junior developers in New Zeal
 
 ### 🖼️ Screenshot: 
 
-![Landing Page](./stackradar_landing_page.png)
+![Landing Page](./docs/stackradar_landing_page.png)
 
 ## 📖 About
 
 Curious about the origin of this project?  
-👉 [**Read the full story behind StackRadar**](./TheStoryBehindStackRadar.md)
+👉 [**Read the full story behind StackRadar**](./docs/TheStoryBehindStackRadar.md)
 
 ## 🛠️ Tech Stack
 
@@ -21,6 +21,10 @@ Curious about the origin of this project?
 - **Data**: Python + BeautifulSoup scraping
 - **Database**: PostgreSQL on Azure（PostgreSQL Flexible Server）
 - **Deployment**: Azure App Service + Static Web App
+
+## System Architecture
+
+[System Architecture](./docs/system_architecture.jpg)
 
 ## 🧩 Project Structure & Modules
 
