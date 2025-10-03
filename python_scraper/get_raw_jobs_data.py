@@ -96,9 +96,32 @@ def get_job_details(graphql_url, job_id, headers):
 
     response = safe_post(graphql_url, headers=headers, json=payload)
 
+    if response is None:
+        logging.warning(f"获取 job {job_id} 返回 None")
+        return "NA"
+
     if response.status_code == 200:
-        base_data = response.json()
+        try:
+            base_data=response.json()
+        except Exception as e:
+            logging.warning(f"解析 job {job_id} JSON 失败: {e}")
+            return "NA"
+
+        if not isinstance(base_data, dict):
+            logging.warning(f"job {job_id} 返回的 JSON 不是字典")
+            return "NA"
+
+        data_block = base_data.get("data")
+        if data_block is None:
+            logging.warning(f"job {job_id} 的 data 是 null, base_data={base_data}")
+            logging.warning(f"[DEBUG] job_id={job_id}, status={response.status_code}, text={response.text[:500]}")
+            return "NA"
+
         job_detail = base_data.get("data", {}).get("jobDetails", {}).get("job", {}).get("content", "NA")
+
+        if job_detail == "NA":
+            logging.info(f"job {job_id} 未返回内容, base_data={base_data}")
+
         return job_detail
     else:
         logging.warning(f"获取 job {job_id} 详情失败: {response.status_code}")

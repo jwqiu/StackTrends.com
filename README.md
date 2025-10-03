@@ -26,6 +26,7 @@ Curious about the origin of this project?
 ## System Architecture
 
 The diagram below shows how frontend, backend, web scraping, and database interact in the system
+
 ![System Architecture](./docs/system_architecture.jpg)
 
 ## Project Structure & Modules
