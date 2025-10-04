@@ -9,9 +9,10 @@ from collections import Counter
 import pandas as pd
 from .connect import get_conn
 from psycopg2.extras import execute_values
+from datetime import datetime
 
 
-def load_tags(level=None, company_id=None):
+def load_tags(level=None, company_id=None, month=None):
     conn = get_conn()
     cur = conn.cursor()
 
@@ -26,6 +27,10 @@ def load_tags(level=None, company_id=None):
         base_sql += " AND company_id = %s"
         params.append(company_id)
 
+    if month:
+        base_sql += " AND listing_year_month = %s"
+        params.append(month)
+
     cur.execute(base_sql, tuple(params))
     rows = cur.fetchall()
     cur.close()
@@ -37,7 +42,6 @@ def load_tags(level=None, company_id=None):
         tags = [t.strip().lower() for t in tags if t.strip()]
         all_tags.extend(tags)
     return all_tags
-
 
 
 def create_tech_stack_rank():
@@ -287,4 +291,107 @@ def update_landing_summary():
     print("✅ landing_summary 数据已更新。")
 
 
+
+def generate_months():
+    months = pd.period_range(
+        start="2025-06",
+        end=(datetime.today().replace(day=1) - pd.DateOffset(months=1)),
+        freq="M"
+    ).strftime("%Y/%m").tolist()
+    return months
+
+def get_top_growing_and_declining_techs():
+    months=generate_months()
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    records=[]
+
+    for month in months:
+
+        # 1. 获取 tags
+        tags=load_tags(month=month)
+        tag_counter = Counter(tags)
+
+        # 2. 获取当月 jobs_count
+        cur.execute("SELECT jobs_count FROM public.jobs_count_by_month WHERE listing_year_month = %s", (month,))
+        result = cur.fetchone()
+        job_number_this_month = result[0] if result else 0
+        
+        # 3. 计算 mention rate
+        for tech, count in tag_counter.items():
+            mention_rate = count / job_number_this_month if job_number_this_month > 0 else 0
+            records.append({
+                "month": month,
+                "tech": tech,
+                "count": count,
+                "jobs_count": job_number_this_month,
+                "mention_rate": mention_rate
+            })
+            
+    df = pd.DataFrame(records)
+
+    first_month = df["month"].min()
+    last_month = df["month"].max()
+
+    df_first = df[df["month"] == first_month][["tech", "mention_rate"]].rename(columns={"mention_rate": "first_rate"})
+    df_last = df[df["month"] == last_month][["tech", "mention_rate"]].rename(columns={"mention_rate": "last_rate"})
+
+    # 只保留两个月都出现的 tech
+    df_compare = pd.merge(df_first, df_last, on="tech", how="inner")
+
+    # 计算变化
+    df_compare["rate_change"] = df_compare["last_rate"] - df_compare["first_rate"]
+
+    # 取 top 10 增长和 top 10 降低
+    top_growing = df_compare.sort_values("rate_change", ascending=False).head(10)
+    top_growing["trend_type"] = "growing"
+    top_declining = df_compare.sort_values("rate_change", ascending=True).head(10)
+    top_declining["trend_type"] = "declining"
+
+    # 在原始 df 中筛出这 20 个 tech 每个月的数据
+    selected_techs = pd.concat([top_growing, top_declining], ignore_index=True)
+
+    df_selected = df[df["tech"].isin(selected_techs["tech"])]
+    df_selected = df_selected.merge(
+        selected_techs[["tech", "trend_type"]],
+        on="tech",
+        how="left"
+    )
+
+     # 1. 建表
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS top_growing_and_declining_techs (
+            month TEXT,
+            tech TEXT,
+            mention_rate DOUBLE PRECISION,
+            count INTEGER,
+            jobs_count INTEGER,
+            trend_type TEXT
+        )
+    """)
+
+    # 2. 清空表
+    cur.execute("TRUNCATE TABLE top_growing_and_declining_techs")
+
+    # 3. 插入数据
+    insert_sql = """
+        INSERT INTO top_growing_and_declining_techs (month, tech, mention_rate, count, jobs_count, trend_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    for _, row in df_selected.iterrows():
+        cur.execute(insert_sql, (
+            row["month"],
+            row["tech"],
+            float(row["mention_rate"]),
+            int(row["count"]),
+            int(row["jobs_count"]),
+            row["trend_type"]
+        ))
+
+    print("top_growing_and_declining_techs 表已更新。")
+    conn.commit()
+    cur.close()
+    conn.close()
 

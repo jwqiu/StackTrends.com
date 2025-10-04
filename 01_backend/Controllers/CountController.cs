@@ -111,50 +111,6 @@ namespace StackTrends.Controllers
             return counts;
         }
 
-        // [HttpGet("tech-stacks-by-experience")]
-        // public async Task<IEnumerable<TechStackCount>> GetTechStacksByExperience()
-        // {
-        //     var list = new List<TechStackCount>();
-
-        //     const string sql = @"
-        //         SELECT
-        //             job_level   AS level,
-        //             category,
-        //             technology,
-        //             mentions,
-        //             percentage
-        //         FROM tech_stacks_frequency_count
-        //         ORDER BY
-        //         CASE job_level
-        //             WHEN 'Senior' THEN 1
-        //             WHEN 'Intermediate' THEN 2
-        //             WHEN 'Junior' THEN 3
-        //             ELSE 4
-        //         END,
-        //         mentions DESC
-        //     ";
-
-        //     await _conn.OpenAsync();
-        //     await using (var cmd = new NpgsqlCommand(sql, _conn))
-        //     await using (var reader = await cmd.ExecuteReaderAsync())
-        //     {
-        //         while (await reader.ReadAsync())
-        //         {
-        //             list.Add(new TechStackCount
-        //             {
-        //                 Level      = reader.GetString(reader.GetOrdinal("level")),
-        //                 Category   = reader.GetString(reader.GetOrdinal("category")),
-        //                 Technology = reader.GetString(reader.GetOrdinal("technology")),
-        //                 Mentions   = reader.GetInt32(reader.GetOrdinal("mentions")),
-        //                 Percentage = reader.GetDouble(reader.GetOrdinal("percentage"))
-        //             });
-        //         }
-        //     }
-        //     await _conn.CloseAsync();
-
-        //     return list;
-        // }
-
         [HttpGet("match/keyword")]
         public async Task<IActionResult> GetKeywordMatchStats([FromQuery] string keyword)
         {
@@ -283,6 +239,39 @@ namespace StackTrends.Controllers
             return NotFound("No landing summary found.");
         }
 
+        [HttpGet("tech-trends")]
+        public async Task<IEnumerable<TechTrend>> GetTrends()
+        {
+            var trends = new List<TechTrend>();
+
+            await _conn.OpenAsync();
+
+            var sql = @"
+                SELECT month, tech, mention_rate, trend_type
+                FROM top_growing_and_declining_techs
+                ORDER BY month ASC, tech ASC
+            ";
+
+            await using var cmd = new NpgsqlCommand(sql, _conn);
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                trends.Add(new TechTrend
+                {
+                    Month = reader["month"].ToString()!,
+                    Technology = reader["tech"].ToString()!,
+                    Percentage = Convert.ToDouble(reader["mention_rate"]),
+                    TrendType = reader["trend_type"].ToString()!
+                });
+            }
+
+            await _conn.CloseAsync();
+
+            Console.WriteLine($"[Info] Returned {trends.Count} tech trends at {DateTime.Now}");
+
+            return trends;
+        }
 
     };
 }

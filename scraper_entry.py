@@ -3,10 +3,12 @@ from python_scraper.add_tech_stack_labels import add_tech_stack_labels
 from python_scraper.create_tech_stack_rank import create_tech_stack_rank
 from python_scraper.create_tech_stack_rank import create_tech_stack_rank_by_company
 from python_scraper.create_tech_stack_rank import update_landing_summary
+from python_scraper.create_tech_stack_rank import get_top_growing_and_declining_techs
 
-get_jobs_data()
-count_jobs_by_month()
+# get_jobs_data()
+# count_jobs_by_month()
 add_tech_stack_labels()
 create_tech_stack_rank()
 create_tech_stack_rank_by_company()
 update_landing_summary()
+# get_top_growing_and_declining_techs()

@@ -59,5 +59,12 @@ namespace StackTrends.Models
         public DateTime UpdatedAt { get; set; }
     }
 
+    public class TechTrend
+    {
+        public required string Month { get; set; }       // 对应数据库的 month
+        public required string Technology { get; set; }  // 对应数据库的 tech
+        public required double Percentage { get; set; }  // 对应数据库的 mention_rate
+        public required string TrendType { get; set; }   // growing / declining
+    }
 
 }

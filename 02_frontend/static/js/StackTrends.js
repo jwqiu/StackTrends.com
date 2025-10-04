@@ -1079,3 +1079,165 @@ function initCompanyCardFadeInOnView() {
 // document.addEventListener("DOMContentLoaded", function () {
 //   initParticles();
 // });
+// async function fetchTechTrends() {
+//   try {
+//     const response = await fetch(`${window.API_BASE}/api/count/tech-trends`); // 根据你的后端路由调整
+//     const data = await response.json();
+
+//     // 分组 growing / declining
+//     const growing = data.filter(d => d.trendType === "growing");
+//     const declining = data.filter(d => d.trendType === "declining");
+
+//     // 按 technology 分组
+//     const groupByTech = (arr) => {
+//       const map = {};
+//       arr.forEach(item => {
+//         if (!map[item.technology]) map[item.technology] = [];
+//         map[item.technology].push({ month: item.month, percentage: item.percentage });
+//       });
+//       // 按月份排序
+//       for (const tech in map) {
+//         map[tech].sort((a, b) => new Date(a.month) - new Date(b.month));
+//       }
+//       return map;
+//     };
+
+//     const growingMap = groupByTech(growing);
+//     const decliningMap = groupByTech(declining);
+
+//     // 选出变化量最大的前 5
+//     function pickTop5(datasetsMap, isGrowing = true) {
+//       const diffs = Object.entries(datasetsMap).map(([tech, values]) => {
+//         const first = values[0]?.percentage ?? 0;
+//         const last = values[values.length - 1]?.percentage ?? 0;
+//         return { tech, diff: last - first };
+//       });
+//       // 排序
+//       const sorted = diffs.sort((a, b) => b.diff - a.diff);
+//       const top5 = isGrowing ? sorted.slice(0,3) : sorted.slice(-3);
+
+//       const picked = {};
+//       top5.forEach(({ tech }) => {
+//         picked[tech] = datasetsMap[tech];
+//       });
+//       return picked;
+//     }
+
+//     const growingTop5 = pickTop5(growingMap, true);
+//     const decliningTop5 = pickTop5(decliningMap, false);
+
+//     // 画图函数
+//     function drawChart(containerId, title, datasetsMap) {
+//       // 清空容器
+//       const container = document.getElementById(containerId);
+//       container.innerHTML = '<canvas></canvas>';
+//       const ctx = container.querySelector("canvas").getContext("2d");
+
+//       const labels = [...new Set(Object.values(datasetsMap).flat().map(d => d.month))]
+//         .sort((a, b) => new Date(a) - new Date(b));
+
+//       const datasets = Object.entries(datasetsMap).map(([tech, values]) => ({
+//         label: tech,
+//         data: labels.map(m => {
+//           const found = values.find(v => v.month === m);
+//           return found ? found.percentage : null;
+//         }),
+//         borderWidth: 2,
+//         fill: false,
+//         tension: 0.2
+//       }));
+
+//       new Chart(ctx, {
+//         type: "line",
+//         data: { labels, datasets },
+//         options: {
+//           responsive: true,
+//           plugins: {
+//             title: {
+//               display: false,
+//               text: title
+//             },
+//             legend: {
+//               display: false   // 去掉图例
+//             },
+//             datalabels: {
+//               display: false   // 去掉折线上数字
+//             },
+//             tooltip: {
+//               callbacks: {
+//                 label: function(context) {
+//                   const value = context.parsed.y;
+//                   return (value * 100).toFixed(2) + "%";
+//                 }
+//               }
+//             }
+//           },
+//           interaction: {
+//             mode: "index",
+//             intersect: false
+//           },
+//           scales: {
+//             y: {
+//               beginAtZero: false,
+//               title: { display: false, text: "Mention Rate" },
+//               grid: {
+//                 display: false   // 🚀 关闭 Y 轴网格
+//               },
+//               ticks: {
+//                   display: false   // 🚀 去掉 Y 轴刻度文字
+//               },
+//               border: {
+//                 display: false   // 🚀 去掉 Y 轴整条坐标轴线
+//               }
+//             },
+//             x: {
+//               title: { display: false, text: "Month" },
+//               grid: {
+//                 display: false   // 🚀 关闭 X 轴网格
+//               },
+//               border: {
+//                 display: false   // 🚀 去掉 Y 轴整条坐标轴线
+//               }
+//             }
+//           }
+//         },
+//         plugins: [
+//           {
+//             id: "lineLabels",
+//             afterDatasetsDraw(chart) {
+//               const { ctx } = chart;
+//               chart.data.datasets.forEach((dataset, datasetIndex) => {
+//                 const meta = chart.getDatasetMeta(datasetIndex);
+//                 if (!meta.hidden) {
+//                   const lastPoint = meta.data[meta.data.length - 1];
+//                   if (lastPoint) {
+//                     const { x, y } = lastPoint.getProps(["x", "y"], true);
+//                     ctx.save();
+//                     ctx.fillStyle = dataset.borderColor || "black";
+//                     ctx.font = "13px sans-serif";
+//                     ctx.textAlign = "left";
+//                     ctx.textBaseline = "middle";
+//                     ctx.fillText(dataset.label, x-40, y-16); // 🚀 在最后一个点右边画名字
+//                     ctx.restore();
+//                   }
+//                 }
+//               });
+//             }
+//           }
+//         ]
+//       }
+
+//     );
+//     }
+
+//     // 绘制两张图 (只取变化量最大的 top5)
+//     drawChart("fastest-growing-skills", "Top Growing Skills", growingTop5);
+//     drawChart("declining-skills", "Top Declining Skills", decliningTop5);
+
+//   } catch (err) {
+//     console.error("Failed to fetch tech trends:", err);
+//   }
+// }
+
+// // 页面加载完毕调用
+// document.addEventListener("DOMContentLoaded", fetchTechTrends);

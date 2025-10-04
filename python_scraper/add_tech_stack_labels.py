@@ -113,16 +113,40 @@ def load_job_data():
 # 读取 Excel
 # df = pd.read_excel('job_list_with_details.xlsx')  # 假设有 'Job Description' 列
 
+# def label_job_level(title):
+#     title = title.lower() if isinstance(title, str) else ''
+#     if 'senior' in title:
+#         return 'Senior'
+#     elif 'intermediate' in title:
+#         return 'Intermediate'
+#     elif 'junior' in title or 'graduate' in title or 'internship' in title or 'entry-level' in title or 'intern' in title:
+#         return 'Junior'
+#     else:
+#         return 'Other'
+
 def label_job_level(title):
-    title = title.lower() if isinstance(title, str) else ''
-    if 'senior' in title:
-        return 'Senior'
-    elif 'intermediate' in title:
-        return 'Intermediate'
-    elif 'junior' in title or 'graduate' in title or 'internship' in title or 'entry-level' in title or 'intern' in title:
-        return 'Junior'
-    else:
+    if not isinstance(title, str):
         return 'Other'
+    title = title.lower()
+
+    senior_keywords=['senior','lead','principal','architect','head']
+    intermediate_keywords=['intermediate','mid-level','mid level','midlevel']
+    junior_keywords=['junior','graduate','internship','entry-level','intern','entry level','entrylevel']
+
+    for word in senior_keywords:
+        if word in title:
+            return 'Senior'
+
+    for word in intermediate_keywords:
+        if word in title:
+            return 'Intermediate'
+
+    for word in junior_keywords:
+        if word in title:
+            return 'Junior'
+
+    return 'Other'
+
 
 def update_tech_tags_and_levels(df):
     conn = get_conn()
