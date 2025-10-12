@@ -5,8 +5,8 @@ from python_scraper.create_tech_stack_rank import create_tech_stack_rank_by_comp
 from python_scraper.create_tech_stack_rank import update_landing_summary
 from python_scraper.create_tech_stack_rank import get_top_growing_and_declining_techs
 
-# get_jobs_data()
-# count_jobs_by_month()
+get_jobs_data()
+count_jobs_by_month()
 add_tech_stack_labels()
 create_tech_stack_rank()
 create_tech_stack_rank_by_company()

@@ -53,7 +53,7 @@ function renderTechStacksByCategory() {
       const container = document.getElementById(containerId);
       if (container) {
         const tag = document.createElement("span");
-        tag.className = "inline-block bg-gray-100 text-gray-600 text-sm  mr-3 mb-3 px-3 py-2 rounded";
+        tag.className = "inline-block font-mono bg-gray-100 text-gray-600 text-sm  mr-3 mb-3 px-3 py-2 rounded";
         const capitalizedKeyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
         tag.textContent = capitalizedKeyword;
         container.appendChild(tag);

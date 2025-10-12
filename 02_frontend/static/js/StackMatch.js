@@ -150,7 +150,7 @@ function renderJobs() {
             <p class="inline-flex items-center text-sm text-gray-500 gap-1 mt-0">
                  Tech Requirements:
             </p>
-            <p class="required-tech-stacks flex flex-wrap gap-2 text-sm mt-2">
+            <p class="required-tech-stacks font-mono flex flex-wrap gap-2 text-sm mt-2">
               ${stacks}
             </p>
           </div>

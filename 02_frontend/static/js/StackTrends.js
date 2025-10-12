@@ -67,8 +67,13 @@ function initChart(labels, data) {
             display: true,
             drawTicks: false,
             // align: 'start',
+            font: {
+              size: 15,        // ✅ 字体大小
+              family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+            },
             crossAlign: 'far',
-            padding: 4
+            padding: 4,
+            
           },
           // ③ 也要把轴本身的 border 关掉
           border: {
@@ -889,7 +894,7 @@ async function renderTopTechStackTableByLevel() {
                 <span class="px-2 z-10  text-sm text-gray-700 text-shadow    opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   ${width}
                 </span>
-                <span class=" z-10 inline-block w-full text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
+                <span class=" z-10 inline-block w-full  text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
               </span>
             `;
           // } else {
@@ -1013,7 +1018,7 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
         return `
           <span class="relative block bg-white rounded-md shadow-lg px-0 mb-2 py-2 overflow-hidden min-w-[120px] w-full">
             <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${percentage};"></span>
-            <span class="relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2" style="white-space:nowrap;">
+            <span class="relative  z-10 text-gray-500 text-sm inline-block w-full text-right px-2" style="white-space:nowrap;">
               ${techName}
             </span>
           </span>
