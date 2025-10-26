@@ -124,28 +124,76 @@ def load_job_data():
 #     else:
 #         return 'Other'
 
-def label_job_level(title):
-    if not isinstance(title, str):
-        return 'Other'
-    title = title.lower()
+# def label_job_level(title):
+#     if not isinstance(title, str):
+#         return 'Other'
+#     title = title.lower()
 
-    senior_keywords=['senior','lead','principal','architect','head']
-    intermediate_keywords=['intermediate','mid-level','mid level','midlevel']
-    junior_keywords=['junior','graduate','internship','entry-level','intern','entry level','entrylevel']
+#     senior_keywords=['senior','lead','principal','architect','head','manager']
+#     intermediate_keywords=['intermediate','mid-level','mid level','midlevel']
+#     junior_keywords=['junior','graduate','internship','entry-level','intern','entry level','entrylevel','associate']
 
-    for word in senior_keywords:
-        if word in title:
+#     for word in senior_keywords:
+#         if word in title:
+#             return 'Senior'
+
+#     for word in intermediate_keywords:
+#         if word in title:
+#             return 'Intermediate'
+
+#     for word in junior_keywords:
+#         if word in title:
+#             return 'Junior'
+
+#     return 'Other'
+
+def label_job_level(title, description=None):
+    """
+    根据职位 title 和 job description 共同判断岗位级别。
+    优先使用 title；如果 title 未命中，则尝试在 description 中匹配。
+    如果两者冲突，以 title 为准。
+    """
+    def match_level(text, senior_kw, inter_kw, junior_kw):
+        if not isinstance(text, str):
+            return None
+        text = text.lower()
+
+        if any(k in text for k in senior_kw):
             return 'Senior'
-
-    for word in intermediate_keywords:
-        if word in title:
+        elif any(k in text for k in inter_kw):
             return 'Intermediate'
-
-    for word in junior_keywords:
-        if word in title:
+        elif any(k in text for k in junior_kw):
             return 'Junior'
+        else:
+            return None
 
-    return 'Other'
+    # 定义关键词
+    title_senior = ['senior', 'lead', 'principal', 'architect', 'head', 'manager','architecture']
+    title_intermediate = ['intermediate', 'mid-level', 'mid level', 'midlevel','experienced']
+    title_junior = ['junior', 'graduate', 'internship', 'entry-level', 'intern', 'entry level', 'entrylevel', 'associate']
+
+    # des_senior = ['senior', 'lead', 'principal', 'head', 'architecture']
+    des_senior = ['senior']
+    # des_intermediate = ['intermediate', 'mid-level', 'mid level', 'midlevel', 'experienced']
+    # des_junior = ['junior', 'graduate', 'internship', 'entry-level', 'entry level', 'entrylevel', 'associate']
+    des_intermediate = []
+    des_junior = []
+
+    # 1️⃣ 先判断 title
+    title_level = match_level(title, title_senior, title_intermediate, title_junior)
+
+    # 2️⃣ 如果 title 没命中，再判断 description
+    des_level = None
+    if description:
+        des_level = match_level(description, des_senior, des_intermediate, des_junior)
+
+    # 3️⃣ 以 title 为准，description 仅作补充
+    if title_level:
+        return title_level
+    elif des_level:
+        return des_level
+    else:
+        return 'Other'
 
 
 def update_tech_tags_and_levels(df):
@@ -210,7 +258,13 @@ def add_tech_stack_labels():
     # 加入标签列
     df['Tech Tags'] = job_labels
 
-    df['job_level'] = df['job_title'].apply(label_job_level)
+    # df['job_level'] = df['job_title'].apply(label_job_level)
+    levels = []
+    for i, row in df.iterrows():
+        level = label_job_level(row['job_title'], row['job_des'])
+        levels.append(level)
+
+    df['job_level'] = levels
 
     # 最后调用
     update_tech_tags_and_levels(df)
