@@ -184,7 +184,6 @@ configs = [
     {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
     {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
     {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
-
 ]
 
 sampled_df_original = sampled_df.copy()

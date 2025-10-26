@@ -123,9 +123,9 @@ pattern_salary = re.compile(
 
 def extract_requirement_text(
     text: str,
-    use_experience: bool = False,
+    use_experience: bool = True,
     use_experience_num: bool = True,
-    use_salary: bool = False,
+    use_salary: bool = True,
 ) -> str:
 
     # split job_des into sentences
@@ -197,48 +197,81 @@ def extract_requirement_text(
 
     return matched
 
-train_df['job_des_filtered'] = train_df['job_des'].fillna('').apply(extract_requirement_text).tolist()
-val_df['job_des_filtered'] = val_df['job_des'].fillna('').apply(extract_requirement_text).tolist()
-test_df['job_des_filtered'] = test_df['job_des'].fillna('').apply(extract_requirement_text).tolist()
+configs = [
+    {"name": "1️⃣: only_exp_num", "use_experience_num": True, "use_salary": False, "use_experience": False},
+    {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
+    {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
+    {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
+    {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
+]
 
-train_df["title_plus_des"] = (
-    "This job title is " + train_df["job_title"].astype(str) + ". " +
-    train_df["job_des_filtered"].astype(str)
-)
-val_df["title_plus_des"] = (
-    "This job title is " + val_df["job_title"].astype(str) + ". " +
-    val_df["job_des_filtered"].astype(str)
-)
-test_df["title_plus_des"] = (
-    "This job title is " + test_df["job_title"].astype(str) + ". " +
-    test_df["job_des_filtered"].astype(str)
-)
+for cfg in configs:
+    
+    print(f"\n=== Config: {cfg['name']} ===")
 
-train_texts = train_df["title_plus_des"].tolist()
-val_texts = val_df["title_plus_des"].tolist()
-test_texts = test_df["title_plus_des"].tolist()
+    train_df['job_des_filtered'] = train_df['job_des'].fillna('').apply(
+        lambda x: extract_requirement_text(
+            x,
+            use_experience=cfg["use_experience"],
+            use_experience_num=cfg["use_experience_num"],
+            use_salary=cfg["use_salary"]
+        )
+    ).tolist()
+    val_df['job_des_filtered'] = val_df['job_des'].fillna('').apply(
+        lambda x: extract_requirement_text(
+            x,
+            use_experience=cfg["use_experience"],
+            use_experience_num=cfg["use_experience_num"],
+            use_salary=cfg["use_salary"]
+        )
+    ).tolist()
+    test_df['job_des_filtered'] = test_df['job_des'].fillna('').apply(
+        lambda x: extract_requirement_text(
+            x,
+            use_experience=cfg["use_experience"],
+            use_experience_num=cfg["use_experience_num"],
+            use_salary=cfg["use_salary"]
+        )
+    ).tolist()
 
-# ---------------------------
-# 2️⃣ 文本向量化 (Embedding)
-# ---------------------------
-print("🔹 Encoding texts with SentenceTransformer ...")
-model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
+    train_df["title_plus_des"] = (
+        "This job title is " + train_df["job_title"].astype(str) + ". " +
+        train_df["job_des_filtered"].astype(str)
+    )
+    val_df["title_plus_des"] = (
+        "This job title is " + val_df["job_title"].astype(str) + ". " +
+        val_df["job_des_filtered"].astype(str)
+    )
+    test_df["title_plus_des"] = (
+        "This job title is " + test_df["job_title"].astype(str) + ". " +
+        test_df["job_des_filtered"].astype(str)
+    )
 
-train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
-val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
-test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
+    train_texts = train_df["title_plus_des"].tolist()
+    val_texts = val_df["title_plus_des"].tolist()
+    test_texts = test_df["title_plus_des"].tolist()
 
-# ---------------------------
-# 3️⃣ save embeddings and labels
-# ---------------------------
-os.makedirs("model_pipeline/embeddings", exist_ok=True)
-torch.save({
-    "train_emb": train_emb,
-    "val_emb": val_emb,
-    "test_emb": test_emb,
-    "train_labels": train_df["job_level"].tolist(),
-    "val_labels": val_df["job_level"].tolist(),
-    "test_labels": test_df["job_level"].tolist(),
-}, "model_pipeline/embeddings/embeddings.pt")
+    # ---------------------------
+    # 2️⃣ 文本向量化 (Embedding)
+    # ---------------------------
+    print("🔹 Encoding texts with SentenceTransformer ...")
+    model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
 
-print("✅ Embeddings saved to model_pipeline/embeddings/embeddings.pt")
+    train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
+    val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
+    test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
+
+    # ---------------------------
+    # 3️⃣ save embeddings and labels
+    # ---------------------------
+    os.makedirs("model_pipeline/embeddings", exist_ok=True)
+    torch.save({
+        "train_emb": train_emb,
+        "val_emb": val_emb,
+        "test_emb": test_emb,
+        "train_labels": train_df["job_level"].tolist(),
+        "val_labels": val_df["job_level"].tolist(),
+        "test_labels": test_df["job_level"].tolist(),
+    }, f"model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+
+    print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
