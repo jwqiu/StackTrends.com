@@ -71,62 +71,70 @@ def safe_post(url, headers=None, json=None, timeout=30, max_attempts=3):
                 raise
 
 def get_job_details(graphql_url, job_id, headers):
-    payload = {
-        "operationName": "jobDetails",
-        "query": """
-        query jobDetails($jobId: ID!, $sessionId: String!, $jobDetailsViewedCorrelationId: String!) {
-          jobDetails(
-            id: $jobId, 
-            tracking: {sessionId: $sessionId, channel: "WEB", jobDetailsViewedCorrelationId: $jobDetailsViewedCorrelationId}
-          ) {
-            job {
-              id
-              title
-              content(platform: WEB)
+
+    try:
+
+        payload = {
+            "operationName": "jobDetails",
+            "query": """
+            query jobDetails($jobId: ID!, $sessionId: String!, $jobDetailsViewedCorrelationId: String!) {
+            jobDetails(
+                id: $jobId, 
+                tracking: {sessionId: $sessionId, channel: "WEB", jobDetailsViewedCorrelationId: $jobDetailsViewedCorrelationId}
+            ) {
+                job {
+                id
+                title
+                content(platform: WEB)
+                }
             }
-          }
+            }
+            """,
+            "variables": {
+                "jobId": job_id,
+                "sessionId": "fd0c6c24-8e4a-484d-9ca5-3880a9a6376a",
+                "jobDetailsViewedCorrelationId": "ba18bdfe-fcde-4c06-894a-64ee37a5167a"
+            }
         }
-        """,
-        "variables": {
-            "jobId": job_id,
-            "sessionId": "fd0c6c24-8e4a-484d-9ca5-3880a9a6376a",
-            "jobDetailsViewedCorrelationId": "ba18bdfe-fcde-4c06-894a-64ee37a5167a"
-        }
-    }
 
-    response = safe_post(graphql_url, headers=headers, json=payload)
+        response = safe_post(graphql_url, headers=headers, json=payload)
 
-    if response is None:
-        logging.warning(f"获取 job {job_id} 返回 None")
+        if response is None:
+            logging.warning(f"获取 job {job_id} 返回 None")
+            return "NA"
+
+        if response.status_code == 200:
+            try:
+                base_data=response.json()
+            except Exception as e:
+                logging.warning(f"解析 job {job_id} JSON 失败: {e}")
+                return "NA"
+
+            if not isinstance(base_data, dict):
+                logging.warning(f"job {job_id} 返回的 JSON 不是字典")
+                return "NA"
+
+            data_block = base_data.get("data")
+            if data_block is None:
+                logging.warning(f"job {job_id} 的 data 是 null, base_data={base_data}")
+                logging.warning(f"[DEBUG] job_id={job_id}, status={response.status_code}, text={response.text[:500]}")
+                return "NA"
+
+            job_detail = base_data.get("data", {}).get("jobDetails", {}).get("job", {}).get("content", "NA")
+
+            if job_detail == "NA":
+                logging.info(f"job {job_id} 未返回内容, base_data={base_data}")
+
+            return job_detail
+        else:
+            logging.warning(f"获取 job {job_id} 详情失败: {response.status_code}")
+            # print(f"获取 job {job_id} 详情失败: {response.status_code}")
+            return "NA"
+        
+    except Exception as e:  # ✅✅✅【新增：捕获所有未预期的异常】
+        logging.warning(f"[Skipped] job_id={job_id} 报错已跳过: {e}")
         return "NA"
-
-    if response.status_code == 200:
-        try:
-            base_data=response.json()
-        except Exception as e:
-            logging.warning(f"解析 job {job_id} JSON 失败: {e}")
-            return "NA"
-
-        if not isinstance(base_data, dict):
-            logging.warning(f"job {job_id} 返回的 JSON 不是字典")
-            return "NA"
-
-        data_block = base_data.get("data")
-        if data_block is None:
-            logging.warning(f"job {job_id} 的 data 是 null, base_data={base_data}")
-            logging.warning(f"[DEBUG] job_id={job_id}, status={response.status_code}, text={response.text[:500]}")
-            return "NA"
-
-        job_detail = base_data.get("data", {}).get("jobDetails", {}).get("job", {}).get("content", "NA")
-
-        if job_detail == "NA":
-            logging.info(f"job {job_id} 未返回内容, base_data={base_data}")
-
-        return job_detail
-    else:
-        logging.warning(f"获取 job {job_id} 详情失败: {response.status_code}")
-        # print(f"获取 job {job_id} 详情失败: {response.status_code}")
-        return "NA"
+    
     
 def clean_html(raw_html):
     soup = BeautifulSoup(raw_html, "html.parser")

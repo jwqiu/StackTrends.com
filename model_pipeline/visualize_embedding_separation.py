@@ -174,6 +174,9 @@ def extract_requirement_text(
     parts = [exp_num_text, salary_text, exp_text]
     matched = " ".join(p for p in parts if p).strip()
 
+    if not matched:
+        matched = "[Job Description:] " + text
+
     return matched
 
 
@@ -183,7 +186,7 @@ configs = [
     {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
     {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
     {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
-    {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
+    # {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
 ]
 
 sampled_df_original = sampled_df.copy()
@@ -229,10 +232,10 @@ for cfg in configs:
 
     # compared candidate models
     candidate_models = [
-        # "TechWolf/JobBERT-v3",
+        "TechWolf/JobBERT-v3",
         # "sentence-transformers/all-MiniLM-L6-v2",
         # "sentence-transformers/all-mpnet-base-v2",
-        "intfloat/e5-large-v2"
+        # "intfloat/e5-large-v2"
     ]
 
     for model_name in candidate_models:
