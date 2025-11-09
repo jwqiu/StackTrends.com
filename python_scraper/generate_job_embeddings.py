@@ -27,7 +27,7 @@ print(f"Loaded {len(df)} 'Other' level job postings.")
 
 configs = [
     {"name": "1️⃣: only_exp_num", "use_experience_num": True, "use_salary": False, "use_experience": False},
-    # {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
+    {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
     # {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
     # {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
     # {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
@@ -55,21 +55,14 @@ for cfg in configs:
 
     torch.save(
         {
-            "embeddings":embeddings
+            "embeddings": embeddings,
+            "raw_texts": text,   # ✅ 保存原始用于 embedding 的文本
+            "job_id": df["job_id"].tolist(),
+            "job_title": df["job_title"].tolist(),
+            "job_des": df["job_des"].tolist()
         },
-        f"python_scraper/embeddings/{cfg['name']}.pt"
+        f"python_scraper/embeddings/{cfg['name']}_embeddings.pt"
     )
 
-    print(f"Saved embeddings to python_scraper/embeddings/{cfg['name']}.pt")
+    print(f"Saved embeddings to python_scraper/embeddings/{cfg['name']}_embeddings.pt")
 
-# input_dim = train_emb.shape[1]
-#
-# model=MLPClassifier(
-#     input_dim=input_dim,
-#     num_classes=len(le.classes_),
-#     hidden_dims=net_cfg['hidden_dims'],
-#     dropout_rates=net_cfg['dropout_rates'],
-#     activation=act,
-#     use_batchnorm=bn,
-#     use_layernorm=uln,
-# )

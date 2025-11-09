@@ -157,283 +157,282 @@ epochs = 80
 patience = 15
 
 
-for path, net_cfg, opt, lr, wd, act, bn, sch, ul, uls in itertools.product(embedding_paths, network_configs, optimizer_name, learning_rate, weight_decay, activation, use_batchnorm, use_scheduler, use_layernorm, use_label_smoothing):
+# ---------------------------
+# model definition
+# ---------------------------
 
-    print("\n" + "="*120)
-    print(f"🔖 Training with config: Batch Size=64, Embedding Path={path}, Hidden Dims={net_cfg['hidden_dims']}, Dropout Rates={net_cfg['dropout_rates']}, Balanced Weights=False, Optimizer={opt}, LR={lr}, WD={wd}, Activation={act}, BatchNorm={bn}, Scheduler={sch}, LayerNorm={ul}, Label Smoothing={uls}")
-    print("="*120 + "\n")
-    
-    data = torch.load(path)
+class MLPClassifier(nn.Module):
+    def __init__(self, input_dim, num_classes,
+                hidden_dims=[256, 128],
+                dropout_rates=[0.3, 0.2],
+                activation="relu",          # 可选: relu / gelu / leakyrelu
+                use_batchnorm=False,
+                use_layernorm=False):       # 是否启用LayerNorm
+        super().__init__()
 
-    # ---------------------------
-    # load embeddings and labels
-    # ---------------------------
+        layers = []
+        prev_dim = input_dim
 
-    # 标签编码
-    le = LabelEncoder()
-    train_labels = torch.tensor(le.fit_transform(data["train_labels"]), dtype=torch.long)
-    val_labels   = torch.tensor(le.transform(data["val_labels"]), dtype=torch.long)
-    test_labels  = torch.tensor(le.transform(data["test_labels"]), dtype=torch.long)
+        # 动态构建每层
+        for h_dim, d_rate in zip(hidden_dims, dropout_rates):
+            layers.append(nn.Linear(prev_dim, h_dim))
+            
+            # ✅ 若启用 BatchNorm，放在激活函数前
+            if use_batchnorm:
+                layers.append(nn.BatchNorm1d(h_dim))
+            if use_layernorm:
+                layers.append(nn.LayerNorm(h_dim))
 
-    train_emb = data["train_emb"]
-    val_emb   = data["val_emb"]
-    test_emb  = data["test_emb"]
+            # ✅ 动态选择激活函数
+            if activation.lower() == "relu":
+                layers.append(nn.ReLU())
+            elif activation.lower() == "gelu":
+                layers.append(nn.GELU())
+            elif activation.lower() == "leakyrelu":
+                layers.append(nn.LeakyReLU(negative_slope=0.01))
+            elif activation.lower() == "prelu":
+                layers.append(nn.PReLU())
+            elif activation.lower() == "sigmoid":
+                layers.append(nn.Sigmoid())
+            else:
+                raise ValueError(f"Unsupported activation: {activation}")
 
+            layers.append(nn.Dropout(d_rate))
+            prev_dim = h_dim
 
-    # ==========================================================
-    # Oversampling
-    # ==========================================================
-    # ros = RandomOverSampler(random_state=42)
+        # 输出层
+        layers.append(nn.Linear(prev_dim, num_classes))
 
-    # # 注意：RandomOverSampler 只能处理 numpy 格式
-    # X_resampled, y_resampled = ros.fit_resample(train_emb.numpy(), train_labels.numpy())
+        self.net = nn.Sequential(*layers)
 
-    # # 再把它们转回 torch 张量
-    # train_emb = torch.tensor(X_resampled, dtype=torch.float32)
-    # train_labels = torch.tensor(y_resampled, dtype=torch.long)
+    def forward(self, x):
+        return self.net(x)
 
-    # print("✅ After resampling:", {c: sum(train_labels.numpy() == c) for c in np.unique(train_labels.numpy())})
+if __name__ == "__main__":
 
-    # ---------------------------
-    # data loaders
-    # ---------------------------
-    train_loader = DataLoader(TensorDataset(train_emb, train_labels), batch_size=64, shuffle=True)
-    val_loader = DataLoader(TensorDataset(val_emb, val_labels), batch_size=64)
-    test_loader = DataLoader(TensorDataset(test_emb, test_labels), batch_size=64)
+    for path, net_cfg, opt, lr, wd, act, bn, sch, ul, uls in itertools.product(embedding_paths, network_configs, optimizer_name, learning_rate, weight_decay, activation, use_batchnorm, use_scheduler, use_layernorm, use_label_smoothing):
 
-    # ---------------------------
-    # model definition
-    # ---------------------------
+        print("\n" + "="*120)
+        print(f"🔖 Training with config: Batch Size=64, Embedding Path={path}, Hidden Dims={net_cfg['hidden_dims']}, Dropout Rates={net_cfg['dropout_rates']}, Balanced Weights=False, Optimizer={opt}, LR={lr}, WD={wd}, Activation={act}, BatchNorm={bn}, Scheduler={sch}, LayerNorm={ul}, Label Smoothing={uls}")
+        print("="*120 + "\n")
+        
+        data = torch.load(path)
 
-    class MLPClassifier(nn.Module):
-        def __init__(self, input_dim, num_classes,
-                    hidden_dims=[256, 128],
-                    dropout_rates=[0.3, 0.2],
-                    activation="relu",          # 可选: relu / gelu / leakyrelu
-                    use_batchnorm=False,
-                    use_layernorm=False):       # 是否启用LayerNorm
-            super().__init__()
+        # ---------------------------
+        # load embeddings and labels
+        # ---------------------------
 
-            layers = []
-            prev_dim = input_dim
+        # 标签编码
+        le = LabelEncoder()
+        train_labels = torch.tensor(le.fit_transform(data["train_labels"]), dtype=torch.long)
+        val_labels   = torch.tensor(le.transform(data["val_labels"]), dtype=torch.long)
+        test_labels  = torch.tensor(le.transform(data["test_labels"]), dtype=torch.long)
 
-            # 动态构建每层
-            for h_dim, d_rate in zip(hidden_dims, dropout_rates):
-                layers.append(nn.Linear(prev_dim, h_dim))
-                
-                # ✅ 若启用 BatchNorm，放在激活函数前
-                if use_batchnorm:
-                    layers.append(nn.BatchNorm1d(h_dim))
-                if use_layernorm:
-                    layers.append(nn.LayerNorm(h_dim))
-
-                # ✅ 动态选择激活函数
-                if activation.lower() == "relu":
-                    layers.append(nn.ReLU())
-                elif activation.lower() == "gelu":
-                    layers.append(nn.GELU())
-                elif activation.lower() == "leakyrelu":
-                    layers.append(nn.LeakyReLU(negative_slope=0.01))
-                elif activation.lower() == "prelu":
-                    layers.append(nn.PReLU())
-                elif activation.lower() == "sigmoid":
-                    layers.append(nn.Sigmoid())
-                else:
-                    raise ValueError(f"Unsupported activation: {activation}")
-
-                layers.append(nn.Dropout(d_rate))
-                prev_dim = h_dim
-
-            # 输出层
-            layers.append(nn.Linear(prev_dim, num_classes))
-
-            self.net = nn.Sequential(*layers)
-
-        def forward(self, x):
-            return self.net(x)
+        train_emb = data["train_emb"]
+        val_emb   = data["val_emb"]
+        test_emb  = data["test_emb"]
 
 
+        # ==========================================================
+        # Oversampling
+        # ==========================================================
+        # ros = RandomOverSampler(random_state=42)
 
-    # -------------------------
-    # initialize model
-    # -------------------------
-    input_dim = train_emb.shape[1]
+        # # 注意：RandomOverSampler 只能处理 numpy 格式
+        # X_resampled, y_resampled = ros.fit_resample(train_emb.numpy(), train_labels.numpy())
 
-    # baseline 版本（两层）
-    model = MLPClassifier(
-        input_dim=input_dim,
-        num_classes=len(le.classes_),
-        hidden_dims=net_cfg['hidden_dims'],
-        dropout_rates=net_cfg['dropout_rates'],
-        activation=act,
-        use_batchnorm=bn,
-        use_layernorm=ul
-    )
+        # # 再把它们转回 torch 张量
+        # train_emb = torch.tensor(X_resampled, dtype=torch.float32)
+        # train_labels = torch.tensor(y_resampled, dtype=torch.long)
 
-    # 或者：更深一点版本（适合 e5-large-v2）
-    # model = MLPClassifier(
-    #     input_dim=input_dim,
-    #     num_classes=len(le.classes_),
-    #     hidden_dims=[512, 256, 128],
-    #     dropout_rates=[0.4, 0.3, 0.2]
-    # )
+        # print("✅ After resampling:", {c: sum(train_labels.numpy() == c) for c in np.unique(train_labels.numpy())})
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
+        # ---------------------------
+        # data loaders
+        # ---------------------------
+        train_loader = DataLoader(TensorDataset(train_emb, train_labels), batch_size=64, shuffle=True)
+        val_loader = DataLoader(TensorDataset(val_emb, val_labels), batch_size=64)
+        test_loader = DataLoader(TensorDataset(test_emb, test_labels), batch_size=64)
 
-    # ---------------------------
-    # define loss function
-    # ---------------------------
+        # -------------------------
+        # initialize model
+        # -------------------------
+        input_dim = train_emb.shape[1]
 
-    # bc = True
+        # baseline 版本（两层）
+        model = MLPClassifier(
+            input_dim=input_dim,
+            num_classes=len(le.classes_),
+            hidden_dims=net_cfg['hidden_dims'],
+            dropout_rates=net_cfg['dropout_rates'],
+            activation=act,
+            use_batchnorm=bn,
+            use_layernorm=ul
+        )
 
-    # if bc:
-    #     # 计算每个类别的权重
-    #     class_weights = compute_class_weight(
-    #         class_weight='balanced',
-    #         classes=np.unique(train_labels.numpy()),
-    #         y=train_labels.numpy()
-    #     )
-    #     class_weights = torch.tensor(class_weights, dtype=torch.float).to(device)
-    # else:
-    class_weights = None
-    # 使用加权损失函数
-    if uls:
-        criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
-    else:
-        criterion = nn.CrossEntropyLoss(weight=class_weights)
+        # 或者：更深一点版本（适合 e5-large-v2）
+        # model = MLPClassifier(
+        #     input_dim=input_dim,
+        #     num_classes=len(le.classes_),
+        #     hidden_dims=[512, 256, 128],
+        #     dropout_rates=[0.4, 0.3, 0.2]
+        # )
 
-    # ---------------------------
-    # define optimizer and scheduler
-    # ---------------------------
-    if opt == "Adam":
-        optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
-    elif opt == "AdamW":
-        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wd)
-    elif opt == "SGD":
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
-    else:
-        raise ValueError(f"Unsupported optimizer: {opt}")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
 
-    if sch:
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4)
+        # ---------------------------
+        # define loss function
+        # ---------------------------
 
-    # ---------------------------
-    # training loop
-    # ---------------------------
+        # bc = True
 
-    # 初始化最优验证集 loss。
-    # - 用无穷大（inf）保证第一次比较时任何结果都能被视为“更优”。
-    best_val_loss = float('inf')
-
-    # 早停计数器。
-    # - 统计验证集连续多少轮未改善；
-    # - 达到 patience 值后触发早停。
-    patience_counter = 0
-
-
-    for epoch in range(epochs):
-
-        # start training
-        model.train()
-        total_loss = 0
-        for X_batch, y_batch in train_loader:
-            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
-            optimizer.zero_grad()
-            outputs = model(X_batch)
-            loss = criterion(outputs, y_batch)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-
-        avg_train_loss = total_loss / len(train_loader)
-
-        # evaluate on validation set
-        model.eval()
-        val_loss = 0
-        with torch.no_grad():
-            for X_val, y_val in val_loader:
-                X_val, y_val = X_val.to(device), y_val.to(device)
-                outputs = model(X_val)
-                loss = criterion(outputs, y_val)
-                val_loss += loss.item()
-
-        avg_val_loss = val_loss / len(val_loader)
-        if sch:
-            scheduler.step(avg_val_loss)
-
-        # early stopping check
-        if avg_val_loss < best_val_loss:
-            best_val_loss = avg_val_loss
-            patience_counter = 0
-            save_dir = "model_pipeline"
-            save_path = os.path.join(save_dir, "best_model.pt")
-            torch.save(model.state_dict(), save_path)  # 保存当前最优模型
+        # if bc:
+        #     # 计算每个类别的权重
+        #     class_weights = compute_class_weight(
+        #         class_weight='balanced',
+        #         classes=np.unique(train_labels.numpy()),
+        #         y=train_labels.numpy()
+        #     )
+        #     class_weights = torch.tensor(class_weights, dtype=torch.float).to(device)
+        # else:
+        class_weights = None
+        # 使用加权损失函数
+        if uls:
+            criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
         else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                print(f"⏹️ Early stopping triggered at epoch {epoch+1}")
-                print(f"🧩 Best Val Loss: {best_val_loss:.4f}")
-                break
-    else:
-        print(f"✅ Training finished. Best Val Loss: {best_val_loss:.4f}")
+            criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-    # ---------------------------
-    # 6️⃣ 评估
-    # ---------------------------
-    def evaluate(model, loader, y_true):
-        model.eval()
-        preds = []
-        with torch.no_grad():
-            for X_batch, _ in loader:
-                X_batch = X_batch.to(device)
+        # ---------------------------
+        # define optimizer and scheduler
+        # ---------------------------
+        if opt == "Adam":
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
+        elif opt == "AdamW":
+            optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=wd)
+        elif opt == "SGD":
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
+        else:
+            raise ValueError(f"Unsupported optimizer: {opt}")
+
+        if sch:
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=4)
+
+        # ---------------------------
+        # training loop
+        # ---------------------------
+
+        # 初始化最优验证集 loss。
+        # - 用无穷大（inf）保证第一次比较时任何结果都能被视为“更优”。
+        best_val_loss = float('inf')
+
+        # 早停计数器。
+        # - 统计验证集连续多少轮未改善；
+        # - 达到 patience 值后触发早停。
+        patience_counter = 0
+
+
+        for epoch in range(epochs):
+
+            # start training
+            model.train()
+            total_loss = 0
+            for X_batch, y_batch in train_loader:
+                X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+                optimizer.zero_grad()
                 outputs = model(X_batch)
-                preds.extend(outputs.argmax(dim=1).cpu().numpy())
-        return preds
+                loss = criterion(outputs, y_batch)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
 
-    val_preds = evaluate(model, val_loader, val_labels)
-    test_preds = evaluate(model, test_loader, test_labels)
+            avg_train_loss = total_loss / len(train_loader)
 
-    # print("\n📊 Validation Results:")
-    # print(classification_report(val_labels.cpu().numpy(), val_preds, target_names=le.classes_))
+            # evaluate on validation set
+            model.eval()
+            val_loss = 0
+            with torch.no_grad():
+                for X_val, y_val in val_loader:
+                    X_val, y_val = X_val.to(device), y_val.to(device)
+                    outputs = model(X_val)
+                    loss = criterion(outputs, y_val)
+                    val_loss += loss.item()
 
-    # print("\n📊 Test Results:")
-    # print(classification_report(test_labels.cpu().numpy(), test_preds, target_names=le.classes_))
+            avg_val_loss = val_loss / len(val_loader)
+            if sch:
+                scheduler.step(avg_val_loss)
 
-    # val_f1 = f1_score(val_labels.cpu().numpy(), val_preds, average="macro")
-    # test_f1 = f1_score(test_labels.cpu().numpy(), test_preds, average="macro")
-    # val_acc = accuracy_score(val_labels.cpu().numpy(), val_preds)
-    # test_acc = accuracy_score(test_labels.cpu().numpy(), test_preds)
+            # early stopping check
+            if avg_val_loss < best_val_loss:
+                best_val_loss = avg_val_loss
+                patience_counter = 0
+                save_dir = "model_pipeline"
+                save_path = os.path.join(save_dir, "best_model.pt")
+                torch.save(model.state_dict(), save_path)  # 保存当前最优模型
+            else:
+                patience_counter += 1
+                if patience_counter >= patience:
+                    print(f"⏹️ Early stopping triggered at epoch {epoch+1}")
+                    print(f"🧩 Best Val Loss: {best_val_loss:.4f}")
+                    break
+        else:
+            print(f"✅ Training finished. Best Val Loss: {best_val_loss:.4f}")
 
-    # print(f"\n✅ Validation: Acc={val_acc:.3f}, Macro-F1={val_f1:.3f}")
-    # print(f"🧩 Test:       Acc={test_acc:.3f}, Macro-F1={test_f1:.3f}")
+        # ---------------------------
+        # 6️⃣ 评估
+        # ---------------------------
+        def evaluate(model, loader, y_true):
+            model.eval()
+            preds = []
+            with torch.no_grad():
+                for X_batch, _ in loader:
+                    X_batch = X_batch.to(device)
+                    outputs = model(X_batch)
+                    preds.extend(outputs.argmax(dim=1).cpu().numpy())
+            return preds
 
-    # y_true = test_labels.cpu().numpy()
-    # y_pred = test_preds
-    # cm = confusion_matrix(y_true, y_pred, labels=range(len(le.classes_)))
+        val_preds = evaluate(model, val_loader, val_labels)
+        test_preds = evaluate(model, test_loader, test_labels)
 
-    # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
-    # disp.plot(cmap="Blues", values_format="d")
-    # plt.title("Confusion Matrix for Test Set (Best Model)")
-    # plt.show()
+        # print("\n📊 Validation Results:")
+        # print(classification_report(val_labels.cpu().numpy(), val_preds, target_names=le.classes_))
 
-    all_emb = torch.cat([train_emb, val_emb, test_emb])
-    all_labels = torch.cat([train_labels, val_labels, test_labels])
+        # print("\n📊 Test Results:")
+        # print(classification_report(test_labels.cpu().numpy(), test_preds, target_names=le.classes_))
 
-    model.eval()
-    with torch.no_grad():
-        outputs = model(all_emb.to(device))
-        preds = torch.argmax(outputs, dim=1).cpu()
+        # val_f1 = f1_score(val_labels.cpu().numpy(), val_preds, average="macro")
+        # test_f1 = f1_score(test_labels.cpu().numpy(), test_preds, average="macro")
+        # val_acc = accuracy_score(val_labels.cpu().numpy(), val_preds)
+        # test_acc = accuracy_score(test_labels.cpu().numpy(), test_preds)
 
-    print("\n=== Classification Report (All Data) ===")
-    print(classification_report(all_labels, preds, target_names=le.classes_))
+        # print(f"\n✅ Validation: Acc={val_acc:.3f}, Macro-F1={val_f1:.3f}")
+        # print(f"🧩 Test:       Acc={test_acc:.3f}, Macro-F1={test_f1:.3f}")
 
-    # cm = confusion_matrix(all_labels, preds, labels=range(len(le.classes_)))
-    # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
-    # disp.plot(cmap="Blues", values_format="d")
-    # plt.title("Confusion Matrix for All Data (Best Model)")
-    # plt.show()
+        # y_true = test_labels.cpu().numpy()
+        # y_pred = test_preds
+        # cm = confusion_matrix(y_true, y_pred, labels=range(len(le.classes_)))
 
+        # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
+        # disp.plot(cmap="Blues", values_format="d")
+        # plt.title("Confusion Matrix for Test Set (Best Model)")
+        # plt.show()
+
+        all_emb = torch.cat([train_emb, val_emb, test_emb])
+        all_labels = torch.cat([train_labels, val_labels, test_labels])
+
+        model.eval()
+        with torch.no_grad():
+            outputs = model(all_emb.to(device))
+            preds = torch.argmax(outputs, dim=1).cpu()
+
+        print("\n=== Classification Report (All Data) ===")
+        print(classification_report(all_labels, preds, target_names=le.classes_))
+
+        # cm = confusion_matrix(all_labels, preds, labels=range(len(le.classes_)))
+        # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
+        # disp.plot(cmap="Blues", values_format="d")
+        # plt.title("Confusion Matrix for All Data (Best Model)")
+        # plt.show()
 
 
 # # load four types of embeddings for sensitivity analysis
