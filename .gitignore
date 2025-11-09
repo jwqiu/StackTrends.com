@@ -21,3 +21,6 @@ python_scraper/python_packages/
 *.csv
 
 *.pt
+
+__pycache__/
+*.pyc

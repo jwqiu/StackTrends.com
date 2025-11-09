@@ -50,8 +50,8 @@ batch_size = [64]
 # 每个文件对应一种文本特征抽取策略（不同 prompt 或 embedding 模型），
 # 程序会依次加载这些文件并进行独立训练评估，用于对比结果。
 embedding_paths = [
-    "model_pipeline/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
-    # "model_pipeline/embeddings/2️⃣: exp_num+exp_embeddings.pt",   # 数字+经验词复合特征
+    # "model_pipeline/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
+    "model_pipeline/embeddings/2️⃣: exp_num+exp_embeddings.pt",   # 数字+经验词复合特征
     # "model_pipeline/embeddings/3️⃣: exp_num+salary_embeddings.pt",             # 启用全部筛选标准（完整特征）
     # "model_pipeline/embeddings/4️⃣: all_enabled_embeddings.pt",             # 关闭全部筛选标准（控制组）
     # "model_pipeline/embeddings/5️⃣: all_disabled_embeddings.pt",          # 仅保留经验相关句子（去除数值）
@@ -104,8 +104,6 @@ activation = ["relu"] # best
 use_batchnorm = [False]
 # use_layernorm = [True, False]
 use_layernorm = [False]
-
-
 
 # ---------------------------
 # setting for optimizer and learning rate
@@ -368,9 +366,9 @@ for path, net_cfg, opt, lr, wd, act, bn, sch, ul, uls in itertools.product(embed
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             patience_counter = 0
-            # save_dir = "model_pipeline"
-            # save_path = os.path.join(save_dir, "best_model.pt")
-            # torch.save(model.state_dict(), save_path)  # 保存当前最优模型
+            save_dir = "model_pipeline"
+            save_path = os.path.join(save_dir, "best_model.pt")
+            torch.save(model.state_dict(), save_path)  # 保存当前最优模型
         else:
             patience_counter += 1
             if patience_counter >= patience:
@@ -438,36 +436,36 @@ for path, net_cfg, opt, lr, wd, act, bn, sch, ul, uls in itertools.product(embed
 
 
 
-# load four types of embeddings for sensitivity analysis
-data = torch.load("model_pipeline/embeddings/1️⃣: only_exp_num_embeddings.pt")
-parts = {
-    "Job Title": data["test_title_emb"][:50],
-    "Experience + Number": data["test_exp_num_emb"][:50],
-    "Salary": data["test_salary_emb"][:50],
-    "Experience + Skill": data["test_exp_skill_emb"][:50],
-}
+# # load four types of embeddings for sensitivity analysis
+# data = torch.load("model_pipeline/embeddings/1️⃣: only_exp_num_embeddings.pt")
+# parts = {
+#     "Job Title": data["test_title_emb"][:50],
+#     "Experience + Number": data["test_exp_num_emb"][:50],
+#     "Salary": data["test_salary_emb"][:50],
+#     "Experience + Skill": data["test_exp_skill_emb"][:50],
+# }
 
-# define a prediction function for SHAP
-def model_predict(x):
-    x_t = torch.tensor(x, dtype=torch.float32).to(device)
-    with torch.no_grad():
-        y = model(x_t)
-        y = torch.softmax(y, dim=1)
-    return y.cpu().numpy()
+# # define a prediction function for SHAP
+# def model_predict(x):
+#     x_t = torch.tensor(x, dtype=torch.float32).to(device)
+#     with torch.no_grad():
+#         y = model(x_t)
+#         y = torch.softmax(y, dim=1)
+#     return y.cpu().numpy()
 
-# compute SHAP values for each part
-mean_values = {}
-for name, emb in parts.items():
-    X = emb.cpu().numpy()
-    explainer = shap.KernelExplainer(model_predict, X[:10])  
-    shap_values = explainer.shap_values(X[:20])              
-    mean_values[name] = np.mean(np.abs(shap_values[0]))      
-    print(f"{name}: {mean_values[name]:.4f}")
+# # compute SHAP values for each part
+# mean_values = {}
+# for name, emb in parts.items():
+#     X = emb.cpu().numpy()
+#     explainer = shap.KernelExplainer(model_predict, X[:10])  
+#     shap_values = explainer.shap_values(X[:20])              
+#     mean_values[name] = np.mean(np.abs(shap_values[0]))      
+#     print(f"{name}: {mean_values[name]:.4f}")
 
-# plot bar chart to compare the importance of four input types
-plt.bar(list(mean_values.keys()), list(mean_values.values()), color="skyblue")
-plt.ylabel("Mean |SHAP Value|")
-plt.title("Sensitivity Analysis by Input Category")
-plt.xticks(rotation=20)
-plt.tight_layout()
-plt.show()
+# # plot bar chart to compare the importance of four input types
+# plt.bar(list(mean_values.keys()), list(mean_values.values()), color="skyblue")
+# plt.ylabel("Mean |SHAP Value|")
+# plt.title("Sensitivity Analysis by Input Category")
+# plt.xticks(rotation=20)
+# plt.tight_layout()
+# plt.show()

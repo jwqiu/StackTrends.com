@@ -14,66 +14,6 @@ from sklearn.metrics import classification_report
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
-# ---------------------------
-# 1️⃣ 读取数据库数据
-# ---------------------------
-conn = get_conn()
-verify_cur = conn.cursor()
-verify_cur.execute("""
-    SELECT job_id, job_title, job_des, job_level
-    FROM jobs_filtered
-    WHERE job_level IS NOT NULL;
-""")
-rows = verify_cur.fetchall()
-# 安全检查
-if verify_cur.description is None:
-    raise RuntimeError("⚠️ SQL 执行失败或没有返回结果，请检查字段名是否正确。")
-colnames = [desc[0] for desc in verify_cur.description]
-verify_cur.close()
-conn.close()
-
-df = pd.DataFrame(rows, columns=colnames)
-print(f"总样本数: {len(df)}")
-print(df['job_level'].value_counts())
-
-# ---------------------------
-# 2️⃣ 按类别分层划分数据集
-# ---------------------------
-# 先划分 train (0.6) vs temp (0.4)
-train_df, temp_df = train_test_split(
-    df,
-    test_size=0.4,
-    stratify=df['job_level'],
-    random_state=42
-)
-
-# 再划分 temp -> val/test 各 0.2
-val_df, test_df = train_test_split(
-    temp_df,
-    test_size=0.5,
-    stratify=temp_df['job_level'],
-    random_state=42
-)
-
-# ---------------------------
-# 3️⃣ 检查每个子集的分布
-# ---------------------------
-def show_distribution(label, data):
-    print(f"\n📊 {label} 集类别分布:")
-    print(data['job_level'].value_counts())
-
-show_distribution("Train", train_df)
-show_distribution("Validation", val_df)
-show_distribution("Test", test_df)
-
-# ---------------------------
-# 4️⃣ 可选：保存或传递变量
-# ---------------------------
-# train_df, val_df, test_df 可直接用于模型训练
-# 例如：
-# train_df.to_csv("train_data.csv", index=False)
-# val_df.to_csv("val_data.csv", index=False)
-# test_df.to_csv("test_data.csv", index=False)
 
 # ---------------------------
 # 1️⃣ 数据准备
@@ -200,125 +140,201 @@ def extract_requirement_text(
 
     return matched
 
-configs = [
-    {"name": "1️⃣: only_exp_num", "use_experience_num": True, "use_salary": False, "use_experience": False},
-    # {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
-    # {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
-    # {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
-    # {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
-]
+if __name__ == "__main__":
 
-for cfg in configs:
-    
-    print(f"\n=== Config: {cfg['name']} ===")
+    # ---------------------------
+    # 1️⃣ 读取数据库数据
+    # ---------------------------
+    conn = get_conn()
+    verify_cur = conn.cursor()
+    verify_cur.execute("""
+        SELECT job_id, job_title, job_des, job_level
+        FROM jobs_filtered
+        WHERE job_level IS NOT NULL;
+    """)
+    rows = verify_cur.fetchall()
+    # 安全检查
+    if verify_cur.description is None:
+        raise RuntimeError("⚠️ SQL 执行失败或没有返回结果，请检查字段名是否正确。")
+    colnames = [desc[0] for desc in verify_cur.description]
+    verify_cur.close()
+    conn.close()
 
-    train_df['job_des_filtered'] = train_df['job_des'].fillna('').apply(
-        lambda x: extract_requirement_text(
-            x,
-            use_experience=cfg["use_experience"],
-            use_experience_num=cfg["use_experience_num"],
-            use_salary=cfg["use_salary"]
-        )
-    ).tolist()
-    val_df['job_des_filtered'] = val_df['job_des'].fillna('').apply(
-        lambda x: extract_requirement_text(
-            x,
-            use_experience=cfg["use_experience"],
-            use_experience_num=cfg["use_experience_num"],
-            use_salary=cfg["use_salary"]
-        )
-    ).tolist()
-    test_df['job_des_filtered'] = test_df['job_des'].fillna('').apply(
-        lambda x: extract_requirement_text(
-            x,
-            use_experience=cfg["use_experience"],
-            use_experience_num=cfg["use_experience_num"],
-            use_salary=cfg["use_salary"]
-        )
-    ).tolist()
+    df = pd.DataFrame(rows, columns=colnames)
+    print(f"总样本数: {len(df)}")
+    print(df['job_level'].value_counts())
 
-    train_df["title_plus_des"] = (
-        "This job title is " + train_df["job_title"].astype(str) + ". " +
-        train_df["job_des_filtered"].astype(str)
-    )
-    val_df["title_plus_des"] = (
-        "This job title is " + val_df["job_title"].astype(str) + ". " +
-        val_df["job_des_filtered"].astype(str)
-    )
-    test_df["title_plus_des"] = (
-        "This job title is " + test_df["job_title"].astype(str) + ". " +
-        test_df["job_des_filtered"].astype(str)
+    # ---------------------------
+    # 2️⃣ 按类别分层划分数据集
+    # ---------------------------
+    # 先划分 train (0.6) vs temp (0.4)
+    train_df, temp_df = train_test_split(
+        df,
+        test_size=0.4,
+        stratify=df['job_level'],
+        random_state=42
     )
 
-
-# print("\n=== Generating embeddings for RAW JD + Job Title ===")
-
-# train_df["title_plus_des"] = (
-#     "This job title is " + train_df["job_title"].astype(str) + ". " +
-#     train_df["job_des"].astype(str)
-# )
-# val_df["title_plus_des"] = (
-#     "This job title is " + val_df["job_title"].astype(str) + ". " +
-#     val_df["job_des"].astype(str)
-# )
-# test_df["title_plus_des"] = (
-#     "This job title is " + test_df["job_title"].astype(str) + ". " +
-#     test_df["job_des"].astype(str)
-# )
-
-    train_texts = train_df["title_plus_des"].tolist()
-    val_texts = val_df["title_plus_des"].tolist()
-    test_texts = test_df["title_plus_des"].tolist()
+    # 再划分 temp -> val/test 各 0.2
+    val_df, test_df = train_test_split(
+        temp_df,
+        test_size=0.5,
+        stratify=temp_df['job_level'],
+        random_state=42
+    )
 
     # ---------------------------
-    # 2️⃣ 文本向量化 (Embedding)
+    # 3️⃣ 检查每个子集的分布
     # ---------------------------
-    print("🔹 Encoding texts with SentenceTransformer ...")
-    model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
+    def show_distribution(label, data):
+        print(f"\n📊 {label} 集类别分布:")
+        print(data['job_level'].value_counts())
 
-    train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
-    val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
-    test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
+    show_distribution("Train", train_df)
+    show_distribution("Validation", val_df)
+    show_distribution("Test", test_df)
 
     # ---------------------------
-    # 3️⃣ save embeddings and labels
+    # 4️⃣ 可选：保存或传递变量
     # ---------------------------
-    os.makedirs("model_pipeline/embeddings", exist_ok=True)
+    # train_df, val_df, test_df 可直接用于模型训练
+    # 例如：
+    # train_df.to_csv("train_data.csv", index=False)
+    # val_df.to_csv("val_data.csv", index=False)
+    # test_df.to_csv("test_data.csv", index=False)
 
-    # ✅ 提取四类句子
-    test_titles = test_df["job_title"].astype(str).tolist()
-    test_exp_num_texts = test_df["job_des_filtered"].apply(
-        lambda x: " ".join(re.findall(r'\[Years of experience required\].*?(?=\[|$)', x))
-    ).tolist()
-    test_salary_texts = test_df["job_des_filtered"].apply(
-        lambda x: " ".join(re.findall(r'\[Salary details\].*?(?=\[|$)', x))
-    ).tolist()
-    test_exp_skill_texts = test_df["job_des_filtered"].apply(
-        lambda x: " ".join(re.findall(r'\[Experience and Skills\].*?(?=\[|$)', x))
-    ).tolist()
 
-    # ✅ 生成四类 embedding
-    test_title_emb = torch.from_numpy(model_emb.encode(test_titles, batch_size=32, show_progress_bar=True))
-    test_exp_num_emb = torch.from_numpy(model_emb.encode(test_exp_num_texts, batch_size=32, show_progress_bar=True))
-    test_salary_emb = torch.from_numpy(model_emb.encode(test_salary_texts, batch_size=32, show_progress_bar=True))
-    test_exp_skill_emb = torch.from_numpy(model_emb.encode(test_exp_skill_texts, batch_size=32, show_progress_bar=True))
+    configs = [
+        {"name": "1️⃣: only_exp_num", "use_experience_num": True, "use_salary": False, "use_experience": False},
+        # {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
+        # {"name": "3️⃣: exp_num+salary", "use_experience_num": True, "use_salary": True, "use_experience": False},
+        # {"name": "4️⃣: all_enabled", "use_experience_num": True, "use_salary": True, "use_experience": True},
+        # {"name": "5️⃣: all_disabled", "use_experience_num": False, "use_salary": False, "use_experience": False},
+    ]
 
-    # ✅ 保存所有 embedding
-    torch.save({
-        "train_emb": train_emb,
-        "val_emb": val_emb,
-        "test_emb": test_emb,
-        "train_labels": train_df["job_level"].tolist(),
-        "val_labels": val_df["job_level"].tolist(),
-        "test_labels": test_df["job_level"].tolist(),
-        "test_title_emb": test_title_emb,
-        "test_exp_num_emb": test_exp_num_emb,
-        "test_salary_emb": test_salary_emb,
-        "test_exp_skill_emb": test_exp_skill_emb,  # ✅ 新增
-    }, f"model_pipeline/embeddings/{cfg['name']}_embeddings_new.pt")
+    for cfg in configs:
+        
+        print(f"\n=== Config: {cfg['name']} ===")
 
-    print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings_new.pt")
+        train_df['job_des_filtered'] = train_df['job_des'].fillna('').apply(
+            lambda x: extract_requirement_text(
+                x,
+                use_experience=cfg["use_experience"],
+                use_experience_num=cfg["use_experience_num"],
+                use_salary=cfg["use_salary"]
+            )
+        ).tolist()
+        val_df['job_des_filtered'] = val_df['job_des'].fillna('').apply(
+            lambda x: extract_requirement_text(
+                x,
+                use_experience=cfg["use_experience"],
+                use_experience_num=cfg["use_experience_num"],
+                use_salary=cfg["use_salary"]
+            )
+        ).tolist()
+        test_df['job_des_filtered'] = test_df['job_des'].fillna('').apply(
+            lambda x: extract_requirement_text(
+                x,
+                use_experience=cfg["use_experience"],
+                use_experience_num=cfg["use_experience_num"],
+                use_salary=cfg["use_salary"]
+            )
+        ).tolist()
 
+        train_df["title_plus_des"] = (
+            "This job title is " + train_df["job_title"].astype(str) + ". " +
+            train_df["job_des_filtered"].astype(str)
+        )
+        val_df["title_plus_des"] = (
+            "This job title is " + val_df["job_title"].astype(str) + ". " +
+            val_df["job_des_filtered"].astype(str)
+        )
+        test_df["title_plus_des"] = (
+            "This job title is " + test_df["job_title"].astype(str) + ". " +
+            test_df["job_des_filtered"].astype(str)
+        )
+
+
+    # print("\n=== Generating embeddings for RAW JD + Job Title ===")
+
+    # train_df["title_plus_des"] = (
+    #     "This job title is " + train_df["job_title"].astype(str) + ". " +
+    #     train_df["job_des"].astype(str)
+    # )
+    # val_df["title_plus_des"] = (
+    #     "This job title is " + val_df["job_title"].astype(str) + ". " +
+    #     val_df["job_des"].astype(str)
+    # )
+    # test_df["title_plus_des"] = (
+    #     "This job title is " + test_df["job_title"].astype(str) + ". " +
+    #     test_df["job_des"].astype(str)
+    # )
+
+        train_texts = train_df["title_plus_des"].tolist()
+        val_texts = val_df["title_plus_des"].tolist()
+        test_texts = test_df["title_plus_des"].tolist()
+
+        # ---------------------------
+        # 2️⃣ 文本向量化 (Embedding)
+        # ---------------------------
+        print("🔹 Encoding texts with SentenceTransformer ...")
+        model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
+
+        train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
+        val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
+        test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
+
+        # ---------------------------
+        # 3️⃣ save embeddings and labels
+        # ---------------------------
+        os.makedirs("model_pipeline/embeddings", exist_ok=True)
+
+        # ✅ 提取四类句子
+        test_titles = test_df["job_title"].astype(str).tolist()
+        test_exp_num_texts = test_df["job_des_filtered"].apply(
+            lambda x: " ".join(re.findall(r'\[Years of experience required\].*?(?=\[|$)', x))
+        ).tolist()
+        test_salary_texts = test_df["job_des_filtered"].apply(
+            lambda x: " ".join(re.findall(r'\[Salary details\].*?(?=\[|$)', x))
+        ).tolist()
+        test_exp_skill_texts = test_df["job_des_filtered"].apply(
+            lambda x: " ".join(re.findall(r'\[Experience and Skills\].*?(?=\[|$)', x))
+        ).tolist()
+
+        # ✅ 生成四类 embedding
+        test_title_emb = torch.from_numpy(model_emb.encode(test_titles, batch_size=32, show_progress_bar=True))
+        test_exp_num_emb = torch.from_numpy(model_emb.encode(test_exp_num_texts, batch_size=32, show_progress_bar=True))
+        test_salary_emb = torch.from_numpy(model_emb.encode(test_salary_texts, batch_size=32, show_progress_bar=True))
+        test_exp_skill_emb = torch.from_numpy(model_emb.encode(test_exp_skill_texts, batch_size=32, show_progress_bar=True))
+
+        # ✅ 保存所有 embedding
+        torch.save({
+            "train_emb": train_emb,
+            "val_emb": val_emb,
+            "test_emb": test_emb,
+            "train_labels": train_df["job_level"].tolist(),
+            "val_labels": val_df["job_level"].tolist(),
+            "test_labels": test_df["job_level"].tolist(),
+            "test_title_emb": test_title_emb,
+            "test_exp_num_emb": test_exp_num_emb,
+            "test_salary_emb": test_salary_emb,
+            "test_exp_skill_emb": test_exp_skill_emb,  # ✅ 新增
+        }, f"model_pipeline/embeddings/{cfg['name']}_embeddings_new.pt")
+
+        print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings_new.pt")
+
+        # torch.save({
+        #     "train_emb": train_emb,
+        #     "val_emb": val_emb,
+        #     "test_emb": test_emb,
+        #     "train_labels": train_df["job_level"].tolist(),
+        #     "val_labels": val_df["job_level"].tolist(),
+        #     "test_labels": test_df["job_level"].tolist(),
+        # }, f"model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+
+        # print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+
+    # os.makedirs("model_pipeline/embeddings", exist_ok=True)
     # torch.save({
     #     "train_emb": train_emb,
     #     "val_emb": val_emb,
@@ -326,18 +342,6 @@ for cfg in configs:
     #     "train_labels": train_df["job_level"].tolist(),
     #     "val_labels": val_df["job_level"].tolist(),
     #     "test_labels": test_df["job_level"].tolist(),
-    # }, f"model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+    # }, "model_pipeline/embeddings/raw_jd_embeddings.pt")
 
-    # print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
-
-# os.makedirs("model_pipeline/embeddings", exist_ok=True)
-# torch.save({
-#     "train_emb": train_emb,
-#     "val_emb": val_emb,
-#     "test_emb": test_emb,
-#     "train_labels": train_df["job_level"].tolist(),
-#     "val_labels": val_df["job_level"].tolist(),
-#     "test_labels": test_df["job_level"].tolist(),
-# }, "model_pipeline/embeddings/raw_jd_embeddings.pt")
-
-# print("✅ Embeddings saved to model_pipeline/embeddings/raw_jd_embeddings.pt")
+    # print("✅ Embeddings saved to model_pipeline/embeddings/raw_jd_embeddings.pt")
