@@ -3,11 +3,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # �
 import torch
 from model_pipeline.train_classifier import MLPClassifier
 import pandas as pd
+from python_scraper.connect import get_conn
 
 
 embedding_paths = {
     "only_exp_num": "python_scraper/embeddings/1️⃣: only_exp_num_embeddings.pt",
-    "exp_num+exp": "python_scraper/embeddings/2️⃣: exp_num+exp_embeddings.pt",
+    # "exp_num+exp": "python_scraper/embeddings/2️⃣: exp_num+exp_embeddings.pt",
 
 }
 
@@ -69,9 +70,34 @@ for name, path in embedding_paths.items():
         "pred_idx": preds
     })
 
-    save_path = f"python_scraper/predictions/{name}_predictions.csv"
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    df.to_csv(save_path, index=False, encoding="utf-8-sig")
+    # save_path = f"python_scraper/predictions/{name}_predictions.csv"
+    # os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    # df.to_csv(save_path, index=False, encoding="utf-8-sig")
+    # print(f"💾 Saved predictions to {save_path}")
 
-    print(f"💾 Saved predictions to {save_path}")
     print(df.head(30))
+
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    for _, row in df.iterrows():
+        job_id = row["job_id"]
+        job_level = row["pred_label"]
+
+        try:
+            cursor.execute(
+                """
+                UPDATE jobs
+                SET job_level = %s
+                WHERE job_id = %s;
+                """,
+                (job_level, job_id),
+            )
+        except Exception as e:
+            print(f"⚠️ 更新 job_id={job_id} 时出错: {e}")
+            conn.rollback()
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    print("✅ All updates committed successfully.")

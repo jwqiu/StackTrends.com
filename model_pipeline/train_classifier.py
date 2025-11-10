@@ -50,9 +50,9 @@ batch_size = [64]
 # 每个文件对应一种文本特征抽取策略（不同 prompt 或 embedding 模型），
 # 程序会依次加载这些文件并进行独立训练评估，用于对比结果。
 embedding_paths = [
-    # "model_pipeline/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
+    "model_pipeline/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
     "model_pipeline/embeddings/2️⃣: exp_num+exp_embeddings.pt",   # 数字+经验词复合特征
-    # "model_pipeline/embeddings/3️⃣: exp_num+salary_embeddings.pt",             # 启用全部筛选标准（完整特征）
+    "model_pipeline/embeddings/3️⃣: exp_num+salary_embeddings.pt",             # 启用全部筛选标准（完整特征）
     # "model_pipeline/embeddings/4️⃣: all_enabled_embeddings.pt",             # 关闭全部筛选标准（控制组）
     # "model_pipeline/embeddings/5️⃣: all_disabled_embeddings.pt",          # 仅保留经验相关句子（去除数值）
     # "model_pipeline/embeddings/raw_jd_embeddings.pt",          # raw jd embeddings
