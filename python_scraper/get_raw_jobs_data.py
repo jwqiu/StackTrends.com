@@ -296,7 +296,8 @@ def get_jobs_data():
         listing_year_month TEXT,
         tech_tags TEXT,         
         job_des_origin TEXT,
-        job_des TEXT
+        job_des TEXT,
+        job_level TEXT
     );
     """
     cur.execute(create_sql)

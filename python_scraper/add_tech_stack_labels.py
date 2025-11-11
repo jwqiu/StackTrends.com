@@ -103,7 +103,7 @@ def load_keywords():
 def load_job_data():
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM jobs")
+    cursor.execute("SELECT * FROM jobs WHERE job_level IS NULL or job_level =''")
     rows = cursor.fetchall()
     colnames = [desc[0] for desc in cursor.description]  # 获取列名 # type: ignore
     cursor.close()
