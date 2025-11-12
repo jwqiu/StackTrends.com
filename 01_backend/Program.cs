@@ -23,6 +23,10 @@ builder.Services.AddScoped<NpgsqlConnection>(sp => new NpgsqlConnection(builder.
 // basically, controller is a collection of related backend functions that share the same API route
 builder.Services.AddControllers();
 
+
+// ============================================================
+// 🔹 Used CORS to handle cross-origin requests
+// ============================================================
 // The frontend and backend run on different endpoints, and the browsers don't allow them communicate directly, so I used CORS here to handle cross-origin requests
 // AddCors is mainly used during development or for small projects, because it's quick and easy to allow requests from the frontend to the backend directly（just a few lines of code）.
 // but it's not very secure（it exposes the backend endpoint） or easy to maintain when there are multiple services.
@@ -46,12 +50,22 @@ builder.Services.AddCors(options =>
     });
 });
 
+// ======================================================================
+// 🔹 Better way to handle cross-origin requests by using reverse proxy
+// ======================================================================
 // to address the cross-origin issue between frontend and backend, reverse proxy is a more common and popular solution,  because it's safer - it hides the backend, 
 // faster - there is no pre-check for cross-origin requests, easier to maintain - you just change the config, and it also helps manage multiple backend services in one place
+// a reverse proxy means the frontend doesn't talk to the backend directly, instead, it sends requests to another address - usually under the same domain as the frontend
+// and that proxy server forwards the requests to the actual backend server, and sends the results back to the frontend
+// because the proxy talks to the backend server, not through the broweser, so there is no cross-origin issue
 
 // builder.Services.AddReverseProxy()
 //        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+
+// ======================================================================
+// 🔹 Different approach to handle user authentication
+// ======================================================================
 // Cookies/sessions and JWT(JSON Web Token) are the most common ways to handle user authentication/verify logged-in users in modern web development.
 // the cookie/session method is a stateful approach, where the server maintains the session data for all logged-in users. which makes the system more complex and harder to scale.
 // the JWT method is a stateless approach, where the backend issues a token for each logged-in user and verifies it on every request instead of maintaining session data on the server, which makes the system simpler and easier to scale
