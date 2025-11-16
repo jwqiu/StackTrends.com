@@ -4,7 +4,7 @@ let allTechStacks = [];
 // ① 加载并渲染所有 tech stacks
 async function loadTechStacks() {
     try {
-        const res = await fetch(`${API_BASE}/api/TechStack/all`);
+        const res = await fetch(`${API_BASE}/api/techstacks/list`);
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         allTechStacks = await res.json();
         renderTechStacks();
@@ -51,7 +51,7 @@ async function submitTechStack() {
   }
 
   // 3. 发送 POST 请求
-  const res = await fetch(`${API_BASE}/api/TechStack/add`, {
+  const res = await fetch(`${API_BASE}/api/techstacks/add`, {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ async function deleteTechStack(id) {
   if (!confirm(`确定要删除 ID=${id} 的 TechStack 吗？`)) return;
 
   try {
-    const res = await fetch(`${API_BASE}/api/TechStack/delete/${id}`, {
+    const res = await fetch(`${API_BASE}/api/techstacks/delete/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
@@ -159,7 +159,7 @@ async function editTechStack(id) {
     tr.querySelectorAll('[data-field]').forEach(el => {
       payload[el.dataset.field] = el.value.trim();
     });
-    const res = await fetch(`${API_BASE}/api/TechStack/update/${id}`, {
+    const res = await fetch(`${API_BASE}/api/techstacks/update/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type':'application/json',
@@ -216,7 +216,7 @@ let allCategories = [];
 
 async function loadCategories() {
   try {
-    const res = await fetch(`${API_BASE}/api/category`, {
+    const res = await fetch(`${API_BASE}/api/categories`, {
       method: 'GET',});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     // 假设后端返回的是 { id, name, groupName } 数组
@@ -292,7 +292,7 @@ function setupAddCategoryForm() {
     }
 
     try {
-      const res = await fetch(`${window.API_BASE}/api/category`, {
+      const res = await fetch(`${window.API_BASE}/api/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
@@ -366,7 +366,7 @@ async function editCategory(id) {
     });
 
     try {
-      const res = await fetch(`${window.API_BASE}/api/category/${id}`, {
+      const res = await fetch(`${window.API_BASE}/api/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
@@ -407,7 +407,7 @@ async function deleteCategory(id) {
   if (!confirm('Are you sure you want to delete this category?')) return;
 
   try {
-    const res = await fetch(`${API_BASE}/api/category/${id}`, {
+    const res = await fetch(`${API_BASE}/api/categories/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
@@ -455,7 +455,7 @@ async function deleteCategory(id) {
 async function loadCategoryOptions() {
     const select = document.getElementById('category');
     select.innerHTML = '<option value="" disabled selected>Select a category</option>';
-    const res = await fetch(`${API_BASE}/api/category`);
+    const res = await fetch(`${API_BASE}/api/categories`);
     const cats = await res.json();
     cats.forEach(c => {
       const opt = document.createElement('option');
@@ -521,7 +521,7 @@ function logout() {
 }
 
 function getLandingSummaryCounts() {
-  fetch(`${window.API_BASE}/api/count/landing-summary`)
+  fetch(`${window.API_BASE}/api/stats/landing-summary`)
     .then(res => res.json())
     .then(data => {
         document.getElementById("jobsCount").textContent = data.jobsCount;
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', getLandingSummaryCounts);
 async function renderJobsChart() {
   try {
     // 请求后端接口
-    const res = await fetch(`${API_BASE}/api/job/count/by-month`);
+    const res = await fetch(`${API_BASE}/api/jobs/stats/by-month`);
     const data = await res.json();
 
     // 处理数据

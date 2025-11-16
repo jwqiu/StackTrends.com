@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     getFilterResultsCount();
     switchTab();
     applyCompanyFilters(); 
-    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`, 5, []);
+    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, []);
 
 
 });
@@ -64,7 +64,7 @@ let currentPage = 1;
 let hasMore = true;
 
 async function normalizeKeyword(rawKeyword) {
-  const url = `${API_BASE}/api/TechStack/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
+  const url = `${API_BASE}/api/techstacks/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Normalize request failed: ${res.status}`);
@@ -75,7 +75,7 @@ async function normalizeKeyword(rawKeyword) {
 
 async function loadJobs() {
   // 调用后端API获取所有职位
-  let url = `${API_BASE}/api/job/all?page=${currentPage}&size=${jobsPerPage}`;
+  let url = `${API_BASE}/api/jobs/list?page=${currentPage}&size=${jobsPerPage}`;
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
   }
@@ -190,7 +190,7 @@ function loadMoreJobs() {
 async function loadTechStacks() {
   // 调用后端API获取所有技术栈
   try {
-    const response = await fetch(`${API_BASE}/api/TechStack/all`);
+    const response = await fetch(`${API_BASE}/api/techstacks/list`);
     allTechStacks = await response.json();
     document.getElementById("techstack-input").addEventListener("input", showSuggestions);
     document.getElementById("add-btn").addEventListener("click", addSelectedStack);
@@ -369,7 +369,7 @@ function renderSelectedStacksCompaniesSection() {
             // ⬇️ 手动触发公司筛选
             renderTechStackByCompany(
               'companiesContainer',
-              `${window.API_BASE}/api/companies/tech-stack-rank`,
+              `${window.API_BASE}/api/techstacks/rankings/by-company`,
               5,
               selectedStacks_companies
             );
@@ -409,7 +409,7 @@ function filterJobsByLevel() {
 
 
 async function getFilterResultsCount() {
-  let url = `${API_BASE}/api/Job/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+  let url = `${API_BASE}/api/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
 
   if (selectedStacks.length > 0) {
     for (const kw of selectedStacks) {
@@ -687,7 +687,7 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
   const res  = await fetch(apiUrl);
   const rows = await res.json();
 
-  const cntRes  = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
+  const cntRes  = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
   const cntRows = await cntRes.json();
   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
 
@@ -847,6 +847,6 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
 function applyCompanyFilters() {
   document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
     // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
-    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`, 5, selectedStacks_companies);
+    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, selectedStacks_companies);
   });
 }

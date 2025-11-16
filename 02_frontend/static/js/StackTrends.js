@@ -186,13 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // populateTable(mockData);
   loadTechRank(); // Load the tech table data
   updateJobCount();
-  drawExperiencePie();
+  // drawExperiencePie();
   fetchLevelCounts()
     .then(() => {
       renderTopTechStackTableByLevel();
     })
     .catch(err => console.error(err));
-  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/companies/tech-stack-rank`, 20);
+  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 20);
 });
 
 // window.addEventListener('resize', syncChartHeight);
@@ -268,7 +268,7 @@ let allData = []; // 全部数据
 
 async function loadTechRank() {
   try {
-    const response = await fetch(`${window.API_BASE}/api/count/tech-stacks`);
+    const response = await fetch(`${window.API_BASE}/api/techstacks/rankings`);
     allData = await response.json();
 
     allLevelData = allData
@@ -569,7 +569,7 @@ function renderCategoryTags(data) {
 
 
 function updateJobCount() {
-  fetch(`${window.API_BASE}/api/job/count`)
+  fetch(`${window.API_BASE}/api/jobs/count`)
     .then(res => res.json())
     .then(data => {
       document.getElementById("job-count").textContent = data.count+" job posts";
@@ -718,7 +718,7 @@ let levelCounts = [];
 // 1) 用 .then() 代替 async/await
 function fetchLevelCounts() {
 
-  return fetch(`${API_BASE}/api/job/count/by-level`)
+  return fetch(`${API_BASE}/api/jobs/stats/by-level`)
 
     .then(resp => {
       if (!resp.ok) throw new Error('请求失败 ' + resp.status);
@@ -816,7 +816,7 @@ async function renderTopTechStackTableByLevel() {
   // 并发请求三个 level 的数据
   const responses = await Promise.all(
     levels.map(lvl =>
-      fetch(`${window.API_BASE}/api/count/tech-stacks?level=${lvl.key}`)
+      fetch(`${window.API_BASE}/api/techstacks/rankings?level=${lvl.key}`)
         .then(res => res.json())
     )
   );
@@ -954,7 +954,7 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
   const res = await fetch(url.toString());
   const rows = await res.json();
 
-  const cntRes       = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
+  const cntRes       = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
   const cntRows      = await cntRes.json();
   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
 

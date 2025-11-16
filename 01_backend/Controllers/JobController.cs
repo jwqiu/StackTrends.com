@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/jobs")]
 public class JobController : ControllerBase
 {
     private readonly NpgsqlConnection _conn;
@@ -13,7 +13,7 @@ public class JobController : ControllerBase
         _conn = conn;
     }
 
-    [HttpGet("all")]
+    [HttpGet("list")]
     public async Task<IActionResult> GetAllJobs(
         int page = 1,
         int size = 20,
@@ -167,7 +167,7 @@ public class JobController : ControllerBase
         return Ok(new { count });
     }
 
-    [HttpGet("count/by-level")]
+    [HttpGet("stats/by-level")]
     public async Task<ActionResult<IEnumerable<JobCountByLevelDto>>> GetCountByLevel()
     {
         var list = new List<JobCountByLevelDto>();
@@ -207,7 +207,7 @@ public class JobController : ControllerBase
         return Ok(list);
     }
 
-    [HttpGet("search/by-keyword")]
+    [HttpGet("search/list")]
     public async Task<ActionResult<List<Job>>> SearchJobsByKeyword([FromQuery] string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -261,7 +261,7 @@ public class JobController : ControllerBase
         return Ok(jobs);
     }
 
-    [HttpGet("count/by-month")]
+    [HttpGet("stats/by-month")]
     public async Task<ActionResult<IEnumerable<JobCountByMonthDto>>> GetCountByMonth()
     {
         var list = new List<JobCountByMonthDto>();
@@ -289,4 +289,139 @@ public class JobController : ControllerBase
     }
 
 
+    // Use IEnumerable when we just need to read data sequentially, use List when we need to modify it or access by index
+    // use ActionResult<T> when the action should return a typed result on success, and HTTP error results when something goes wrong
+    // use IActionResult when the action only returns HTTP responses and no specific types needs to be declared
+    // the type after ActionResult<> indicates the data type returned on a successful response
+    [HttpGet("stats/by-company")]
+    public async Task<ActionResult<IEnumerable<CompaniesCount>>> GetTop20CompaniesByJobCount()
+    {
+        // only get companies with more than 10 job postings, ordered by job count descending
+        // TODO: Maybe remove the 10-job threshold here and move this filter into the job_counts_by_company creation logic.
+        const string sql = @"
+            SELECT company_id, company_name, jobs_count
+            FROM public.job_counts_by_company
+            WHERE jobs_count > 10
+            ORDER BY jobs_count DESC;
+        ";
+
+        // if want Single object , use new CompaniesCount() ,if want a list of same object, use new List<CompaniesCount>();
+        var result = new List<CompaniesCount>();
+
+        await _conn.OpenAsync();
+        using var cmd = new NpgsqlCommand(sql, _conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            // get the column indexes first to avoid issues if the column order changes in the future
+            var idxCompanyId = reader.GetOrdinal("company_id");
+            var idxCompanyName = reader.GetOrdinal("company_name");
+            var idxJobsCount = reader.GetOrdinal("jobs_count");
+            
+            result.Add(new CompaniesCount
+            {
+                Company_Id = (int)reader.GetInt64(idxCompanyId),
+                Company_name = reader.IsDBNull(idxCompanyName) ? null : reader.GetString(idxCompanyName),
+                Jobs_Count = (int)reader.GetInt64(idxJobsCount)
+            });
+        }
+        await _conn.CloseAsync();
+
+        return Ok(result);
+    }
+
+    [HttpGet("search/stats")]
+    public async Task<IActionResult> GetKeywordMatchStats([FromQuery] string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+            return BadRequest("Keyword is required.");
+
+        await _conn.OpenAsync();
+
+        var result = new KeywordMatchResult
+        {
+            TotalMatches = 0,
+            TotalJobs = 0,
+            OverallPercentage = 0.0,
+            LevelBreakdown = new List<LevelMatch>()
+        };
+
+        const string totalCountSql = @"SELECT COUNT(*) FROM jobs;";
+        const string totalMatchSql = @"
+            SELECT COUNT(*) 
+            FROM jobs 
+            WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)";
+        const string levelBreakdownSql = @"
+        SELECT job_level, COUNT(*) AS MatchCount
+        FROM jobs
+        WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
+        GROUP BY job_level
+        ORDER BY
+            CASE job_level
+                WHEN 'Senior' THEN 1
+                WHEN 'Intermediate' THEN 2
+                WHEN 'Junior' THEN 3
+                ELSE 4
+            END;";
+        const string levelTotalSql = @"
+        SELECT job_level, COUNT(*) AS TotalCount
+        FROM jobs
+        GROUP BY job_level;";
+
+
+        // 查询总 job 数量
+        await using (var cmd = new NpgsqlCommand(totalCountSql, _conn))
+        {
+            result.TotalJobs = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        }
+
+        // 查询匹配的总数量
+        await using (var cmd = new NpgsqlCommand(totalMatchSql, _conn))
+        {
+            cmd.Parameters.AddWithValue("kw", keyword);
+            result.TotalMatches = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        }
+
+        result.OverallPercentage = result.TotalJobs > 0
+            ? Math.Round(result.TotalMatches * 100.0 / result.TotalJobs, 2)
+            : 0.0;
+
+        // 查询各等级总数
+        var levelTotalDict = new Dictionary<string, int>();
+        await using (var cmd = new NpgsqlCommand(levelTotalSql, _conn))
+        {
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var level = reader["job_level"].ToString();
+                var total = Convert.ToInt32(reader["TotalCount"]);
+                levelTotalDict[level] = total;
+            }
+        }
+
+        // 查询各等级匹配数量
+        await using (var cmd = new NpgsqlCommand(levelBreakdownSql, _conn))
+        {
+            cmd.Parameters.AddWithValue("kw", keyword);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var level = reader["job_level"].ToString();
+                var matchCount = Convert.ToInt32(reader["MatchCount"]);
+                var percentage = levelTotalDict.ContainsKey(level) && levelTotalDict[level] > 0
+                    ? Math.Round(matchCount * 100.0 / levelTotalDict[level], 2)
+                    : 0.0;
+
+                result.LevelBreakdown.Add(new LevelMatch
+                {
+                    Level = level,
+                    MatchCount = matchCount,
+                    Percentage = percentage
+                });
+            }
+        }
+
+        await _conn.CloseAsync();
+        return Ok(result);
+    }
 }

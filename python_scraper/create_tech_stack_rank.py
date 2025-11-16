@@ -143,9 +143,11 @@ def update_job_counts_by_company():
     cur = conn.cursor()
 
     # 删除旧表，重建新表
-    cur.execute("DROP TABLE IF EXISTS job_counts_by_company")
+    # cur.execute("DROP TABLE IF EXISTS job_counts_by_company")
+    # change this to insert new data rather than dropping or clearing the table
+    cur.execute("TRUNCATE TABLE job_counts_by_company")
     cur.execute("""
-        CREATE TABLE job_counts_by_company AS
+        INSERT INTO job_counts_by_company (company_id, company_name, jobs_count)
         SELECT 
             company_id, 
             company_name, 

@@ -314,13 +314,10 @@ def get_jobs_data():
     cur.close()
     conn.close()
 
-
-
     logging.info(f"总共获取到 {total_job} 个 Job ID")
     # print(f"总共获取到 {total_job} 个 Job ID")
     logging.info(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
     # print(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
-
 
     # wb.save('job_list_with_details_0618.xlsx')
 

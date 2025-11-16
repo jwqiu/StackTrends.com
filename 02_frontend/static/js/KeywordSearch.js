@@ -38,7 +38,7 @@ async function fetchJobCountsForAllLevels() {
     const params = new URLSearchParams();
     if (level !== 'All') params.append('job_level', level);
 
-    return fetch(`${window.API_BASE}/api/Job/count?${params.toString()}`)
+    return fetch(`${window.API_BASE}/api/jobs/count?${params.toString()}`)
       .then(res => res.json())
       .then(data => ({
         level,
@@ -89,7 +89,7 @@ async function fetchKeywordMentionStats() {
     const keyword = keywordInput?.value.trim();
     if (!keyword) return;
 
-    const url = `${window.API_BASE}/api/count/match/keyword?keyword=${encodeURIComponent(keyword)}`;
+    const url = `${window.API_BASE}/api/jobs/search/stats?keyword=${encodeURIComponent(keyword)}`;
     try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch data');
@@ -199,7 +199,7 @@ async function renderMatchingJobList() {
     const keyword = keywordInput?.value.trim();
     if (!keyword) return;
 
-    const url = `${window.API_BASE || ''}/api/job/search/by-keyword?keyword=${encodeURIComponent(keyword)}`;
+    const url = `${window.API_BASE || ''}/api/jobs/search/list?keyword=${encodeURIComponent(keyword)}`;
     try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch matching jobs');

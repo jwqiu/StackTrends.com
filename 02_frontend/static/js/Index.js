@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded" ,() => {
 // }
 
 function getLandingSummaryCounts() {
-    fetch(`${window.API_BASE}/api/count/landing-summary`)
+    fetch(`${window.API_BASE}/api/stats/landing-summary`)
         .then(res => res.json())
         .then(data => {
             document.getElementById("jobsCount").textContent = data.jobsCount;
