@@ -2,8 +2,15 @@ using Npgsql;
 using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 
+
+// ============================================================================================================
+// this controller is currently not in use, but kept for potential future use
+// ============================================================================================================
+
+
 namespace StackTrends.Controllers
-{
+{   
+    
     [ApiController]
     [Route("api/[controller]")]
     public class CountController : ControllerBase
@@ -15,7 +22,6 @@ namespace StackTrends.Controllers
         {
             _conn = conn;
         }
-
 
         // this endpoint is no longer used, but kept for potential future use
         [HttpGet("by-level")]
@@ -63,11 +69,12 @@ namespace StackTrends.Controllers
             return counts;
         }
 
-
+        // This endpoint fetches the data that shows the top growing and declining tech skills over time. 
+        // Because the current data doesn’t provide meaningful or interpretable insights, I decided not to display it on the website for now
         [HttpGet("tech-trends")]
-        public async Task<IEnumerable<TechTrend>> GetTrends()
+        public async Task<IEnumerable<TechTrendPoint>> GetTrends()
         {
-            var trends = new List<TechTrend>();
+            var trends = new List<TechTrendPoint>();
 
             await _conn.OpenAsync();
 
@@ -82,7 +89,7 @@ namespace StackTrends.Controllers
 
             while (await reader.ReadAsync())
             {
-                trends.Add(new TechTrend
+                trends.Add(new TechTrendPoint
                 {
                     Month = reader["month"].ToString()!,
                     Technology = reader["tech"].ToString()!,

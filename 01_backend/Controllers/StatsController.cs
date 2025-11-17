@@ -2,6 +2,11 @@ using Npgsql;
 using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 
+
+// ============================================================================================================
+// This controller is responsible for providing general statistical data, such as the landing page summary.
+// ============================================================================================================
+
 namespace StackTrends.Controllers
 {
     [ApiController]
@@ -31,8 +36,10 @@ namespace StackTrends.Controllers
             await using var cmd = new NpgsqlCommand(sql, _conn);
             await using var reader = await cmd.ExecuteReaderAsync();
 
+            // try to read the next row, returns true if there is a row to read
             if (await reader.ReadAsync())
-            {
+            {   
+                // create a new landing summary object and populate it with data from the database
                 var summary = new LandingSummary
                 {
                     JobsCount = Convert.ToInt32(reader["jobs_count"]),
@@ -41,6 +48,8 @@ namespace StackTrends.Controllers
                     UpdatedAt = Convert.ToDateTime(reader["updated_at"])
                 };
 
+                // close the database connection first, then return the summary object as the response
+                // if we return before closing, all the code after the return statement won't be executed
                 await _conn.CloseAsync();
                 return Ok(summary);
             }

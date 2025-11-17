@@ -4,7 +4,7 @@ using StackTrends.Models;
 using Microsoft.AspNetCore.Authorization;
 
 // ===============================================================================================================================================================
-// there are 4 endpoints for category management in this controller: create, update, delete, and get all categories
+// there are 4 endpoints for category management in this controller: create, update, delete, and get a list of all category keywords
 // each tech keyword belongs to a specific category, and some categories are further grouped into broader groups, like, coding skills, tools and platforms, etc.
 // ===============================================================================================================================================================
 
@@ -118,10 +118,10 @@ public class CategoryController : ControllerBase
         }
     }
 
-
     [HttpPut("{id}")]
     [Authorize] 
     // category dto is the same as int id: type + variable name
+    // DTO stands for Data Transfer Object, a common naming convention.
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category dto)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.Name))

@@ -38,7 +38,41 @@ namespace StackTrends.Models
         public int Count { get; set; }
     }
 
+    // This class is not currently used.
+    public class ExperienceLevelCount
+    {
+        public string Level { get; set; } = default!;
+        public int Mentions { get; set; }
+        public double Percentage { get; set; }
+    }
     
+    public class KeywordMatchStats
+    {
+        public int TotalJobs { get; set; }
+        public int TotalMatches { get; set; }
+        public double OverallPercentage { get; set; }
+        public List<LevelMatchStats> LevelBreakdown { get; set; } = new();
+    }
+
+    public class LevelMatchStats
+    {
+        public string Level { get; set; } = "";
+        public int MatchCount { get; set; }
+        public double Percentage { get; set; }
+    }
+
+    public class JobCountByCompany
+    {
+        public int Company_Id { get; set; }
+        public int Jobs_Count { get; set; }
+        public string? Company_name { get; set; }
+    }
+
+    // public class KeywordsCount
+    // {
+    //     public int Count { get; set; }
+    // }
+
 }
 
 

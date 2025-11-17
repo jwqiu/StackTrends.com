@@ -315,34 +315,6 @@ async function loadTechRank() {
   }
 }
 
-// async function loadCategoryOptions() {
-//     const categories = document.getElementById('category-filters');
-//     categories.innerHTML = '';
-
-//     const allBtn = document.createElement('button');
-//     allBtn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-//     allBtn.dataset.filter = 'all';
-//     allBtn.textContent = 'All';
-//     categories.appendChild(allBtn);
-
-
-//     const res = await fetch(`${API_BASE}/api/category`);
-//     const cats = await res.json();
-//     cats.forEach(c => {
-//       const btn = document.createElement('button');
-//       btn.className = 'filter-btn bg-gray-200 text-gray-700 px-2 py-1 mt-0 rounded-md hover:bg-blue-400 hover:text-white text-sm';
-//       btn.dataset.filter = c.name;
-//       btn.textContent = c.name;
-//       categories.appendChild(btn);
-//     });
-
-//     if (allBtn) {
-//       allBtn.classList.remove('bg-gray-200', 'text-gray-700');
-//       allBtn.classList.add('bg-blue-500', 'text-white');
-//       allBtn.click();
-//     }
-// }
-
 async function loadCategoryOptions() {
   const root = document.getElementById('category-filters');
   root.innerHTML = '';
@@ -350,10 +322,11 @@ async function loadCategoryOptions() {
   // 触发按钮容器
   const trigger = document.createElement('div');
   trigger.className =
-    'flex items-center justify-between px-8 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
+    'flex max-w-[220px] overflow-hidden items-center px-8 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
   
   // 左侧文字
   const triggerLabel = document.createElement('span');
+  triggerLabel.className = 'truncate';
   triggerLabel.textContent = 'All';
 
   // 右侧 SVG 图标
@@ -397,11 +370,18 @@ async function loadCategoryOptions() {
   menu.appendChild(allBtn);
 
   // 获取分类
-  const res = await fetch(`${API_BASE}/api/category`);
+  const res = await fetch(`${API_BASE}/api/categories`);
   const cats = await res.json();
   cats.forEach(c => {
     menu.appendChild(makeBtn(c.name));
   });
+  // cats.forEach(c => {
+  //   const name = c.name === "Coding Methods and Practices"
+  //     ? "Coding Practice"
+  //     : c.name;
+
+  //   menu.appendChild(makeBtn(name));
+  // });
 
   // 切换展开/收起
   trigger.addEventListener('click', (e) => {
@@ -443,26 +423,6 @@ function renderTechTableRows(data, limit) {
   });
 }
 
-// function populateTable(data) {
-//   const tableBody = document.getElementById('techTable');
-//   tableBody.innerHTML = ''; // Clear existing rows
-
-//   data.forEach(row => {
-//     const tr = document.createElement('tr');
-//     tr.className = 'bg-white hover:bg-gray-100';
-
-//     tr.innerHTML = `
-//       <td class="border px-4 py-2">${row.technology}</td>
-//       <td class="border px-4 py-2">${row.category}</td>
-//       <td class="border px-4 py-2">${row.mentions}</td>
-//       <td class="border px-4 py-2">${row.percentage}</td>
-//       <td class="border px-4 py-2"><a href="" class='text-sm text-blue-500 underline'>Related Jobs>></a></td>
-
-//     `;
-
-//     tableBody.appendChild(tr);
-//   });
-// }
 
 function renderCategoryTags(data) {
   const categoryOrder = [
@@ -497,37 +457,12 @@ function renderCategoryTags(data) {
     if (!container) return;
 
     let html = "";
-    const bgArr = [
-      'blue-900', // ≥ 0.30
-      'blue-700', // 0.30 - 0.25
-      'blue-500', // 0.25 - 0.20
-      'blue-300'  // 0.20 - 0.15
 
-    ];
     techList.forEach((item, idx) => {
       const rawName = item.technology ?? item.Technology;
       const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       const percentageRaw = item.percentage ?? item.Percentage;
       const percentage = (percentageRaw * 100).toFixed(2) + '%';
-      const percentageWidth = percentage;
-
-      let bgClass = '';
-      if (percentageRaw >= 0.30) {
-        bgClass = bgArr[0];
-      } else if (percentageRaw >= 0.20) {
-        bgClass = bgArr[1];
-      } else if (percentageRaw >= 0.10) {
-        bgClass = bgArr[2];
-      } else {
-        bgClass = bgArr[3] + ''; 
-      }
-
-      let textClass = '';
-      if (percentageRaw >= 0.05) {
-        textClass = 'text-white ';
-      } else {
-        textClass = 'text-white';
-      }
 
       html += `
         <div class="">
@@ -559,13 +494,6 @@ function renderCategoryTags(data) {
   });
 
 }
-
-// <div class="py-4 w-full rounded-lg opacity-0 js-fade-in bg-gradient-to-r shadow-lg flex flex-col items-center justify-center  from-${bgClass} to-white ${textClass}">
-//   <span class="block text-center w-full truncate text-md font-semibold " title="${name}">${name}</span>
-//   <div class="text-sm mt-1">${percentage}</div>
-// </div>
-
-// ${idx === 0 ? `<span class="ml-2 text-sm text-gray-500">(${percentage})</span>` : ''}
 
 
 function updateJobCount() {
@@ -705,14 +633,6 @@ async function drawExperiencePie() {
 }
 
 
-// function populateLevelDropdown(selectorId) {
-//   const levels = ['all', 'Senior', 'Intermediate', 'Junior', 'Other'];
-//   const sel = document.getElementById(selectorId);
-//   sel.innerHTML = levels
-//     .map(l => `<option value="${l.toLowerCase()}">${l} Level</option>`)
-//     .join('');
-// }
-
 let levelCounts = [];
 
 // 1) 用 .then() 代替 async/await
@@ -801,7 +721,6 @@ function renderLevelOptions() {
   }
 
 }
-
 
 
 document.addEventListener('DOMContentLoaded', loadCategoryOptions);

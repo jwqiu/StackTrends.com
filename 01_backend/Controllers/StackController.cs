@@ -16,9 +16,9 @@ public class TechStackController : ControllerBase
     }
 
     [HttpGet("list")]
-    public async Task<IEnumerable<TechStack>> GetAllTechStacks()
+    public async Task<IEnumerable<TechSkill>> GetAllTechStacks()
     {
-        var list = new List<TechStack>();
+        var list = new List<TechSkill>();
         await _conn.OpenAsync();
         var sql = @"
         SELECT id, category, raw_keyword, normalized_keyword
@@ -30,7 +30,7 @@ public class TechStackController : ControllerBase
 
         while (await reader.ReadAsync())
         {
-            list.Add(new TechStack
+            list.Add(new TechSkill
             {
                 Id = Convert.ToInt32(reader["id"]),
                 Category = reader["category"] == DBNull.Value ? null : reader["category"].ToString(),
@@ -45,7 +45,7 @@ public class TechStackController : ControllerBase
 
     [HttpPost("add")]
     [Authorize]
-    public async Task<IActionResult> AddTechStack([FromBody] TechStack stack)
+    public async Task<IActionResult> AddTechStack([FromBody] TechSkill stack)
     {
         await _conn.OpenAsync();
         var sql = @"
@@ -89,7 +89,7 @@ public class TechStackController : ControllerBase
 
     [HttpPut("update/{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechStack stack)
+    public async Task<IActionResult> UpdateTechStack(int id, [FromBody] TechSkill stack)
     {
         await _conn.OpenAsync();
 
@@ -191,7 +191,7 @@ public class TechStackController : ControllerBase
 
     // this endpoint returns the tech skills ranking for each company(top N companies by job count)
     [HttpGet("rankings/by-company")]
-    public async Task<ActionResult<IEnumerable<TechStackRankByCompany>>> GetTechStackRank(
+    public async Task<ActionResult<IEnumerable<TechSkillRankByCompany>>> GetTechStackRank(
     [FromQuery] int? companyLimit = null)
 
     {   
@@ -217,7 +217,7 @@ public class TechStackController : ControllerBase
         ";
 
 
-        var result = new List<TechStackRankByCompany>();
+        var result = new List<TechSkillRankByCompany>();
 
         await _conn.OpenAsync();
         using var cmd = new NpgsqlCommand(sql, _conn);
@@ -227,7 +227,7 @@ public class TechStackController : ControllerBase
 
         while (await reader.ReadAsync())
         {
-            result.Add(new TechStackRankByCompany
+            result.Add(new TechSkillRankByCompany
             {
                 Company_Id     = reader.GetInt64(0),
                 Company_Name   = reader.IsDBNull(1) ? null : reader.GetString(1),
@@ -243,9 +243,9 @@ public class TechStackController : ControllerBase
     }
 
     [HttpGet("rankings")]
-    public async Task<IEnumerable<TechStackCount>> GetCounts([FromQuery] string level = "all")
+    public async Task<IEnumerable<TechSkillRank>> GetCounts([FromQuery] string level = "all")
     {
-        var counts = new List<TechStackCount>();
+        var counts = new List<TechSkillRank>();
 
         await _conn.OpenAsync();
 
@@ -273,7 +273,7 @@ public class TechStackController : ControllerBase
 
         while (await reader.ReadAsync())
         {
-            counts.Add(new TechStackCount
+            counts.Add(new TechSkillRank
             {
                 Level = reader["job_level"].ToString()!,
                 Category = reader["category"].ToString(),

@@ -294,7 +294,7 @@ public class JobController : ControllerBase
     // use IActionResult when the action only returns HTTP responses and no specific types needs to be declared
     // the type after ActionResult<> indicates the data type returned on a successful response
     [HttpGet("stats/by-company")]
-    public async Task<ActionResult<IEnumerable<CompaniesCount>>> GetTop20CompaniesByJobCount()
+    public async Task<ActionResult<IEnumerable<JobCountByCompany>>> GetTop20CompaniesByJobCount()
     {
         // only get companies with more than 10 job postings, ordered by job count descending
         // TODO: Maybe remove the 10-job threshold here and move this filter into the job_counts_by_company creation logic.
@@ -306,7 +306,7 @@ public class JobController : ControllerBase
         ";
 
         // if want Single object , use new CompaniesCount() ,if want a list of same object, use new List<CompaniesCount>();
-        var result = new List<CompaniesCount>();
+        var result = new List<JobCountByCompany>();
 
         await _conn.OpenAsync();
         using var cmd = new NpgsqlCommand(sql, _conn);
@@ -318,7 +318,7 @@ public class JobController : ControllerBase
             var idxCompanyName = reader.GetOrdinal("company_name");
             var idxJobsCount = reader.GetOrdinal("jobs_count");
             
-            result.Add(new CompaniesCount
+            result.Add(new JobCountByCompany
             {
                 Company_Id = (int)reader.GetInt64(idxCompanyId),
                 Company_name = reader.IsDBNull(idxCompanyName) ? null : reader.GetString(idxCompanyName),
@@ -338,12 +338,12 @@ public class JobController : ControllerBase
 
         await _conn.OpenAsync();
 
-        var result = new KeywordMatchResult
+        var result = new KeywordMatchStats
         {
             TotalMatches = 0,
             TotalJobs = 0,
             OverallPercentage = 0.0,
-            LevelBreakdown = new List<LevelMatch>()
+            LevelBreakdown = new List<LevelMatchStats>()
         };
 
         const string totalCountSql = @"SELECT COUNT(*) FROM jobs;";
@@ -412,7 +412,7 @@ public class JobController : ControllerBase
                     ? Math.Round(matchCount * 100.0 / levelTotalDict[level], 2)
                     : 0.0;
 
-                result.LevelBreakdown.Add(new LevelMatch
+                result.LevelBreakdown.Add(new LevelMatchStats
                 {
                     Level = level,
                     MatchCount = matchCount,

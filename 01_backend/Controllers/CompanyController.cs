@@ -6,7 +6,8 @@ using StackTrends.Models;
 
 
 // ===============================================================================================================================================================
-// there are 3 endpoints in this controller, jobs count by companies, total companies count, and tech stack rank by company
+// there is only 1 endpoint in this controller, which is to get the total number of unique companies from the jobs data
+// however, this endpoint is no longer used after adding the landing summary API in stats controller 
 // ===============================================================================================================================================================
 
 [ApiController]
@@ -20,8 +21,6 @@ public class CompaniesController : ControllerBase
     {
         _conn = conn;
     }
-
-   
 
     // this endpoint previously returned the total number of unique companies and displayed it on the landing page
     // however, it is no longer used after adding the landing summary API
@@ -43,8 +42,6 @@ public class CompaniesController : ControllerBase
 
         return Ok(new { count });
     }
-
- 
 
 
 }
