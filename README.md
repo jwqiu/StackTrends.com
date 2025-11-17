@@ -41,6 +41,11 @@ The data flows through the pipeline:
 **scraper → database → backend API → frontend UI**  
 This makes the app fully data-driven and easy to maintain.
 
+## Backend API Overview
+
+[API Endpoint Overview](./docs/API_Endpoint_Overview.png)
+
+
 ## 📁 Folder Overview
 
 ```bash
@@ -52,4 +57,3 @@ STACKTRENDS.COM/
 ├── TheStoryBehindStackRadar.md  # Full project background and story
 ├── README.md
 └── StackTrends.sln      
-
