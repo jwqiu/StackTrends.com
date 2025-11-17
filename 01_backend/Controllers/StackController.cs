@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 using Microsoft.AspNetCore.Authorization;
 
+// ============================================================================================================
+// there are 8 endpoints in this controller related to tech keywords management and ranking
+// 1, there are 6 endpoints to manage the tech keywors, including: get all tech keywords, add a new keyword, delete, update, normalize a keyword and get the total number of existing keywords
+// 2, there are 2 endpoints to get the tech skills ranking, ranking by overall mentions and ranking by each company (might be merged into 1 endpoint later)
+// ============================================================================================================
 
 [ApiController]
 [Route("api/techstacks")]
@@ -14,7 +19,8 @@ public class TechStackController : ControllerBase
     {
         _conn = conn;
     }
-
+    
+    // return all existing tech skill keywords from the database
     [HttpGet("list")]
     public async Task<IEnumerable<TechSkill>> GetAllTechStacks()
     {
@@ -58,7 +64,7 @@ public class TechStackController : ControllerBase
         await cmd.ExecuteNonQueryAsync();
         await _conn.CloseAsync();
 
-        // 只返回 204 No Content，告诉前端“操作成功”，前端自行再去 GET /all 刷新列表
+        // return 204 to indicate the addition was successful with no content to return
         return NoContent();
     }
 
@@ -116,12 +122,13 @@ public class TechStackController : ControllerBase
             return NotFound();   // 没有找到该 ID，404 Not Found
     }
 
+    // this endpoint receives a keyword from the frontend and returns its normalized name if it is already predefined in the database
     [HttpGet("normalize")]
     public async Task<IActionResult> NormalizeKeyword([FromQuery] string keyword)
     {
         await _conn.OpenAsync();
 
-        // 1) 精确查 normalized_keyword 列
+        // first, check whether the keyword matches any value in the normalized_keyword column; if so, return the original keyword
         var sql1 = @"
             SELECT normalized_keyword 
             FROM tech_stacks_list 
@@ -138,7 +145,8 @@ public class TechStackController : ControllerBase
             return Ok(new { normalized = keyword });
         }
 
-        // 2) 精确查 raw_keyword 列
+        // if not, check whether it matches any value in the raw_keyword column
+        // if matched, return the normalized keyword if it exists; otherwise return the raw_keyword
         var sql2 = @"
             SELECT normalized_keyword, raw_keyword
             FROM tech_stacks_list
@@ -150,26 +158,27 @@ public class TechStackController : ControllerBase
 
         string? normalized = null;
         if (await reader.ReadAsync())
-        {
-            // 优先用 normalized_keyword 列（有值则用）
+        {   
+            // use normalized_keyword first if it exists
             if (!(reader["normalized_keyword"] is DBNull) && !string.IsNullOrWhiteSpace(reader["normalized_keyword"].ToString()))
             {
                 normalized = reader["normalized_keyword"].ToString();
             }
             else
             {
-                // 没有归一化就用 raw_keyword 原词
                 normalized = reader["raw_keyword"].ToString();
             }
             await _conn.CloseAsync();
             return Ok(new { normalized });
         }
 
-        // 3) 都没有命中，返回原始 keyword
+        // if the keyword doesn't match any value in either column, return the original keyword
         await _conn.CloseAsync();
         return Ok(new { normalized = keyword });
     }
 
+    // count and return the total number of existing tech keywords
+    // this endpoint is no longer used after adding the landing summary API
     [HttpGet("count")]
     public async Task<ActionResult<object>> GetRawKeywordTotalCount()
     {
@@ -242,6 +251,7 @@ public class TechStackController : ControllerBase
         return Ok(result);
     }
 
+    // this endpoint returns the overall tech skills ranking , support filtering by job level
     [HttpGet("rankings")]
     public async Task<IEnumerable<TechSkillRank>> GetCounts([FromQuery] string level = "all")
     {
