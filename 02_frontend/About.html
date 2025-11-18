@@ -47,79 +47,67 @@
         </nav>
         <div class="flex flex-col gap-y-6 md:flex-row gap-x-8 mt-8 xl:mt-16 mb-8 container mx-auto px-4 sm:px-0 max-w-[1150px] 2xl:max-w-[1300px] ">
             <div class="w-full md:w-1/4 h-full min-w-[300px] flex flex-col gap-y-4 bg-white p-8 rounded-lg shadow-lg article-list">
-                <p class="text-lg text-gray-600">✍️ Article List</p>
-                <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer hover:scale-105 transition-transform duration-300" data-id="StackRadar">
-                    <p class="text-md text-gray-500 font-bold">About the StackRadar</p>
-                    <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
+                <p class="text-lg text-gray-600">✍️ Article</p>
+                <div class=" p-4 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer hover:scale-105 transition-transform duration-300" data-id="StackRadar">
+                    <p class="text-md text-gray-500 ">About the StackRadar</p>
+                    <p class="text-sm text-gray-400">First published: 2025/07/10</p>
                 </div>
-                <div class="bg-gray-100 p-6 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer  hover:scale-105 transition-transform duration-300" data-id="Author">
-                    <p class="text-md text-gray-500 font-bold">About the Creator</p>
-                    <p class="text-sm text-gray-400">Last updated: 2025/07/10</p>
+                <div class=" p-4 rounded-lg shadow flex flex-col gap-y-2 cursor-pointer  hover:scale-105 transition-transform duration-300" data-id="Author">
+                    <p class="text-md text-gray-500 ">About the Creator</p>
+                    <p class="text-sm text-gray-400">First published: 2025/07/10</p>
                 </div>
             </div>
             <div class="w-full md:w-3/4 bg-white  p-12 rounded-lg shadow-lg article-content">
                 <div class=" flex flex-col gap-y-4" data-id="StackRadar">
-                    <p class="text-5xl text-gray-500 font-bold">About the StackRadar</p>
-                    <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
+                    <p class="text-3xl text-gray-500 font-bold">About the StackRadar</p>
+                    <p class="text-md text-gray-400">First published: 2025/07/10</p>
                     <div class=" rounded-lg  flex flex-col gap-y-4">
                         <p class="text-md text-gray-600 "style="white-space: pre-line;">
-                            <span class=" font-bold">StackRadar</span> is a project created by a programming student at <span class="font-bold ">Lincoln University</span>, who previously worked as a senior product manager at a tech giant in China. StackRadar aims to help junior developers understand what tech skills are most in demand in New Zealand, so they can better prepare before entering the job market. It also allows users to filter jobs based on their own tech stacks, making the job search more efficient and accurate.
+                            StackRadar is a job-market analytics platform that identifies the most in-demand tech stacks in New Zealand based on real job postings.
 
-                            The idea behind this platform comes from two personal observations.
+                            The motivation behind this platform is that, as a programming student, i realized that the tech skills i learned at Lincoln University aren't widely used in the industry(Flask, Bootstrap, PythonAnywhere, etc), which make me think i needed to learn more beyond the coursework.
 
-                            <span class="font-bold">First</span>, it seems that all of my classmates understand we can’t rely solely on what the university teaches us to find a job in New Zealand.The typical tech stack we use in school — <span class="font-bold">Python, Flask, Bootstrap, MySQL, and PythonAnywhere</span> — isn’t widely used in the local industry.Everyone is aware of this, but no one seems to take the next step and ask: <br><br> <span class=" text-blue-500">“If not this, then what?”</span> <br><br> I did some research on the most popular tech stacks in New Zealand, but the results I found weren’t very convincing. Most of them were just like someone sharing their personal opinions — ranking so-called “in-demand” skills and saying things like “If you don’t have this skill, you’re in trouble” — without providing any solid data or evidence to back it up.
+                            Then I searched for the most popular tech skills worth learning in New Zealand, I found some results, but none of them seemed convincing and reliable enough. So, I decided to find the answer myself by analysing the frequency of tech-related keywords in real job postings. the logic is simple: the most frequently mentioned teck skills are the ones actually in demand, and therefore the ones I should be learning.
+                            
+                            Besides ranking the most popular tech skills from real job postings, I added other features that I believe are useful for job searching — such as filtering jobs by the tech skills users have, since tech-stack matching is often a key factor in developer job searches.
+                            
+                            For those of you who might be interested in the actual tech stack I used to build <span class="">StackRadar</span>, Here they are:
 
-                            <span class="font-bold">Second</span>, when I was searching for jobs, I realized that the way developers look for jobs today could be much easier. Unlike many other industries, in the developer job market, <span class="text-blue-500">Tech Stack Fit is often a deciding factor</span> . Nowadays, employers always include their tech stack requirements in ridiculously long job descriptions — sometimes it feels like it takes forever just to read through everything. That’s when I started thinking: “If I could filter jobs based on the tech stacks I know, wouldn’t that make the whole process much easier?” However, Platforms like Seek cover everything, but that also means they won't go deep or address the specific hiring needs of niche industries.
+                            <span class="font-semibold ">· Frontend</span>: Javascript, HTML, Tailwind CSS(The Frontend part will be rewritten in React in the near future)
+                            <span class="font-semibold ">· Backend</span>: C# with ASP.NET Core Web API (RESTful architecture)
+                            <span class="font-semibold ">· Data Collection</span>: Python + Requests + BeautifulSoup
+                            <span class="font-semibold ">· Cloud Platform</span>: Microsoft Azure (App Service, Static Web App, PostgreSQL Flexible Server)
+                            <span class="font-semibold ">· Database</span>: Postgresql
 
-                            This is exactly an area where I knew I could make a difference.
-
-                            After spending an afternoon in the Lincoln University library, I scraped my first batch of public developer job data. From that moment on, the picture in my mind became much clearer: <br><br> <span class="font-bold">I could maintain a tech stack keyword list and calculate how frequently each keyword appeared in real job postings. That frequency basically reflects the demand for each tech stack in the actual job market. By labeling each job with the tech stacks it requires, we can then filter jobs based on our own tech stack. That’s the core product logic behind <span class="">StackRadar</span>.</span>
-
-                            For students like me or other junior developers, there’s one thing I really hope you take away from <span class="font-bold">StackRadar</span>: That you gain a clear understanding of what tech skills are actually in demand in New Zealand — and what skills you already have. Keep that in mind, and please make sure you’re well prepared before entering the job market.
-
-                            For those of you who might be interested in the actual tech stack I used to build <span class="font-bold">StackRadar</span>, here it is:
-
-                            <span class="font-bold ">· Frontend</span>: Javascript, HTML, Tailwind CSS(The Frontend part will be rewritten in React in the near future)
-                            <span class="font-bold ">· Backend</span>: C# with ASP.NET Core Web API (RESTful architecture)
-                            <span class="font-bold ">· Data Collection</span>: Python + Requests + BeautifulSoup
-                            <span class="font-bold ">· Cloud Platform</span>: Microsoft Azure (App Service, Static Web App, PostgreSQL Flexible Server)
-                            <span class="font-bold ">· Database</span>: Postgresql
                             <a href="https://github.com/jwqiu/StackTrends.com.git" 
-                                class="text-blue-600 hover:underline font-medium">· GitHub Repo : https://github.com/jwqiu/StackTrends.com.git
+                                class="text-blue-600 hover:underline font-medium">GitHub Repo : https://github.com/jwqiu/StackTrends.com.git
                             </a>
-                            Good luck to everyone on your job search journey.
-
-                            <span class="font-bold">Junwen</span>
+                            <span class="">Junwen</span>
                         </p>
                     </div>
                 </div>
                 <div class=" flex flex-col gap-y-4" style="display: none;" data-id="Author">
-                    <p class="text-5xl text-gray-500 font-bold">About the Creator</p>
-                    <p class="text-md text-gray-400">Last updated: 2025/07/10</p>
+                    <p class="text-3xl text-gray-500 font-bold">About the Creator</p>
+                    <p class="text-md text-gray-400">First published: 2025/07/10</p>
                     <div class=" rounded-lg flex flex-col gap-y-4">
                         <p class="text-md text-gray-600" style="white-space: pre-line;">
                             Hi, there:
 
-                            This is junwen, an Independent Developer and a programming student at <span class="font-bold">Lincoln University</span>.  I'm graduating this November, and I'm currently open to all kinds of developer or software engineering positions, including internships, part-time, and full-time roles (available to start full-time work from November onward).
-
-                            Here’s a quick look at my tech stack:
-
-                            · <span class="font-bold">Languages:</span> <span class="">C#,JavaScript</span>,Python
-                            · <span class="font-bold">Frontend:</span><span class="">React, JavaScript, Tailwind CSS</span>, HTML, Bootstrap
-                            · <span class="font-bold">Backend:</span> <span class="">ASP.NET Core Web API</span>,Flask
-                            · <span class="font-bold">Frameworks / Libraries:</span> <span class=""></span>Jinja2, BeautifulSoup, Leaflet.js
-                            · <span class="font-bold">Database:</span> <span class="">PostgreSQL</span>, MySQL
-                            · <span class="font-bold">Cloud & DevOps:</span> Microsoft <span class="">Azure</span> (App Service, Static Web App, PostgreSQL Flexible Server), PythonAnywhere, GitHub Actions, Git, GitHub
-                            · <span class="font-bold">AI / ML:</span> YOLOv8, PyTorch, OpenCV, Albumentations, ONNX Runtime
-                            · <span class="font-bold">Others:</span> RESTful API design, Web scraping, Axure RP
-                            <!-- I completely understand that if we're looking purely at coding experience, I may not be the strongest candidate — I’ve only been programming for about a year. But if product design and UI/UX design are also part of the equation, I genuinely believe I might be one of the best junior indie developers in this country, I’ve seen countless poorly designed products — not just from junior developers, but even from some senior ones. -->
-                            I may not be the most experienced engineer in traditional software development, <span class="text-blue-500">But if you’re looking for someone who can turn ideas into fully functional products — covering product design(PRD), UI/UX, full-stack development and cloud deployment — I truly believe I can be a strong fit. </span>
-
-                            That’s not just because  <span class="font-bold">I’m proficient in many of the most in-demand tech stacks</span> in New Zealand, such as C#, .NET, React, JavaScript, and Azure. More importantly,  <span class="font-bold">I also bring a unique blend of product and development expertise</span>. 
+                            I’m Junwen — a master’s graduate in Applied Computing from Lincoln University (November 2025). I’m currently open to developer and software engineering roles, including internships, part-time, contract, and full-time positions.
                             
-                            I previously worked as a product manager for 9 years(in China this role commonly combined both Product Owner and Product Designer responsibilities, which is less typical in NZ), including 6 years at Tencent — the largest internet company in China — where I developed strong skills in product design, UI/UX, and project management. This means that Compared to other full-stack developers, I not only handle the general areas of software development — frontend, backend, databases, deployment — but also bring product and design expertise. <span class="text-blue-600">In practice, I can function as a one-person team — product owner, designer, and developer combined.</span>
+                            Here is a brief overview of my Tech Stack:
 
-                            That experience not only shaped the way I think about products, but also gave me strong professional habits — like effective cross-functional communication, ability to manage competing priorities, consistently pushing slightly beyond my current capabilities. These are things that many junior, or even intermediate developers, haven’t had the chance to develop yet — and I believe that makes me stand out.
+                            · <span class="font-semibold">Frontend:</span> React, JavaScript, Tailwind CSS, Bootstrap, HTML/CSS
+                            · <span class="font-semibold">Backend & Databases:</span> ASP.NET Core Web API, Flask, PostgreSQL, MySQL, RESTful API design
+                            · <span class="font-semibold">AI / ML:</span> PyTorch, TensorFlow, YOLOv8, CNN, OpenCV, Sentence Transformers, Text Embeddings
+                            · <span class="font-semibold">Cloud & Tools:</span> Azure, GitHub Actions, GitHub Pages, Git
+                            · <span class="font-semibold">Languages:</span> C#, Python, JavaScript1
+                            
+                            I bring hands-on experience in full-stack development, as well as applying AI to real-world problems in computer vision (YOLOv8, CNN) and NLP (text embeddings, classification).
+                            
+                            Beyond the technical side, what truly sets me apart is my 9 years of experience as a product manager, including 6 years at <a href="https://www.linkedin.com/company/tencentglobal/" class="text-blue-600 hover:underline">Tencent</a>, where I developed strong skills in product thinking, UI/UX design, and cross-functional collaboration.
+
+                            This combination of product + design + engineering enables me to take ideas from concept to fully functional products — effectively working as a one-person product and engineering team.
 
                             If you'd like to know more about me, feel free to check out my <a href="https://www.linkedin.com/in/junwenqiu" class="text-blue-600 hover:underline" >LinkedIn profile</a>  or reach out to me via email: <a href="mailto:jwqiu1111@gmail.com" class="text-blue-600 hover:underline ">jwqiu1111@gmail.com</a>
                                                                 
