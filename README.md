@@ -55,6 +55,7 @@ STACKTRENDS.COM/
 ├── 02_frontend/                 # HTML + Tailwind CSS + Javascript (to be migrated to React)
 ├── python_scraper/              # Python scripts for scraping and data preprocessing
 ├── scraper_entry.py             # Entry point for daily job scraping
+├── model_pipeline/              # job level classification built with text embeddings + MLP
 ├── TheStoryBehindStackRadar.md  # Full project background and story
 ├── README.md
 └── StackTrends.sln      
