@@ -46,13 +46,14 @@ namespace StackTrends.Models
         public double Percentage { get; set; }
     }
     
-    public class KeywordMatchStats
-    {
-        public int TotalJobs { get; set; }
-        public int TotalMatches { get; set; }
-        public double OverallPercentage { get; set; }
-        public List<LevelMatchStats> LevelBreakdown { get; set; } = new();
-    }
+    // TODO: the KeywordMatchStats and LevelMatchStats classes could be combined into a single class 
+    // public class KeywordMatchStats
+    // {
+    //     public int TotalJobs { get; set; }
+    //     public int TotalMatches { get; set; }
+    //     public double OverallPercentage { get; set; }
+    //     public List<LevelMatchStats> LevelBreakdown { get; set; } = new();
+    // }
 
     public class LevelMatchStats
     {

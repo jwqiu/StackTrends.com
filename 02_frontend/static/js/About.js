@@ -1,38 +1,52 @@
 document.addEventListener("DOMContentLoaded", () => {
+  setupArticleClickEvents();
+  setupToggleBtnClickEvent();
+
+});
+
+function setupArticleClickEvents(){
+
+  // find all [data-id] elements inside .article-list and .article-content containers
   const articleButtons = document.querySelectorAll(".article-list [data-id]");
   const articles = document.querySelectorAll(".article-content [data-id]");
 
   articleButtons.forEach(button => {
     button.addEventListener("click", () => {
+        // get the data-id of the clicked button
         const id = button.getAttribute("data-id");
 
-        // 隐藏所有内容区
+        // hide all articles
         articles.forEach(article => {
             article.style.display = "none";
         });
 
-        // 显示目标内容区
+        // select the article matching the clicked button's data-id and show it
         const target = document.querySelector(`.article-content [data-id="${id}"]`);
         if (target) target.style.display = "flex";
 
-            // 取消所有高亮
+        // remove all highlights
         articleButtons.forEach(btn => btn.classList.remove("border-2", "border-blue-500"));
 
-        // 给当前点击项加高亮
+        // add highlight to the current clicked button
         button.classList.add("border-2", "border-blue-500");
 
     });
 
-    articleButtons[0].click(); // 默认点击第一个按钮
-
   });
-});
+  articleButtons[0].click(); // default click the first button when page first loads
 
-document.addEventListener("DOMContentLoaded", () => {
+}
+
+function setupToggleBtnClickEvent(){
+
   const toggleBtn = document.getElementById("menu-toggle");
   const menu = document.getElementById("menu");
 
   toggleBtn.addEventListener("click", () => {
+    // toggle is a built-in method of classList, in this example
+    // if hidden already exists in the classList, it will be removed
+    // if it doesn't exist, it will be added
     menu.classList.toggle("hidden");
   });
-});
+
+}

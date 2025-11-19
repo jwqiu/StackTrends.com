@@ -1,16 +1,16 @@
-// config.js
+// API endpoint selection based on environments
+// LOCAL_API is used when running on localhost, development mode
+// PROD_API is used when running in production mode
 
-// 本地调试时后端跑在 localhost:5001
 const LOCAL_API = "https://localhost:5001";
 
-// 正式环境后端和静态文件同域（或走相对路径）
 const PROD_API = "https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net";
 
-// 判断当前是在本地开发（常见 localhost、127.0.0.1），还是线上
+// if hostname is localhost or 127.0.0.1, use LOCAL_API, otherwise use PROD_API
+// the result is stored in window.API_BASE for global access
 const host = window.location.hostname;
 window.API_BASE =
   host === "localhost" || host === "127.0.0.1"
     ? LOCAL_API
     : PROD_API;
 
-// window.API_BASE = "";

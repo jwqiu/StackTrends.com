@@ -1,12 +1,49 @@
-const API_BASE = window.API_BASE;
+// const API_BASE = window.API_BASE;
+
+let matchedJobs = [];
+let displayCount = 0;
+const PAGE_SIZE = 20;
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderKeywordHeader();
-    initialFirstKeyword();
+  // add listener to the search button first;
+  // so the header will be updated when user enters keyword and clicks search  
+  renderKeywordHeader();
+  // manually set initial keyword and trigger search after page load
+  initialFirstKeyword();
+  setupToggleBtnClickEvent();
 });
 
+// 绑定 Load More
+document.getElementById('load-more-btn')
+  .addEventListener('click', showMoreJobs);
+
+// 绑定 Search
+document.getElementById('searchButton')
+  .addEventListener('click', renderMatchingJobList);
+
+function setupToggleBtnClickEvent(){
+
+  const toggleBtn = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+
+  toggleBtn.addEventListener("click", () => {
+    // toggle is a built-in method of classList, in this example
+    // if hidden already exists in the classList, it will be removed
+    // if it doesn't exist, it will be added
+    menu.classList.toggle("hidden");
+  });
+
+}
+
+// document.getElementById("idName") is used to get the element with specific ID, can only get one element
+// document.getElementsByClassName("className") is used to get all elements with specific class name, can get multiple elements
+// document.getElementsByTagName("div") is used to get all elements with specific tag name, like div, p, etc., can get multiple elements
+// document.querySelector("") is used to get the first element that matches a specific CSS selector
+// document.querySelectorAll("") is used to get all elements that match a specific CSS selector
+// In modern frontend development, querySelector and querySelectorAll are the most commonly used methods due to their flexibility and power.
 
 function initialFirstKeyword() {
+  // # here represents ID selector in CSS
   const firstKeyword = document.querySelector("#keywordInput");
   if (firstKeyword) {
     firstKeyword.value = "Python";
@@ -22,22 +59,31 @@ function renderKeywordHeader() {
   const searchHeader = document.querySelector("#searchKeyword");
   const keywordInput = document.querySelector("#keywordInput");
 
+  // update header when search button is clicked
+  // this event listener stays active throughout the page lifecycle once added
   if (searchButton && searchHeader && keywordInput) {
     searchButton.addEventListener('click', () => {
       searchHeader.textContent = keywordInput.value;
-      searchHeader.classList.remove('text-gray-500');
-      searchHeader.classList.add('text-gray-600');
     });
   }
 }
 
+// this function is triggered by the search button's onclick event
+// TODO: using api/jobs/stats/by-level here would be more efficient than the current api/jobs/count
+// it avoids sending 4 separate requests for each job level count
 async function fetchJobCountsForAllLevels() {
+  
   const levels = ['All', 'Junior', 'Intermediate', 'Senior'];
 
   const queries = levels.map(level => {
     const params = new URLSearchParams();
+    // only add job_level param if level is not 'All'
+    // cause the basic SQL query is designed to return all levels count when no job_level filter is applied
     if (level !== 'All') params.append('job_level', level);
 
+    // example for URL with params:
+    // All levels: api/jobs/count
+    // Junior level: api/jobs/count?job_level=Junior  
     return fetch(`${window.API_BASE}/api/jobs/count?${params.toString()}`)
       .then(res => res.json())
       .then(data => ({
@@ -46,18 +92,19 @@ async function fetchJobCountsForAllLevels() {
       }));
   });
 
+  // wait for all queries to complete
   const levelCounts = await Promise.all(queries);
+
   renderHeaderWithCounts(levelCounts);
 }
 
-
-
 function renderHeaderWithCounts(levelCounts) {
+  
+  // there are two selectors here, meaning we select the <tr> inside <thead>
   const headerRow = document.querySelector('thead tr');
-  // const bodyRow   = document.querySelector('tbody tr');
 
+  // clear existing header content
   headerRow.innerHTML = '<th class="px-4 py-2">#</th>';
-  // bodyRow.innerHTML   = '<td class="px-4 py-2">Mention Rate</td>';
 
   const labelMap = {
     all:          'ALL Jobs',
@@ -66,8 +113,7 @@ function renderHeaderWithCounts(levelCounts) {
     senior:       '👨‍💼Senior'
   };
 
-  const total = levelCounts.find(item => item.level.toLowerCase() === 'all')?.count || 1;
-
+  // recreate header cells with counts
   levelCounts.forEach(item => {
     const label = labelMap[item.level.toLowerCase()] || item.level;
     const count = item.count;
@@ -76,29 +122,32 @@ function renderHeaderWithCounts(levelCounts) {
     th.className = 'px-3 py-2';
     th.innerHTML = `${label}<br>(${count})`;
     headerRow.appendChild(th);
-
-    // const td = document.createElement('td');
-    // td.className = 'px-3 py-2';
-    // td.textContent = ((count / total) * 100).toFixed(1) + '%';
-    // bodyRow.appendChild(td);
   });
 }
 
 async function fetchKeywordMentionStats() {
-    const keywordInput = document.getElementById('keywordInput');
-    const keyword = keywordInput?.value.trim();
-    if (!keyword) return;
 
-    const url = `${window.API_BASE}/api/jobs/search/stats?keyword=${encodeURIComponent(keyword)}`;
-    try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch data');
-        const data = await res.json();
+  const keywordInput = document.getElementById('keywordInput');
+  const keyword = keywordInput?.value.trim();
+  if (!keyword) return;
 
-        renderMentionRateRow(data);
-    } catch (err) {
-        console.error('Error fetching keyword stats:', err);
-    }
+  // encodeURIComponent is a built-in JS function to encode specifial characters in URL parameters
+  // the ? after search/stats is a fixed part of URL to indicate the start of parameters
+  // our backend defines a query parameter named 'keyword', so we must use keyword= here when building the URL
+  // actually, we can remove encodeURIComponent here and this will still work for most normal keywords without special characters
+  // but it's a good practice to always encode URL parameters to avoid potential issues with special characters
+  const url = `${window.API_BASE}/api/jobs/search/stats?keyword=${encodeURIComponent(keyword)}`;
+  try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch data');
+      const data = await res.json();
+
+      renderMentionRateRow(data);
+
+  } catch (err) {
+      console.error('Error fetching keyword stats:', err);
+  }
+
 }
 
 function renderMentionRateRow(data) {
@@ -108,27 +157,25 @@ function renderMentionRateRow(data) {
   const rateRow = document.getElementById('mentionRateRow');
   if (!matchRow || !rateRow) return;
 
-  // 清空旧内容（保留 label 列）
+  // clear existing row content
   matchRow.innerHTML = '<td class="px-4 py-2">Total Jobs with <strong>' + keywordInput.value + '</strong></td>';
   rateRow.innerHTML  = '<td class="px-4 py-2">% of Jobs Mentioning<br><strong>' + keywordInput.value + '</strong></td>';
 
+  const levelOrder = ['All','Junior', 'Intermediate', 'Senior'];
 
-  // 构建等级映射
-  const levelOrder = ['Junior', 'Intermediate', 'Senior'];
-  const levelMap = Object.fromEntries(data.levelBreakdown.map(l => [l.level, l]));
+  // object.fromEntries is a built-in JS function
+  // it converts a list of 2 element arrays into an object, and the first element of each array is the key, the second element is the value
+  const levelMap = Object.fromEntries(
+    // convert every item into a 2 element array [level, item]
+    data.map(item => [item.level, item])
+  );
+  // JS doesn't provide a function to directly convert array of objects into an key-value mapping object, so we need to convert each item in the array into a 2 element array first
+  // then use Object.fromEntries to convert each 2 element array into key-value pairs in the final object
+  // please note that, in JS, we use objects as dictionaries because they serve the same purpose
+  // JS doesn't have a built-in dictionary type like some other languages
 
-  // 添加 ALL 区块（match count 和百分比）
-  const allMatchCell = document.createElement('td');
-  allMatchCell.className = 'px-4 py-2';
-  allMatchCell.textContent = data.totalMatches;
-  matchRow.appendChild(allMatchCell);
-
-  const allRateCell = document.createElement('td');
-  allRateCell.className = 'px-4 py-2';
-  allRateCell.textContent = `${data.overallPercentage.toFixed(1)}%`;
-  rateRow.appendChild(allRateCell);
-
-  // 各等级
+  // In JS, for.. of loop is used to iterate over the values of iterable objects like arrays, maps, etc.
+  // for.. in loop is used to iterate over the keys(property names)  of an object, including array indices
   for (const level of levelOrder) {
     const match = levelMap[level];
 
@@ -146,55 +193,9 @@ function renderMentionRateRow(data) {
   }
 }
 
-// async function renderMatchingJobList() {
-//   const keywordInput = document.getElementById('keywordInput');
-//   const keyword = keywordInput?.value.trim();
-//   if (!keyword) return;
-
-//   const url = `${window.API_BASE || ''}/api/job/search/by-keyword?keyword=${encodeURIComponent(keyword)}`;
-//   try {
-//     const res = await fetch(url);
-//     if (!res.ok) throw new Error('Failed to fetch matching jobs');
-//     const jobs = await res.json();
-
-//     const container = document.getElementById('jobListContainer');
-//     container.innerHTML = ''; // 清空旧内容
-
-//     if (jobs.length === 0) {
-//       container.innerHTML = `<p class="text-gray-500">No matching jobs found.</p>`;
-//       return;
-//     }
-
-//     jobs.forEach(job => {
-//       const div = document.createElement('div');
-//       div.className = 'flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow';
-
-//       const title = document.createElement('p');
-//       title.textContent = job.jobTitle;
-
-//       const info = document.createElement('div');
-//       info.innerHTML = `
-//         <p class="text-gray-400 text-sm text-nowrap">Posted on</p>
-//         <p class="text-gray-500">#${job.listedDate 
-//                 ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
-//                 : 'N/A'}</p>
-//       `;
-
-//       div.appendChild(title);
-//       div.appendChild(info);
-//       container.appendChild(div);
-//     });
-
-//   } catch (err) {
-//     console.error('Error loading matching jobs:', err);
-//   }
-// }
-
-let matchedJobs = [];
-let displayCount = 0;
-const PAGE_SIZE = 20;
-
+// this function is triggered by the search button's onclick event
 async function renderMatchingJobList() {
+
     const keywordInput = document.getElementById('keywordInput');
     const keyword = keywordInput?.value.trim();
     if (!keyword) return;
@@ -231,6 +232,7 @@ async function renderMatchingJobList() {
 }
 
 function showMoreJobs() {
+
   const container   = document.getElementById('jobListContainer');
   const PAGE_SIZE   = 20;
   const defaultBg   = 'bg-gray-100';
@@ -238,6 +240,7 @@ function showMoreJobs() {
   const start       = displayCount;
   const end         = Math.min(start + PAGE_SIZE, matchedJobs.length);
 
+  // loop through each matched job and create its div
   for (let i = start; i < end; i++) {
     const job = matchedJobs[i];
     const div = document.createElement('div');
@@ -269,7 +272,7 @@ function showMoreJobs() {
     div.append(title, info);
     container.appendChild(div);
 
-    // 点击切换高亮
+    // add click event listener to each job div
     div.addEventListener('click', () => {
       // 先把所有行恢复成灰色
       container.querySelectorAll('.job-row').forEach(el => {
@@ -289,39 +292,33 @@ function showMoreJobs() {
     displayCount < matchedJobs.length ? 'block' : 'none';
 }
 
-
-  // 绑定 Load More
-  document.getElementById('load-more-btn')
-    .addEventListener('click', showMoreJobs);
-
-  // 绑定 Search
-  document.getElementById('searchButton')
-    .addEventListener('click', renderMatchingJobList);
-
-
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function renderJobDescription(job, keyword) {
-  console.log('Keyword:', keyword);
-  console.log('Full jobDescription:', job.jobDescription);
+  // console.log('Keyword:', keyword);
+  // console.log('Full jobDescription:', job.jobDescription);
   const container = document.getElementById('jobDescriptionContainer');
   container.innerHTML = '';
 
-  // 1. 把后端返回的 HTML 字符串解析成 document
+  // the jobDescription is in HTML format, so we need to parse it first, then extract needed parts by DOM methods
   const parser = new DOMParser();
   const doc = parser.parseFromString(job.jobDescription || '', 'text/html');
 
-  // 2. 拿到所有的 <p> 和 <li> 节点
+  // Get all <p> and <li> nodes
   const nodes = Array.from(doc.querySelectorAll('p, li'));
 
-  // 3. 定义正则（不带 g，否则 test 会乱序；带 i 忽略大小写）
+  // this line turns the user's keyword into a safe, case-insensitive regex pattern
+  // it the user type special characters that could break a normal regex, we escape them first so the search won't crash
+  // escape means to make special characters lose their special meaning in regex
   const re = new RegExp(`(${escapeRegExp(keyword)})`, 'i');
 
-  // 4. 找出所有包含关键字的节点索引
+  // Find all node indices containing the keyword
   const matches = nodes
+    // loop through all nodes and check if the text content matches the regex, if yes, return the index, otherwise return -1
     .map((node, i) => re.test(node.textContent) ? i : -1)
+    // filter out the -1 results, keep only the matched indices
     .filter(i => i >= 0);
 
   if (matches.length === 0) {
@@ -329,18 +326,24 @@ function renderJobDescription(job, keyword) {
     return;
   }
 
-  // 5. 收集需要显示的索引（包含匹配前后各一段落）
+  // Collect indices to display (including one paragraph before and after each match)
   const indices = new Set();
+  // loop through each matched index
   matches.forEach(i => {
     for (let d = -1; d <= 1; d++) {
       const j = i + d;
+      // for each matched index, also add the previous and next index if within bounds
       if (j >= 0 && j < nodes.length) indices.add(j);
     }
   });
 
-  // 6. 按索引顺序渲染，每段保留原 HTML 结构并高亮关键字
+  // convert set to sorted array first
   Array.from(indices).sort((a, b) => a - b).forEach(i => {
+    
+    // get the full HTML of this node
     const html = nodes[i].outerHTML;
+
+    // highlight the keyword in the HTML
     const highlighted = html.replace(
       new RegExp(`(${escapeRegExp(keyword)})`, 'gi'),
       '<span class="text-red-500">$1</span>'
@@ -348,6 +351,7 @@ function renderJobDescription(job, keyword) {
     container.insertAdjacentHTML('beforeend', highlighted);
   });
 
+  // if jobURL exists, add a link at the bottom
   if (job.jobUrl) {
     const linkWrapper = document.createElement('p');
     linkWrapper.className = 'mt-4 text-left';
@@ -366,11 +370,3 @@ function renderJobDescription(job, keyword) {
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("menu-toggle");
-  const menu = document.getElementById("menu");
-
-  toggleBtn.addEventListener("click", () => {
-    menu.classList.toggle("hidden");
-  });
-});

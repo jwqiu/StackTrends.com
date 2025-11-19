@@ -364,25 +364,62 @@ public class JobController : ControllerBase
 
         await _conn.OpenAsync();
 
-        var result = new KeywordMatchStats
-        {
-            TotalMatches = 0,
-            TotalJobs = 0,
-            OverallPercentage = 0.0,
-            LevelBreakdown = new List<LevelMatchStats>()
-        };
+        // an object is a single instance of a data structure, usually matching one class on the backend, while an array is a list of such objects
+        var stats = new List<LevelMatchStats>();
 
         // first, count the total number of jobs
-        const string totalCountSql = @"SELECT COUNT(*) FROM jobs;";
+        const string allJobsSql = @"SELECT COUNT(*) FROM jobs;";
+        int allJobs = 0;
+        await using (var cmd = new NpgsqlCommand(allJobsSql, _conn))
+        {
+            allJobs = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        }
 
         // then, count how many jobs match the keyword, only support 1 keyword per request for now
-        const string totalMatchSql = @"
+        const string allMatchesSql = @"
             SELECT COUNT(*) 
             FROM jobs 
             WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)";
-        
+
+        int allMatches = 0;
+        await using (var cmd = new NpgsqlCommand(allMatchesSql, _conn))
+        {
+            cmd.Parameters.AddWithValue("kw", keyword);
+            allMatches = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        }
+
+        double allJobsPercentage = allJobs > 0
+            ? Math.Round(allMatches * 100.0 / allJobs, 2)
+            : 0.0;
+
+        stats.Add(new LevelMatchStats{
+            Level = "All",
+            MatchCount = allMatches,
+            Percentage = allJobsPercentage
+        });
+
+        // count the total number of jobs at each experience level
+        // TODO : create a table to store number of jobs by level to avoid counting every time
+        const string levelJobsSql = @"
+        SELECT job_level, COUNT(*) AS TotalCount
+        FROM jobs
+        GROUP BY job_level;";
+
+        var levelJobsDict = new Dictionary<string, int>();
+
+        await using (var cmd = new NpgsqlCommand(levelJobsSql, _conn))
+        {
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var level = reader["job_level"].ToString();
+                var total = Convert.ToInt32(reader["TotalCount"]);
+                levelJobsDict[level] = total;
+            }
+        }
+
         // count how many jobs match the keyword at each experience level
-        const string levelBreakdownSql = @"
+        const string levelJobsMatchSql = @"
         SELECT job_level, COUNT(*) AS MatchCount
         FROM jobs
         WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
@@ -395,45 +432,7 @@ public class JobController : ControllerBase
                 ELSE 4
             END;";
 
-        // count the total number of jobs at each experience level
-        // TODO : create a table to store number of jobs by level to avoid counting every time
-        const string levelTotalSql = @"
-        SELECT job_level, COUNT(*) AS TotalCount
-        FROM jobs
-        GROUP BY job_level;";
-
-        // count total jobs
-        await using (var cmd = new NpgsqlCommand(totalCountSql, _conn))
-        {
-            result.TotalJobs = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-        }
-
-        // count total matches
-        await using (var cmd = new NpgsqlCommand(totalMatchSql, _conn))
-        {
-            cmd.Parameters.AddWithValue("kw", keyword);
-            result.TotalMatches = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-        }
-
-        result.OverallPercentage = result.TotalJobs > 0
-            ? Math.Round(result.TotalMatches * 100.0 / result.TotalJobs, 2)
-            : 0.0;
-
-        // count total jobs by level
-        var levelTotalDict = new Dictionary<string, int>();
-        await using (var cmd = new NpgsqlCommand(levelTotalSql, _conn))
-        {
-            await using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                var level = reader["job_level"].ToString();
-                var total = Convert.ToInt32(reader["TotalCount"]);
-                levelTotalDict[level] = total;
-            }
-        }
-
-        // count matches by level
-        await using (var cmd = new NpgsqlCommand(levelBreakdownSql, _conn))
+        await using (var cmd = new NpgsqlCommand(levelJobsMatchSql, _conn))
         {
             cmd.Parameters.AddWithValue("kw", keyword);
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -441,11 +440,11 @@ public class JobController : ControllerBase
             {
                 var level = reader["job_level"].ToString();
                 var matchCount = Convert.ToInt32(reader["MatchCount"]);
-                var percentage = levelTotalDict.ContainsKey(level) && levelTotalDict[level] > 0
-                    ? Math.Round(matchCount * 100.0 / levelTotalDict[level], 2)
+                var percentage = levelJobsDict.ContainsKey(level) && levelJobsDict[level] > 0
+                    ? Math.Round(matchCount * 100.0 / levelJobsDict[level], 2)
                     : 0.0;
 
-                result.LevelBreakdown.Add(new LevelMatchStats
+                stats.Add(new LevelMatchStats
                 {
                     Level = level,
                     MatchCount = matchCount,
@@ -455,6 +454,6 @@ public class JobController : ControllerBase
         }
 
         await _conn.CloseAsync();
-        return Ok(result);
+        return Ok(stats);
     }
 }
