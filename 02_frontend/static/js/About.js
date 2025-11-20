@@ -27,10 +27,10 @@ function setupArticleClickEvents(){
         if (target) target.style.display = "flex";
 
         // remove all highlights
-        articleButtons.forEach(btn => btn.classList.remove("border-2", "border-blue-500"));
+        articleButtons.forEach(btn => btn.classList.remove( "bg-gradient-to-l", "from-white", "bg-blue-500", "text-white", "font-semibold"));
 
         // add highlight to the current clicked button
-        button.classList.add("border-2", "border-blue-500");
+        button.classList.add( "bg-gradient-to-l", "from-white", "bg-blue-500", "text-white", "font-semibold");
 
     });
 
