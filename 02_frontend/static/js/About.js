@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   setupArticleClickEvents();
   setupToggleBtnClickEvent();
+  fetchLoginModal();
+  setupAdminLinkClickEvent();
 
 });
 
@@ -49,4 +51,19 @@ function setupToggleBtnClickEvent(){
     menu.classList.toggle("hidden");
   });
 
+}
+
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
 }

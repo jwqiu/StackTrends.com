@@ -11,15 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // manually set initial keyword and trigger search after page load
   initialFirstKeyword();
   setupToggleBtnClickEvent();
+  fetchLoginModal();
+  setupAdminLinkClickEvent();
 });
-
-// 绑定 Load More
-document.getElementById('load-more-btn')
-  .addEventListener('click', showMoreJobs);
-
-// 绑定 Search
-document.getElementById('searchButton')
-  .addEventListener('click', renderMatchingJobList);
 
 function setupToggleBtnClickEvent(){
 
@@ -370,3 +364,17 @@ function renderJobDescription(job, keyword) {
 
 }
 
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
+}

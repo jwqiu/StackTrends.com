@@ -98,33 +98,9 @@
                 <div class="bg-white rounded-lg shadow-lg p-8  ">
                     <h1 class="text-xl font-bold ">💼 Matching Job List</h1>
                     <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
-        
-                        <!-- <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                            <p>Job Title 1</p>
-                            <div>
-                                <p class="text-gray-400 text-sm">Posted on</p>
-                                <p class="text-gray-500">#2023-01-01</p>
-                            </div>
-                            
-                        </div>
 
-                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                            <p>Job Title 2</p>
-                            <div>
-                                <p class="text-gray-400 text-sm">Posted on</p>
-                                <p class="text-gray-500">#2023-01-02</p>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow">
-                            <p>Job Title 3</p>
-                            <div>
-                                <p class="text-gray-400 text-sm">Posted on</p>
-                                <p class="text-gray-500">#2023-01-03</p>
-                            </div>
-                        </div> -->
                     </div>
-                    <button id="load-more-btn" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
+                    <button id="load-more-btn" onclick="showMoreJobs()" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
                 </div>
 
                 <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px]  sticky top-4 self-start ">
@@ -140,26 +116,12 @@
         </div>
             
 
-
         <div id="modalContainer"></div>
 
 
         <script src="static/js/config.js"></script>
         <script src="static/js/auth-utils.js"></script>
         <script src="static/js/KeywordSearch.js"></script>
-        <script>
-            fetch("login-modal.html")
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("modalContainer").innerHTML = html;
-            });
-        </script>
-        <script>
-            document.getElementById("adminLink").addEventListener("click", (e) => {
-                e.preventDefault();
-                checkAndEnterAdminPage();
-            });
-        </script>
 
     </body>
 </html>

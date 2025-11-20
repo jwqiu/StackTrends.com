@@ -44,7 +44,6 @@
                 </div>
 
             </div>
-
         </nav>
         <div class="p-8">
             <div class="flex justify-center gap-x-8 ms-4">
@@ -74,20 +73,16 @@
                                         class="flex items-center px-4 py-2 rounded-lg  hover:bg-gray-100 transition"
                                     >Keywords</a>
                                 </li>
-                               
-                                
                             </ul>
                         </div>
                         <button class="btn bg-white border border-blue-300 text-blue-500 rounded px-3 py-1" onclick="logout()">Log out</button>
 
                     </div>
                 </div>
-
                 <div class="w-[800px]">
                     <div id="stack-keyword-panel"  style="display:none">
                     
                         <form id="techStackForm" action="">
-                            
                             <div class="flex flex-col gap-4 mb-6 bg-white shadow-lg rounded-lg p-8">
                                 <h2 class="text-xl font-semibold text-gray-600">Add New Stack Keyword</h2>
                                 <div class="flex items-center justify-between">
@@ -97,15 +92,6 @@
                                         class="block w-full appearance-none bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight 
                                                 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
                                             <option value="" disabled selected>Select a category</option>
-                                            <!-- <option value="Frontend">Frontend</option>
-                                            <option value="Backend">Backend</option>
-                                            <option value="Database">Database</option>
-                                            <option value="Cloud Platforms">Cloud Platforms</option>
-                                            <option value="DevOps Tools">DevOps Tools</option>
-                                            <option value="API">API</option>
-                                            <option value="Version Control">Version Control</option>
-                                            <option value="Operating System">Operating System</option>
-                                            <option value="Other">Other</option> -->
 
                                         </select>
                                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
@@ -153,36 +139,29 @@
                                             Submit
                                         </button>
 
-                                        <!-- 取消按钮：次级/空心风格 -->
-                                        <!-- <button
-                                            type="button" id="cancelBtn"
-                                            class="bg-white text-gray-700 border border-gray-300 font-medium rounded-lg px-4 py-2
-                                                hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                        >
-                                            Cancel
-                                        </button> -->
                                     </div>
                                 </div>
                             </div>
                         </form>
+                        <div class="shadow-lg rounded-lg p-8 bg-white">
+                            <h2 class="text-xl font-semibold text-gray-600 mb-6">Current Tech Stack Keyword</h2>
+                            <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
+                                <table id="tech-stacks-table" class="min-w-full bg-white text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                                            <th class="px-4 py-2 text-left">ID</th>
+                                            <th class="px-4 py-2 text-left">Category</th>
+                                            <th class="px-4 py-2 text-left">Raw Keyword</th>
+                                            <th class="px-4 py-2 text-left">Normalized</th>
+                                            <th class="px-4 py-2 text-left">Action</th>
 
-                        <h2 class="text-xl font-semibold text-gray-600 mb-6">Current Tech Stack Keyword</h2>
-                        <div class="overflow-x-auto rounded-xl shadow border border-gray-200">
-                            <table id="tech-stacks-table" class="min-w-full bg-white text-sm">
-                                <thead>
-                                    <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-                                        <th class="px-4 py-2 text-left">ID</th>
-                                        <th class="px-4 py-2 text-left">Category</th>
-                                        <th class="px-4 py-2 text-left">Raw Keyword</th>
-                                        <th class="px-4 py-2 text-left">Normalized</th>
-                                        <th class="px-4 py-2 text-left">Action</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody id="tech-stacks-body" class="divide-y divide-gray-100 text-gray-700">
-                                    <!-- JS 插入行 -->
-                                </tbody>
-                            </table>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tech-stacks-body" class="divide-y divide-gray-100 text-gray-700">
+                                        <!-- JS 插入行 -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         
                     </div>
@@ -222,8 +201,6 @@
                                 </table>
                             </div>
                         </div>
-                        
-
                     </div>
                     <div id="dashboard-panel" style="display:none" >
                         <div>
@@ -262,15 +239,9 @@
                                 <p class="text-sm text-gray-500">Scraper log will appear here...</p>
                             </div>
                         </div>
-                
-
                     </div>
                 </div>
-               
             </div>
-
-           
-            
         </div>
         <div id="modalContainer"></div>
         <script src="static/js/config.js"></script>
@@ -278,26 +249,6 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
         <script src="static/js/auth-utils.js"></script>
         <script src="static/js/ManageTechStacks.js"></script>
-
-        <script>
-            fetch("login-modal.html")
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("modalContainer").innerHTML = html;
-            });
-        </script>
-        <script>
-            document.getElementById("adminLink").addEventListener("click", (e) => {
-                e.preventDefault();
-                checkAndEnterAdminPage();
-            });
-        </script>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                enforceLogin(); // 默认跳转回 index.html
-            });
-        </script>
-
 
     </body>
 </html>

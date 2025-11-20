@@ -30,6 +30,8 @@ function submitLoginForm() {
   const form = document.getElementById("loginForm");
   const formData = new FormData(form);
 
+  // when login, we call the login API, if success, the backend will generate a JWT token and return it
+  // then, we store the token in sessionStorage for later use
   fetch(`${window.API_BASE}/api/account/login`, {
     method: "POST",
     body: formData
