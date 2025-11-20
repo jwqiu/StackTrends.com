@@ -3,7 +3,7 @@ let allTechStacks = [];
 let allCategories = [];
 
 document.addEventListener('DOMContentLoaded',  () => {
-  enforceLogin(),
+  enforceLogin(), // check login status first
   loadTechStacks(),
   setupMenu(),
   loadCategories(),
@@ -16,6 +16,184 @@ document.addEventListener('DOMContentLoaded',  () => {
   fetchLoginModal(),
   setupAdminLinkClickEvent()
 }); 
+
+// ======================================================
+// admin menu setup functions
+// ======================================================
+
+function setupMenu() {
+  
+  const mapping = {
+    'menu-dashboard': 'dashboard-panel',
+    'menu-category': 'category-panel',
+    'menu-stack': 'stack-keyword-panel'
+  };
+  
+  // get menu items and panels by their IDs, store in arrays 
+  const menuItems = Object.keys(mapping).map(id => document.getElementById(id));
+  const panels = Object.values(mapping).map(id => document.getElementById(id));
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+
+      // remove all highlights class for all menu items, then add it to the clicked one
+      menuItems.forEach(i => i.classList.remove('bg-blue-500','text-white'));
+      item.classList.add('bg-blue-500','text-white');
+
+      // hide all panels first
+      panels.forEach(p => p.style.display = 'none');
+      // item here is the clicked menu item, item.id gets its HTML id attribute, mapping[item.id] gets the corresponding panel ID
+      // set this panel to display block
+      document.getElementById(mapping[item.id]).style.display = 'block';
+    });
+  });
+
+  // default to show the first menu item and panel
+  menuItems[0].classList.add('bg-blue-500','text-white');
+  panels.forEach(p => p.style.display = 'none');
+  document.getElementById(mapping[menuItems[0].id]).style.display = 'block';
+}
+
+function renderAdminUI() {
+  
+  const isAdmin = sessionStorage.getItem('isAdmin');
+  
+  if (!isAdmin) {
+    // if isAdmin is null or undefined
+    const adminContainer = document.getElementById('adminContainer');
+    adminContainer.innerHTML = `Please log in ! ❌`;
+    adminContainer.classList.add('text-gray-600', 'text-center');
+    return;
+
+  } else if (isAdmin === 'true') {
+
+    const adminTab = document.getElementById('adminTab');
+    // 普通按钮
+    adminTab.textContent = '🔑Admin';
+    const adminName = sessionStorage.getItem('Username');
+    const adminNameTitle = document.getElementById('adminNameTitle');
+    if (adminNameTitle) { 
+      adminNameTitle.textContent = `${adminName}`;
+    }
+  }
+}
+
+function logout() {
+
+  fetch(`${window.API_BASE}/api/account/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${sessionStorage.getItem("jwt")}`
+    }
+  }).then(() => {
+    sessionStorage.removeItem("jwt");
+    sessionStorage.removeItem("isAdmin");
+    sessionStorage.removeItem("Username");
+    location.reload();
+  });
+}
+
+// ======================================================
+// admin dashboard functions
+// ======================================================
+
+function getLandingSummaryCounts() {
+
+  fetch(`${window.API_BASE}/api/stats/landing-summary`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("jobsCount").textContent = data.jobsCount;
+        document.getElementById("companiesCount").textContent = data.companyCount;
+        document.getElementById("techKeywordsCount").textContent = data.keywordCount;
+
+    })
+    .catch(err => console.error("Landing summary fetch failed:", err));
+}
+
+async function renderJobsChart() {
+  try {
+    
+    const res = await fetch(`${API_BASE}/api/jobs/stats/by-month`);
+    const data = await res.json();
+
+    // loop through each data point to extract time and counts, store in arrays
+    const labels = data.map(d => d.yearMonth);
+    const counts = data.map(d => d.count);
+
+    const ctx = document.getElementById('jobsChart');
+    if (!ctx) {
+      console.error("jobsChart canvas not found");
+      return;
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Jobs Count per Month',
+          data: counts,
+          backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind 蓝
+          borderColor: 'rgba(37, 99, 235, 1)',        // 深蓝
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Job Postings by Month'
+          },
+          datalabels: {
+            anchor: 'end',
+            align: 'end',
+            color: '#2c2e33ff',
+            font: { weight: '' },
+            formatter: (value) => value
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Year/Month' }
+          },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Jobs Count' }
+          }
+        }
+      },
+      plugins: [ChartDataLabels] // ⬅️ 注册 datalabels 插件
+    });
+  } catch (err) {
+    console.error("Failed to load jobs chart:", err);
+  }
+}
+
+// =================================================
+// functions for handling admin login
+// =================================================
+
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
+}
+
+// ======================================================
+// tech keywords management functions
+// ======================================================
 
 async function loadTechStacks() {
     try {
@@ -50,7 +228,7 @@ function renderTechStacks() {
       <td class="border px-4 py-2">${ts.category ?? 'N/A'}</td>
       <td class="border px-4 py-2">${ts.stackName ?? 'N/A'}</td>
       <td class="border px-4 py-2">${ts.normalizedStackName ?? 'N/A'}</td>
-      <td class="border flex justify-between space-x-2 px-6 py-2">
+      <td class=" flex justify-between items-center space-x-2 px-6 py-2">
         <button type="button" class="text-blue-500 hover:underline" onclick="editTechStack(${ts.id})">Edit</button>
         <button type="button" type class="text-red-500 hover:underline" onclick="deleteTechStack(${ts.id})">Delete</button>
       </td>
@@ -216,39 +394,24 @@ async function editTechStack(id) {
   actionTd.querySelector('[data-action="cancel"]').onclick = () => loadTechStacks();
 }
 
-function setupMenu() {
-  
-  const mapping = {
-    'menu-dashboard': 'dashboard-panel',
-    'menu-category': 'category-panel',
-    'menu-stack': 'stack-keyword-panel'
-  };
-  
-  // get menu items and panels by their IDs, store in arrays 
-  const menuItems = Object.keys(mapping).map(id => document.getElementById(id));
-  const panels = Object.values(mapping).map(id => document.getElementById(id));
+async function loadCategoryOptions() {
 
-  menuItems.forEach(item => {
-    item.addEventListener('click', e => {
-      e.preventDefault();
-
-      // remove all highlights class for all menu items, then add it to the clicked one
-      menuItems.forEach(i => i.classList.remove('bg-blue-500','text-white'));
-      item.classList.add('bg-blue-500','text-white');
-
-      // hide all panels first
-      panels.forEach(p => p.style.display = 'none');
-      // item here is the clicked menu item, item.id gets its HTML id attribute, mapping[item.id] gets the corresponding panel ID
-      // set this panel to display block
-      document.getElementById(mapping[item.id]).style.display = 'block';
-    });
+  const select = document.getElementById('category');
+  // select.innerHTML = '<option value="" disabled selected>Select a category</option>';
+  const res = await fetch(`${API_BASE}/api/categories`);
+  const cats = await res.json();
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name;
+    select.appendChild(opt);
   });
 
-  // default to show the first menu item and panel
-  menuItems[0].classList.add('bg-blue-500','text-white');
-  panels.forEach(p => p.style.display = 'none');
-  document.getElementById(mapping[menuItems[0].id]).style.display = 'block';
 }
+
+// ======================================================
+// categories management functions
+// ======================================================
 
 async function loadCategories() {
   
@@ -473,133 +636,9 @@ async function deleteCategory(id) {
   }
 }
 
-async function loadCategoryOptions() {
-
-  const select = document.getElementById('category');
-  // select.innerHTML = '<option value="" disabled selected>Select a category</option>';
-  const res = await fetch(`${API_BASE}/api/categories`);
-  const cats = await res.json();
-  cats.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.name;
-    opt.textContent = c.name;
-    select.appendChild(opt);
-  });
-
-}
-
-function renderAdminUI() {
-  
-  const isAdmin = sessionStorage.getItem('isAdmin');
-  
-  if (!isAdmin) {
-    // if isAdmin is null or undefined
-    const adminContainer = document.getElementById('adminContainer');
-    adminContainer.innerHTML = `Please log in ! ❌`;
-    adminContainer.classList.add('text-gray-600', 'text-center');
-    return;
-
-  } else if (isAdmin === 'true') {
-
-    const adminTab = document.getElementById('adminTab');
-    // 普通按钮
-    adminTab.textContent = '🔑Admin';
-    const adminName = sessionStorage.getItem('Username');
-    const adminNameTitle = document.getElementById('adminNameTitle');
-    if (adminNameTitle) { 
-      adminNameTitle.textContent = `${adminName}`;
-    }
-  }
-}
-
-function logout() {
-
-  fetch(`${window.API_BASE}/api/account/logout`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${sessionStorage.getItem("jwt")}`
-    }
-  }).then(() => {
-    sessionStorage.removeItem("jwt");
-    sessionStorage.removeItem("isAdmin");
-    sessionStorage.removeItem("Username");
-    location.reload();
-  });
-}
-
-function getLandingSummaryCounts() {
-
-  fetch(`${window.API_BASE}/api/stats/landing-summary`)
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("jobsCount").textContent = data.jobsCount;
-        document.getElementById("companiesCount").textContent = data.companyCount;
-        document.getElementById("techKeywordsCount").textContent = data.keywordCount;
-
-    })
-    .catch(err => console.error("Landing summary fetch failed:", err));
-}
-
-async function renderJobsChart() {
-  try {
-    
-    const res = await fetch(`${API_BASE}/api/jobs/stats/by-month`);
-    const data = await res.json();
-
-    // loop through each data point to extract time and counts, store in arrays
-    const labels = data.map(d => d.yearMonth);
-    const counts = data.map(d => d.count);
-
-    const ctx = document.getElementById('jobsChart');
-    if (!ctx) {
-      console.error("jobsChart canvas not found");
-      return;
-    }
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Jobs Count per Month',
-          data: counts,
-          backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind 蓝
-          borderColor: 'rgba(37, 99, 235, 1)',        // 深蓝
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Job Postings by Month'
-          },
-          datalabels: {
-            anchor: 'end',
-            align: 'end',
-            color: '#2c2e33ff',
-            font: { weight: '' },
-            formatter: (value) => value
-          }
-        },
-        scales: {
-          x: {
-            title: { display: true, text: 'Year/Month' }
-          },
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Jobs Count' }
-          }
-        }
-      },
-      plugins: [ChartDataLabels] // ⬅️ 注册 datalabels 插件
-    });
-  } catch (err) {
-    console.error("Failed to load jobs chart:", err);
-  }
-}
+// =================================================
+// function to toggle the nav menu on small screens
+// =================================================
 
 function setupToggleBtnClickEvent(){
 
@@ -615,17 +654,3 @@ function setupToggleBtnClickEvent(){
 
 }
 
-function fetchLoginModal(){
-  fetch("login-modal.html")
-    .then(res=>res.text())
-    .then(html=>{
-      document.getElementById("modalContainer").innerHTML = html;
-    })
-}
-
-function setupAdminLinkClickEvent() {
-  document.getElementById("adminLink").addEventListener("click", (e) => {
-      e.preventDefault();
-      checkAndEnterAdminPage();
-  })
-}

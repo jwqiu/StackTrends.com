@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAdminLinkClickEvent();
 });
 
+// =================================================
+// function to toggle the nav menu on small screens
+// =================================================
+
 function setupToggleBtnClickEvent(){
 
   const toggleBtn = document.getElementById("menu-toggle");
@@ -28,6 +32,29 @@ function setupToggleBtnClickEvent(){
   });
 
 }
+
+// =================================================
+// functions for handling admin login
+// =================================================
+
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
+}
+
+// ============================================================================
+// function to initialize a first keyword and trigger search when page loads
+// ============================================================================
 
 // document.getElementById("idName") is used to get the element with specific ID, can only get one element
 // document.getElementsByClassName("className") is used to get all elements with specific class name, can get multiple elements
@@ -47,6 +74,10 @@ function initialFirstKeyword() {
     searchButton.click(); // 正确：触发点击
   }
 }
+
+// ===================================================
+// functions for rendering keyword search statistics 
+// ===================================================
 
 function renderKeywordHeader() {
   const searchButton = document.querySelector("#searchButton");
@@ -186,6 +217,10 @@ function renderMentionRateRow(data) {
     rateRow.appendChild(rateCell);
   }
 }
+
+// ======================================================
+// functions for rendering matching job list and details
+// ======================================================
 
 // this function is triggered by the search button's onclick event
 async function renderMatchingJobList() {
@@ -364,17 +399,3 @@ function renderJobDescription(job, keyword) {
 
 }
 
-function fetchLoginModal(){
-  fetch("login-modal.html")
-    .then(res=>res.text())
-    .then(html=>{
-      document.getElementById("modalContainer").innerHTML = html;
-    })
-}
-
-function setupAdminLinkClickEvent() {
-  document.getElementById("adminLink").addEventListener("click", (e) => {
-      e.preventDefault();
-      checkAndEnterAdminPage();
-  })
-}

@@ -5,20 +5,10 @@ let currentJobLevel = "ALL";
 let allTechStacks = [];
 let selectedStacks = [];
 let selectedStacks_companies = [];
-
-
-
-function removeTag(button) {
-    button.parentElement.remove();
-  }
-
-  // Event listener for remove buttons
-document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('remove-btn')) {
-      removeTag(event.target);
-    }
-  });
-  
+let allJobs = []; // 存全部jobs
+let jobsPerPage = 20;
+let currentPage = 1;
+let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", () => {
     loadJobs();
@@ -30,38 +20,78 @@ document.addEventListener("DOMContentLoaded", () => {
     switchTab();
     applyCompanyFilters(); 
     renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, []);
-
-
+    setupToggleBtnClickEvent();
+    setupRemoveTagListener();
 });
 
+// ======================================================
+// tech stacks selection and management functions
+// ======================================================
 
-// function highlightMatchingStacks(){
-//   // Step 1: Get the selected tech stacks
-//   const selectedStacks = Array.from(
-//       document.querySelectorAll(".your-tech-stacks .flex.items-center")
-//   ).map((stack) => stack.childNodes[0].nodeValue.trim().toLowerCase()); // Get only the text (excluding the button)
+async function loadTechStacks() {
+  // 调用后端API获取所有技术栈
+  try {
+    const response = await fetch(`${API_BASE}/api/techstacks/list`);
+    allTechStacks = await response.json();
+    document.getElementById("techstack-input").addEventListener("input", showSuggestions);
+    document.getElementById("add-btn").addEventListener("click", addSelectedStack);
+    document.getElementById("techstack-input-companies-section").addEventListener("input", showSuggestionsCompaniesSection);
+    document.getElementById("add-btn-companies-section").addEventListener("click", addSelectedStackCompaniesSection);
 
-//   // Step 2: Find all "Required Tech Stacks" elements
-//   const requiredStacksElements = document.querySelectorAll(
-//       ".required-tech-stacks"
-//   );
+  } catch (error) {
+    console.error('Error loading tech stacks:', error);
+  }
+}
 
-//   requiredStacksElements.forEach((element) => {
-//       // Extract only the tech stacks (ignore the "Required Tech Stacks:" label)
-//       const stacksText = element.textContent.replace("Required Tech Stacks:", "").trim();
-//       const stacks = stacksText.split(",").map((stack) => stack.trim().toLowerCase());
+function showSuggestions(e) {
+    const input = e.target.value.trim().toLowerCase();
+    const suggestList = document.getElementById("suggest-list");
 
-//       const matchingStacks = stacks.filter((stack) => selectedStacks.includes(stack));
-//       const nonMatchingStacks = stacks.filter((stack) => !selectedStacks.includes(stack));
+    if (!input) {
+        suggestList.innerHTML = '';
+        suggestList.classList.add('hidden');
+        return;
+    }
 
-//       element.innerHTML = `<strong>Required Tech Stacks: </strong><span class="text-red-600">${matchingStacks.join(", ")}</span>, ${nonMatchingStacks.join(", ")}`;
-//   });
-// }
+    // 模糊查找 tech stack 名
+    const matched = allTechStacks.filter(ts => 
+        ts.stackName && ts.stackName.toLowerCase().includes(input) &&
+        !selectedStacks.includes(ts.stackName)
+    ).slice(0, 10); // 最多显示10个
 
-let allJobs = []; // 存全部jobs
-let jobsPerPage = 20;
-let currentPage = 1;
-let hasMore = true;
+    if (matched.length === 0) {
+        suggestList.innerHTML = '<li class="px-4 py-2 text-gray-400">No match</li>';
+    } else {
+        suggestList.innerHTML = matched.map(ts =>
+            `<li class="px-4 py-2 hover:bg-blue-100 cursor-pointer" data-name="${ts.stackName}">${ts.stackName}</li>`
+        ).join('');
+    }
+    suggestList.classList.remove('hidden');
+
+    // 点击候选项自动填充
+    suggestList.querySelectorAll('li[data-name]').forEach(li => {
+        li.addEventListener('click', () => {
+            document.getElementById("techstack-input").value = li.dataset.name;
+            suggestList.innerHTML = '';
+            suggestList.classList.add('hidden');
+        });
+    });
+}
+
+function removeTag(button) {
+    button.parentElement.remove();
+    const name = button.dataset.name;
+    selectedStacks = selectedStacks.filter(n => n !== name);
+    renderSelectedStacks();
+}
+
+function setupRemoveTagListener() {
+  document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('remove-btn')) {
+      removeTag(event.target);
+    }
+  });
+}
 
 async function normalizeKeyword(rawKeyword) {
   const url = `${API_BASE}/api/techstacks/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
@@ -71,6 +101,107 @@ async function normalizeKeyword(rawKeyword) {
   }
   const { normalized } = await res.json();
   return normalized;
+}
+
+async function addSelectedStack() {
+    const input = document.getElementById("techstack-input");
+    const raw = input.value.trim();
+    if (!raw) return;
+    console.log(`Raw value is: ${raw}`);
+
+    let norm = await normalizeKeyword(raw);
+    if (!norm) norm = raw;
+    console.log(`Normalized value is: ${norm}`);
+
+    // 避免重复
+    if (!selectedStacks.includes(norm)) {
+        selectedStacks.push(norm);
+        renderSelectedStacks();
+        console.log(`Added tech stack: ${norm}`);
+        console.log(`Current selected stacks: ${selectedStacks.join(', ')}`);
+    }
+    input.value = '';
+    document.getElementById("suggest-list").innerHTML = '';
+    document.getElementById("suggest-list").classList.add('hidden');
+}
+
+// 渲染已选 tech stack 区
+function renderSelectedStacks() {
+    const container = document.querySelector(".your-tech-stacks");
+    container.innerHTML = '';
+    selectedStacks.forEach(name => {
+        const div = document.createElement('div');
+        div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+        div.innerHTML = `
+            ${name}
+            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
+        `;
+        container.appendChild(div);
+    });
+
+}
+
+// ======================================================
+// filtering and loading jobs data functions
+// ======================================================
+
+function filterJobsByLevel() {
+  
+  document.querySelectorAll('.filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentJobLevel = btn.dataset.filter;
+      currentPage = 1;
+      allJobs = [];
+      // ✅ 先清除所有按钮的高亮状态
+      document.querySelectorAll('.filter').forEach(b => {
+        b.classList.remove('bg-blue-500', 'text-white');
+        b.classList.add('bg-gray-200', 'text-gray-700');  // 你原来写的是 text-gray-300
+      });
+
+      // ✅ 给当前点击按钮加高亮样式
+      btn.classList.remove('bg-gray-200', 'text-gray-700');
+      btn.classList.add('bg-blue-500', 'text-white');
+
+      // await loadJobs();
+    });
+  });
+
+  const defaultBtn = document.querySelector('.filter[data-filter="ALL"]');
+  if (defaultBtn) defaultBtn.click();
+
+}
+
+function applyFilters() {
+    document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
+    currentPage = 1;
+    allJobs = [];
+    await loadJobs();
+    await getFilterResultsCount();
+  });
+}
+
+async function getFilterResultsCount() {
+  let url = `${API_BASE}/api/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+
+  if (selectedStacks.length > 0) {
+    for (const kw of selectedStacks) {
+      if (kw.trim()) {
+        url += `&keywords=${encodeURIComponent(kw)}`;
+      }
+    }
+    console.log("Requesting jobs with URL:", url);
+  }
+  const response = await fetch(url);
+  const { count } = await response.json();
+  const countDisplay = document.getElementById('results-count');
+  countDisplay.textContent = count;
+  countDisplay.parentElement.style.display = 'block';
+  // const response = await fetch(`https://localhost:5001/api/Job/count?job_level=${currentJobLevel}`);
+  // const data = await response.json();
+  // const count = data.count;
+  // const countDisplay = document.getElementById('results-count');
+  // countDisplay.textContent = `${count}`;
+  // countDisplay.parentElement.style.display = 'block';
 }
 
 async function loadJobs() {
@@ -95,20 +226,23 @@ async function loadJobs() {
 
 }
 
+// ======================================================
+// functions to display and render jobs
+// ======================================================
+
 function highlightStacksHtml(stacks, selected) {
   const clean = stacks
     .filter(s => s && s.trim())
     .map(s => s.trim());
 
   const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-  const matched = clean.filter(s => selected.includes(s.toLowerCase()));
-  const unmatched = clean.filter(s => !selected.includes(s.toLowerCase()));
+  const matched = clean.filter(s => selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
+  const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
   return [
     ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
     ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
   ].join('  ') || 'N/A';
 }
-
 
 function renderJobs() {
   const jobList = document.getElementById('job-list');
@@ -166,15 +300,6 @@ function renderJobs() {
 
 }
 
-function applyFilters() {
-    document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
-    currentPage = 1;
-    allJobs = [];
-    await loadJobs();
-    await getFilterResultsCount();
-  });
-}
-
 function loadMoreJobs() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
@@ -185,59 +310,9 @@ function loadMoreJobs() {
     }
 }
 
-
-
-async function loadTechStacks() {
-  // 调用后端API获取所有技术栈
-  try {
-    const response = await fetch(`${API_BASE}/api/techstacks/list`);
-    allTechStacks = await response.json();
-    document.getElementById("techstack-input").addEventListener("input", showSuggestions);
-    document.getElementById("add-btn").addEventListener("click", addSelectedStack);
-    document.getElementById("techstack-input-companies-section").addEventListener("input", showSuggestionsCompaniesSection);
-    document.getElementById("add-btn-companies-section").addEventListener("click", addSelectedStackCompaniesSection);
-
-  } catch (error) {
-    console.error('Error loading tech stacks:', error);
-  }
-}
-
-
-
-function showSuggestions(e) {
-    const input = e.target.value.trim().toLowerCase();
-    const suggestList = document.getElementById("suggest-list");
-
-    if (!input) {
-        suggestList.innerHTML = '';
-        suggestList.classList.add('hidden');
-        return;
-    }
-
-    // 模糊查找 tech stack 名
-    const matched = allTechStacks.filter(ts => 
-        ts.stackName && ts.stackName.toLowerCase().includes(input) &&
-        !selectedStacks.includes(ts.stackName)
-    ).slice(0, 10); // 最多显示10个
-
-    if (matched.length === 0) {
-        suggestList.innerHTML = '<li class="px-4 py-2 text-gray-400">No match</li>';
-    } else {
-        suggestList.innerHTML = matched.map(ts =>
-            `<li class="px-4 py-2 hover:bg-blue-100 cursor-pointer" data-name="${ts.stackName}">${ts.stackName}</li>`
-        ).join('');
-    }
-    suggestList.classList.remove('hidden');
-
-    // 点击候选项自动填充
-    suggestList.querySelectorAll('li[data-name]').forEach(li => {
-        li.addEventListener('click', () => {
-            document.getElementById("techstack-input").value = li.dataset.name;
-            suggestList.innerHTML = '';
-            suggestList.classList.add('hidden');
-        });
-    });
-}
+// ========================================================================
+// functions to select tech stacks and render for companies section
+// ========================================================================
 
 function showSuggestionsCompaniesSection(e) {
     const input = e.target.value.trim().toLowerCase();
@@ -274,28 +349,6 @@ function showSuggestionsCompaniesSection(e) {
     });
 }
 
-async function addSelectedStack() {
-    const input = document.getElementById("techstack-input");
-    const raw = input.value.trim();
-    if (!raw) return;
-    console.log(`Raw value is: ${raw}`);
-
-    let norm = await normalizeKeyword(raw);
-    if (!norm) norm = raw;
-    console.log(`Normalized value is: ${norm}`);
-
-    // 避免重复
-    if (!selectedStacks.includes(norm)) {
-        selectedStacks.push(norm);
-        renderSelectedStacks();
-        console.log(`Added tech stack: ${norm}`);
-        console.log(`Current selected stacks: ${selectedStacks.join(', ')}`);
-    }
-    input.value = '';
-    document.getElementById("suggest-list").innerHTML = '';
-    document.getElementById("suggest-list").classList.add('hidden');
-}
-
 async function addSelectedStackCompaniesSection() {
     const input = document.getElementById("techstack-input-companies-section");
     const raw = input.value.trim();
@@ -318,36 +371,6 @@ async function addSelectedStackCompaniesSection() {
     document.getElementById("suggest-list-companies-section").classList.add('hidden');
 }
 
-// 渲染已选 tech stack 区
-function renderSelectedStacks() {
-    const container = document.querySelector(".your-tech-stacks");
-    container.innerHTML = '';
-    selectedStacks.forEach(name => {
-        const div = document.createElement('div');
-        div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
-        div.innerHTML = `
-            ${name}
-            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
-        `;
-        container.appendChild(div);
-    });
-    // 绑定移除按钮
-    container.querySelectorAll(".remove-btn").forEach(btn => {
-        btn.onclick = async function() {
-            selectedStacks = selectedStacks.filter(n => n !== btn.dataset.name);
-            renderSelectedStacks();
-
-            currentPage = 1;
-            allJobs = [];
-            await loadJobs();
-            await getFilterResultsCount();
-        };
-    });
-    // highlightMatchingStacks();
-
-}
-
-// 渲染已选 tech stack 区
 function renderSelectedStacksCompaniesSection() {
     const container = document.querySelector(".your-tech-stacks-companies-section");
     container.innerHTML = '';
@@ -379,308 +402,12 @@ function renderSelectedStacksCompaniesSection() {
 
 }
 
-
-function filterJobsByLevel() {
-  
-  document.querySelectorAll('.filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentJobLevel = btn.dataset.filter;
-      currentPage = 1;
-      allJobs = [];
-      // ✅ 先清除所有按钮的高亮状态
-      document.querySelectorAll('.filter').forEach(b => {
-        b.classList.remove('bg-blue-500', 'text-white');
-        b.classList.add('bg-gray-200', 'text-gray-700');  // 你原来写的是 text-gray-300
-      });
-
-      // ✅ 给当前点击按钮加高亮样式
-      btn.classList.remove('bg-gray-200', 'text-gray-700');
-      btn.classList.add('bg-blue-500', 'text-white');
-
-      // await loadJobs();
-    });
+function applyCompanyFilters() {
+  document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
+    // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
+    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, selectedStacks_companies);
   });
-
-  const defaultBtn = document.querySelector('.filter[data-filter="ALL"]');
-  if (defaultBtn) defaultBtn.click();
-
 }
-
-
-
-async function getFilterResultsCount() {
-  let url = `${API_BASE}/api/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
-
-  if (selectedStacks.length > 0) {
-    for (const kw of selectedStacks) {
-      if (kw.trim()) {
-        url += `&keywords=${encodeURIComponent(kw)}`;
-      }
-    }
-    console.log("Requesting jobs with URL:", url);
-  }
-  const response = await fetch(url);
-  const { count } = await response.json();
-  const countDisplay = document.getElementById('results-count');
-  countDisplay.textContent = count;
-  countDisplay.parentElement.style.display = 'block';
-  // const response = await fetch(`https://localhost:5001/api/Job/count?job_level=${currentJobLevel}`);
-  // const data = await response.json();
-  // const count = data.count;
-  // const countDisplay = document.getElementById('results-count');
-  // countDisplay.textContent = `${count}`;
-  // countDisplay.parentElement.style.display = 'block';
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("menu-toggle");
-  const menu = document.getElementById("menu");
-
-  toggleBtn.addEventListener("click", () => {
-    menu.classList.toggle("hidden");
-  });
-});
-
-function openModal() {
-  document.getElementById('customModal').classList.remove('hidden');
-}
-
-function closeModal() {
-  document.getElementById('customModal').classList.add('hidden');
-}
-
-function showSection(id) {
-  const sections = ['jobs-section', 'companies-section'];
-  const tabBtns = document.querySelectorAll('.tab-btn');
-
-  // 切 panel
-  sections.forEach(secId => {
-    const el = document.getElementById(secId);
-    if (!el) return;
-    if (secId === id) el.classList.remove('hidden');
-    else el.classList.add('hidden');
-  });
-
-  // 切 tab 样式 & aria
-  tabBtns.forEach(btn => {
-    let active
-    if (btn.dataset.target === id) {
-      active = true;
-    } else {
-      active = false;
-    }
-
-    if (active) {
-      btn.setAttribute('aria-selected', 'true');
-      btn.classList.add('text-blue-600');
-      btn.classList.remove('text-gray-400','text-md');
-
-    } else {
-      btn.setAttribute('aria-selected', 'false');
-      btn.classList.add('text-gray-400','text-md');
-      btn.classList.remove('text-blue-600');
-    }
-
-    const icon = btn.querySelector('.selected-icon');
-
-    if (icon) {
-      icon.classList.toggle('hidden', !active);
-      icon.classList.toggle('block', active);
-    }
-
-  });
-
-  // 可选：同步 URL hash，刷新后还能保持当前 tab
-  if (location.hash !== '#' + id) {
-    history.replaceState(null, '', '#' + id);
-  }
-}
-
-function switchTab() {
-  const sections = ['jobs-section', 'companies-section'];
-  const tabBtns = document.querySelectorAll('.tab-btn');
-
-  // 绑定点击
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => showSection(btn.dataset.target));
-  });
-
-  // 初始：根据 URL hash 或默认显示 jobs
-  const initial = location.hash?.slice(1);
-  showSection(sections.includes(initial) ? initial : 'jobs-section');
-}
-
-
-// 渲染成「Tech Profile 卡片（胶囊标签版）」。
-// 用法：renderCompanyTechProfiles('companies-container', `${window.API_BASE}/api/companies/tech-stack`)
-// async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5) {
-//   // 1) 拉数据
-//   const res  = await fetch(apiUrl);
-//   const rows = await res.json();
-
-//   const cntRes  = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
-//   const cntRows = await cntRes.json();
-//   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
-
-//   // 2) 按公司聚合：{ id, name, cats: {Frontend:[], Backend:[], ...} }
-//   const byCompany = {};
-//   rows.forEach(r => {
-//     const cid = r.company_Id;
-//     byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
-//     const cats = byCompany[cid].cats;
-
-//     (cats[r.category] ??= []).push(
-//       (r.technology ?? '').trim()
-//     );
-//   });
-
-//   // 3) 写入 DOM
-//   const container = document.getElementById(containerId);
-//   if (!container) {
-//     console.warn('Container not found:', containerId);
-//     return;
-//   }
-
-//   const frag = document.createDocumentFragment();
-//   const ORDER = ['Frontend', 'Backend', 'Cloud Platforms', 'Database']; // 显示顺序（注意“Cloud Platform”单数）
-
-//   Object
-//     .values(byCompany)
-//     // 先按职位数降序
-//     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
-//     .forEach(comp => {
-//       const jc = jobsCountMap[comp.id] || 0;
-
-//       // 外层卡片
-//       const card = document.createElement('div');
-//       card.className = 'w-full bg-white rounded-lg shadow-lg flex flex-col gap-y-2 justify-start p-8';
-
-//       // 顶部标题行
-//       card.insertAdjacentHTML('beforeend', `
-//         <div class="flex justify-between items-center">
-//           <p><span class="text-lg font-bold">${comp.name}</span> – Tech Profile</p>
-//           <p class="mb-2 text-gray-500">Analysed from ${jc} Job Postings</p>
-//         </div>
-//       `);
-
-//       // 灰底区域
-//       const gray = document.createElement('div');
-//       gray.className = 'flex flex-col border gap-y-4 rounded-lg p-4 bg-gray-100';
-
-//       ORDER.forEach(catLabel => {
-//         const techs = (comp.cats[catLabel] || []).slice(0, perCategory); // 每类最多 N 个
-//         // 行容器
-//         const row = document.createElement('div');
-//         row.className = 'w-full rounded-lg flex justify-start items-center px-4';
-
-//         // 左侧分类名
-//         const nameEl = document.createElement('p');
-//         nameEl.textContent = catLabel;
-//         row.appendChild(nameEl);
-
-//         // 右侧胶囊区
-//         const pills = document.createElement('div');
-//         pills.className = 'flex gap-x-2 ms-4';
-
-//         techs.forEach(t => {
-//           const pill = document.createElement('p');
-//           pill.className = 'px-3 py-1 bg-white rounded-lg';
-//           pill.textContent = t;
-//           pills.appendChild(pill);
-//         });
-
-//         row.appendChild(pills);
-//         gray.appendChild(row);
-//       });
-
-//       card.appendChild(gray);
-//       frag.appendChild(card);
-//     });
-
-//   container.innerHTML = '';      // 可选：先清空
-//   container.appendChild(frag);
-// }
-
-// async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, selectedStacks) {
-//   // 1) 拉数据
-//   const res  = await fetch(apiUrl);
-//   const rows = await res.json();
-
-//   const cntRes  = await fetch(`${window.API_BASE}/api/companies/jobs-count`);
-//   const cntRows = await cntRes.json();
-//   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
-
-//   // 2) 按公司聚合
-//   const byCompany = {};
-//   rows.forEach(r => {
-//     const cid = r.company_Id;
-//     byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
-//     (byCompany[cid].cats[r.category] ??= []).push((r.technology ?? '').trim());
-//   });
-
-//   // 3) 渲染
-//   const container = document.getElementById(containerId);
-//   if (!container) return;
-
-//   const frag = document.createDocumentFragment();
-//   const ORDER = ['Frontend', 'Backend', 'Cloud Platforms', 'Database'];
-
-//   Object.values(byCompany)
-//     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
-//     .forEach(comp => {
-//       const jc = jobsCountMap[comp.id] || 0;
-
-//       const card = document.createElement('div');
-//       card.className = 'w-full bg-white rounded-lg shadow-lg flex flex-col gap-y-2 justify-start p-8';
-
-//       card.insertAdjacentHTML('beforeend', `
-//         <div class="flex justify-between items-center">
-//           <p><span class="text-lg font-bold">${comp.name}</span> – Tech Profile</p>
-//           <p class="mb-2 text-gray-500">Analysed from ${jc} Job Postings</p>
-//         </div>
-//       `);
-
-//       const gray = document.createElement('div');
-//       gray.className = 'flex flex-col border gap-y-4 rounded-lg p-4 bg-gray-100';
-
-//       ORDER.forEach(catLabel => {
-//         const techs = (comp.cats[catLabel] || []).slice(0, perCategory);
-
-//         const row = document.createElement('div');
-//         row.className = 'w-full rounded-lg flex justify-start items-center px-4';
-
-//         const nameEl = document.createElement('p');
-//         nameEl.textContent = catLabel;
-//         row.appendChild(nameEl);
-
-//         const pills = document.createElement('div');
-//         pills.className = 'flex gap-x-2 ms-4';
-
-//         techs.forEach(t => {
-//           if (!t) return;
-//           const pill = document.createElement('p');
-
-//           // 🔹 高亮逻辑：selectedStacks 里有的就蓝底白字，否则白底灰字
-//           const isSelected = selectedStacks.includes(t.toLowerCase());
-//           pill.className = isSelected
-//             ? 'px-3 py-1 bg-blue-400 text-white rounded-lg'
-//             : 'px-3 py-1 bg-white text-gray-700 rounded-lg';
-
-//           pill.textContent = t;
-//           pills.appendChild(pill);
-//         });
-
-//         row.appendChild(pills);
-//         gray.appendChild(row);
-//       });
-
-//       card.appendChild(gray);
-//       frag.appendChild(card);
-//     });
-
-//   container.innerHTML = '';
-//   container.appendChild(frag);
-// }
 
 async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, selectedStacks_companies = []) {
   // 1) 拉数据
@@ -691,13 +418,6 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
   const cntRows = await cntRes.json();
   const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
 
-  // 2) 按公司聚合
-  // const byCompany = {};
-  // rows.forEach(r => {
-  //   const cid = r.company_Id;
-  //   byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
-  //   (byCompany[cid].cats[r.category] ??= []).push((r.technology ?? '').trim());
-  // });
   const byCompany = {};
   rows.forEach(r => {
     const cid = r.company_Id;
@@ -843,10 +563,93 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
   }
 }
 
+// ========================================================================
+// setup tab switching and panel display functions
+// ========================================================================
 
-function applyCompanyFilters() {
-  document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
-    // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
-    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, selectedStacks_companies);
+function showSection(id) {
+  const sections = ['jobs-section', 'companies-section'];
+  const tabBtns = document.querySelectorAll('.tab-btn');
+
+  // 切 panel
+  sections.forEach(secId => {
+    const el = document.getElementById(secId);
+    if (!el) return;
+    if (secId === id) el.classList.remove('hidden');
+    else el.classList.add('hidden');
   });
+
+  // 切 tab 样式 & aria
+  tabBtns.forEach(btn => {
+    let active
+    if (btn.dataset.target === id) {
+      active = true;
+    } else {
+      active = false;
+    }
+
+    if (active) {
+      btn.setAttribute('aria-selected', 'true');
+      btn.classList.add('text-blue-600');
+      btn.classList.remove('text-gray-400','text-md');
+
+    } else {
+      btn.setAttribute('aria-selected', 'false');
+      btn.classList.add('text-gray-400','text-md');
+      btn.classList.remove('text-blue-600');
+    }
+
+    const icon = btn.querySelector('.selected-icon');
+
+    if (icon) {
+      icon.classList.toggle('hidden', !active);
+      icon.classList.toggle('block', active);
+    }
+
+  });
+
+  // 可选：同步 URL hash，刷新后还能保持当前 tab
+  if (location.hash !== '#' + id) {
+    history.replaceState(null, '', '#' + id);
+  }
+}
+
+function switchTab() {
+  const sections = ['jobs-section', 'companies-section'];
+  const tabBtns = document.querySelectorAll('.tab-btn');
+
+  // 绑定点击
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => showSection(btn.dataset.target));
+  });
+
+  // 初始：根据 URL hash 或默认显示 jobs
+  const initial = location.hash?.slice(1);
+  showSection(sections.includes(initial) ? initial : 'jobs-section');
+}
+
+// ========================================================================
+// other utility functions
+// ========================================================================
+
+function setupToggleBtnClickEvent(){
+
+  const toggleBtn = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+
+  toggleBtn.addEventListener("click", () => {
+    // toggle is a built-in method of classList, in this example
+    // if hidden already exists in the classList, it will be removed
+    // if it doesn't exist, it will be added
+    menu.classList.toggle("hidden");
+  });
+
+}
+
+function openModal() {
+  document.getElementById('customModal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('customModal').classList.add('hidden');
 }

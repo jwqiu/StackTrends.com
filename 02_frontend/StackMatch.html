@@ -6,8 +6,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-w-[850px] min-h-screen">
-        <nav class="bg-white relative shadow py-6 shadow-lg flex justify-between items-center">
+    <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-h-screen">
+        <nav class="bg-white relative shadow py-6 shadow-lg flex justify-between items-center ">
             <div class="flex items-start flex-col">
                 <a href="index.html">
                     <div class="flex items-center gap-x-1 ms-8">
@@ -45,7 +45,7 @@
             </div>
         </nav>
         <div class="flex flex-col max-w-[1050px] mx-auto gap-y-8">
-            <div class="mt-8 flex gap-x-8 justify-start ms-2  items-center ">
+            <div class="mt-8 flex flex-col sm:flex-row gap-x-8 gap-y-4 sm:gap-y-0 justify-start items-start sm:items-center mx-8 md:mx-0 ">
                 <button
                     class="tab-btn text-md text-gray-400 hover:text-blue-600  "
                     data-target="jobs-section"
@@ -82,15 +82,14 @@
                         </span>
                     </div>
                 </button>
-
             </div>
-            <div id="jobs-section" class="flex justify-center gap-8  ">
-                <div class=" w-[350px] space-y-6 sticky top-4 self-start">
+            <div id="jobs-section" class="flex-col md:flex-row flex gap-8 mx-8 md:mx-0">
+                <div class="w-full md:w-[350px] space-y-6 md:sticky md:top-4 md:self-start">
                     <div class="p-8 rounded-lg shadow-lg bg-white">
                         <h1 class="font-bold text-xl">Pick Your Tech Skills:</h1>
                         <!-- <input type="text" class="border border-gray-300 rounded-lg p-2 mt-4 w-full" placeholder="Enter tech stack..."> -->
-                        <div class="flex gap-3 mt-2">
-                            <div class="relative">
+                        <div class="flex gap-3 mt-2 w-full">
+                            <div class="relative w-full">
                                 <input id="techstack-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" placeholder="Enter Tech Skill...">
                                 <ul id="suggest-list" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
                             </div>
@@ -124,19 +123,22 @@
                         </div>
 
                     </div>
-                    <button class="apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Show Matching Jobs</button>
-                    <div>   
-                        <p style="display:none" class="mb-3">🔍 <span id="results-count" class="font-bold  text-blue-500" >#</span> Results matching your Tech Skills and Level</p>
-                        <p class="text-gray-600">📧 Want email alerts about the latest jobs that match your skills and level? — 
-                            <a href="#" onclick="openModal()"
-                            class="text-blue-600 underline hover:text-blue-800 hover:underline transition duration-150 ease-in-out">
-                            Click here
-                            </a>
-                        </p>
+
+                    <div>
+                        <button class="apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 mb-4 rounded-md hover:bg-blue-600">Show Matching Jobs</button>
+                        <div>   
+                            <p style="display:none" class="mb-3">🔍 <span id="results-count" class="font-bold  text-blue-500" >#</span> Results matching your Tech Skills and Level</p>
+                            <!-- <p class="text-gray-600">📧 Want email alerts about the latest jobs that match your skills and level? — 
+                                <a href="#" onclick="openModal()"
+                                class="text-blue-600 underline hover:text-blue-800 hover:underline transition duration-150 ease-in-out">
+                                Click here
+                                </a>
+                            </p> -->
+                        </div>
                     </div>
                     
                 </div>
-                <div class=" w-3/4 max-w-[650px] min-w-[400px] mb-8">
+                <div class="flex-1 mb-8">
                     <div class="space-y-6 " id="job-list">
                     </div>
                     <button id="load-more-btn" class="bg-blue-500 border rounded-lg border-blue-200 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600 w-full">
@@ -145,12 +147,12 @@
                     
                 </div>
             </div>
-            <div id="companies-section" class="flex justify-center gap-8 ">
-                <div class="w-[350px] space-y-6 sticky top-4 self-start ">
+            <div id="companies-section" class="flex-col md:flex-row flex justify-center gap-8 mx-8 md:mx-0">
+                <div class="w-full md:w-[350px] space-y-6 md:sticky md:top-4 md:self-start ">
                     <div class="p-8 rounded-lg shadow-lg bg-white">
                         <h1 class="font-bold text-xl">Pick Your Tech Skills:</h1>
-                        <div class="flex gap-3 mt-2">
-                            <div class="relative">
+                        <div class="flex gap-3 mt-2 w-full">
+                            <div class="relative w-full">
                                 <input id="techstack-input-companies-section" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" placeholder="Enter Tech Skill...">
                                 <ul id="suggest-list-companies-section" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
                             </div>
@@ -171,18 +173,12 @@
                     <p>⚠️ Only companies with 10+ job postings are shown, and the top 5 most frequent skills are displayed in each category.</p>
                 </div>
 
-                <div class=" w-3/4 max-w-[650px] min-w-[400px] flex flex-col gap-y-6 mb-8">
+                <div class=" flex-1 flex flex-col gap-y-6 mb-8">
                     <div id="companiesContainer" class="w-full flex flex-col gap-y-6 justify-start ">
                         
                   
                     </div>
-                    
                 </div>
-
-                
-
-
-
             </div>
         </div>
 
