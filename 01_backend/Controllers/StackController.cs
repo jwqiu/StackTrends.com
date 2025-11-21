@@ -123,6 +123,9 @@ public class TechStackController : ControllerBase
     }
 
     // this endpoint receives a keyword from the frontend and returns its normalized name if it is already predefined in the database
+    // first, we check if the input keyword already exists in our normalized keyword list/column; if so, we simply return the original keyword
+    // if not, we then check if it exists in the raw keyword list/column, if so, we return its corresponding normalized keyword.
+    // and if isn't found in either column/list, we just return the original keyword
     [HttpGet("normalize")]
     public async Task<IActionResult> NormalizeKeyword([FromQuery] string keyword)
     {

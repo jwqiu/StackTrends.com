@@ -9,6 +9,7 @@ let allJobs = []; // 存全部jobs
 let jobsPerPage = 20;
 let currentPage = 1;
 let hasMore = true;
+let currentTab = 'jobs';
 
 document.addEventListener("DOMContentLoaded", () => {
     loadJobs();
@@ -19,9 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
     getFilterResultsCount();
     switchTab();
     applyCompanyFilters(); 
-    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, []);
+    renderTechStackByCompany();
     setupToggleBtnClickEvent();
     setupRemoveTagListener();
+    fetchLoginModal();
+    setupAdminLinkClickEvent();
 });
 
 // ======================================================
@@ -29,10 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // ======================================================
 
 async function loadTechStacks() {
-  // 调用后端API获取所有技术栈
+  // when page load, call backend API to get all tech keywords, store in variable allTechStacks
+  // then, add event listeners to monitor input box changes and button clicks
+  // so that we can show suggestions matching the input and add selected tech stack to the selected list
   try {
     const response = await fetch(`${API_BASE}/api/techstacks/list`);
     allTechStacks = await response.json();
+    // if we call a function directly, we must pass in the parameters outselves.
+    // but if a function is called by an event listener, the browser will pass in the event object automatically into that function
     document.getElementById("techstack-input").addEventListener("input", showSuggestions);
     document.getElementById("add-btn").addEventListener("click", addSelectedStack);
     document.getElementById("techstack-input-companies-section").addEventListener("input", showSuggestionsCompaniesSection);
@@ -44,6 +51,8 @@ async function loadTechStacks() {
 }
 
 function showSuggestions(e) {
+    // cause the event object is passed in automatically by the brower when this function is called by an event listener
+    // we can access the input value by e.target.value
     const input = e.target.value.trim().toLowerCase();
     const suggestList = document.getElementById("suggest-list");
 
@@ -53,12 +62,12 @@ function showSuggestions(e) {
         return;
     }
 
-    // 模糊查找 tech stack 名
+    // filter tech keywords matching the input
     const matched = allTechStacks.filter(ts => 
         ts.stackName && ts.stackName.toLowerCase().includes(input) &&
         !selectedStacks.includes(ts.stackName)
-    ).slice(0, 10); // 最多显示10个
-
+    ).slice(0, 5); 
+    
     if (matched.length === 0) {
         suggestList.innerHTML = '<li class="px-4 py-2 text-gray-400">No match</li>';
     } else {
@@ -79,13 +88,29 @@ function showSuggestions(e) {
 }
 
 function removeTag(button) {
-    button.parentElement.remove();
+  // if user clicks the remove button on a selected tech stack tag
+  // remove the element that contains the selected tech stack name and remove it from the selectedStacks array
+  button.parentElement.remove();
+  if (currentTab === 'jobs') {
     const name = button.dataset.name;
+    const searchBtn = document.querySelector('.apply-filters-btn')
     selectedStacks = selectedStacks.filter(n => n !== name);
     renderSelectedStacks();
+    searchBtn.click();
+  } else {
+    const name = button.dataset.name;
+    const searchBtn = document.querySelector('.apply-filters-btn--companies-section')
+    selectedStacks_companies = selectedStacks_companies.filter(n => n !== name);
+    renderSelectedStacksCompaniesSection();
+    searchBtn.click();
+  }
 }
 
 function setupRemoveTagListener() {
+  // we add a click listener here, when the user clicks anywhere on the page, the browser checks whether the clicked target has the remove-btn class
+  // if does, calling removeTag function to remove the tag
+  // because the selected tech stack tags and their remove buttons are generated dynamically after page load
+  // so we can not attach a click event listener to the remove button directly when the page loads
   document.addEventListener('click', function (event) {
     if (event.target.classList.contains('remove-btn')) {
       removeTag(event.target);
@@ -94,6 +119,7 @@ function setupRemoveTagListener() {
 }
 
 async function normalizeKeyword(rawKeyword) {
+
   const url = `${API_BASE}/api/techstacks/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -103,7 +129,9 @@ async function normalizeKeyword(rawKeyword) {
   return normalized;
 }
 
+// this function is triggered when user clicks the add button
 async function addSelectedStack() {
+
     const input = document.getElementById("techstack-input");
     const raw = input.value.trim();
     if (!raw) return;
@@ -125,19 +153,24 @@ async function addSelectedStack() {
     document.getElementById("suggest-list").classList.add('hidden');
 }
 
-// 渲染已选 tech stack 区
+// there are two ways to trigger this function, when the user clicks the add button to add new tech stack or when user clicks the remvove button to remove a tech stack
+// this function is triggered if the selectedStacks array is changed
 function renderSelectedStacks() {
-    const container = document.querySelector(".your-tech-stacks");
-    container.innerHTML = '';
-    selectedStacks.forEach(name => {
-        const div = document.createElement('div');
-        div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
-        div.innerHTML = `
-            ${name}
-            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
-        `;
-        container.appendChild(div);
-    });
+  const container = document.querySelector(".your-tech-stacks");
+  container.innerHTML = '';
+  if (selectedStacks.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 italic">No tech stack selected</p>';
+    return;
+  }
+  selectedStacks.forEach(name => {
+      const div = document.createElement('div');
+      div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+      div.innerHTML = `
+          ${name}
+          <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
+      `;
+      container.appendChild(div);
+  });
 
 }
 
@@ -152,10 +185,10 @@ function filterJobsByLevel() {
       currentJobLevel = btn.dataset.filter;
       currentPage = 1;
       allJobs = [];
-      // ✅ 先清除所有按钮的高亮状态
+
       document.querySelectorAll('.filter').forEach(b => {
         b.classList.remove('bg-blue-500', 'text-white');
-        b.classList.add('bg-gray-200', 'text-gray-700');  // 你原来写的是 text-gray-300
+        b.classList.add('bg-gray-200', 'text-gray-700');  
       });
 
       // ✅ 给当前点击按钮加高亮样式
@@ -173,6 +206,8 @@ function filterJobsByLevel() {
 
 function applyFilters() {
     document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
+    // when user clicks the apply filters button, reset currentpage to 1, clear all jobs array
+    // these two variables will be used in loadJobs function to determine what data to display
     currentPage = 1;
     allJobs = [];
     await loadJobs();
@@ -181,6 +216,7 @@ function applyFilters() {
 }
 
 async function getFilterResultsCount() {
+
   let url = `${API_BASE}/api/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
 
   if (selectedStacks.length > 0) {
@@ -196,16 +232,11 @@ async function getFilterResultsCount() {
   const countDisplay = document.getElementById('results-count');
   countDisplay.textContent = count;
   countDisplay.parentElement.style.display = 'block';
-  // const response = await fetch(`https://localhost:5001/api/Job/count?job_level=${currentJobLevel}`);
-  // const data = await response.json();
-  // const count = data.count;
-  // const countDisplay = document.getElementById('results-count');
-  // countDisplay.textContent = `${count}`;
-  // countDisplay.parentElement.style.display = 'block';
+
 }
 
 async function loadJobs() {
-  // 调用后端API获取所有职位
+  
   let url = `${API_BASE}/api/jobs/list?page=${currentPage}&size=${jobsPerPage}`;
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
@@ -220,6 +251,7 @@ async function loadJobs() {
   }
   const response = await fetch(url);
   const data = await response.json();
+  // ... here means unpacking both arrays and appending the new items to the existing array
   allJobs = [...allJobs, ...data.jobs]; 
   hasMore = data.hasMore;
   renderJobs(); // 渲染第一页
@@ -230,34 +262,18 @@ async function loadJobs() {
 // functions to display and render jobs
 // ======================================================
 
-function highlightStacksHtml(stacks, selected) {
-  const clean = stacks
-    .filter(s => s && s.trim())
-    .map(s => s.trim());
-
-  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-  const matched = clean.filter(s => selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
-  const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
-  return [
-    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
-    ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
-  ].join('  ') || 'N/A';
-}
-
 function renderJobs() {
+
   const jobList = document.getElementById('job-list');
   jobList.innerHTML = ""; // 清空旧内容
 
-  // const jobsToShow = allJobs.slice(0, currentPage * jobsPerPage);
   const jobsToShow = allJobs;
 
   jobsToShow.forEach(job => {
-    // 拼接 required stacks
-    // const stacks = job.requiredStacks && job.requiredStacks.length > 0
-    // ? job.requiredStacks.filter(s => s && s.trim() !== '').join(', ') || 'N/A'
-    // : 'N/A';
+
+    // get the HTML for the job's tech requirements with highlighted stacks
     const stacks = highlightStacksHtml(job.requiredStacks, selectedStacks);
-    // 可自定义图片路径和其它字段
+
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
@@ -291,6 +307,7 @@ function renderJobs() {
         </div>
       </a>
     `;
+    // insert the job HTML at the end of the job list container
     jobList.insertAdjacentHTML('beforeend', html);
   });
   const loadMoreBtn = document.getElementById('load-more-btn');
@@ -300,14 +317,42 @@ function renderJobs() {
 
 }
 
+// this function requires two parameters as input, stacks is an array of tech keywords required for a job, selected is an array of tech keywords selected by the user
+// Javascript doesn't have a List type - its arrays work like dynamic lists
+// this function returns the HTML for a job tech requirements
+// and hightlights the ones that match the user's selected tech stacks
+// to use this code, simply insert it into the container where the job's tech requirements are displayed
+function highlightStacksHtml(stacks, selected) {
+  
+  const clean = stacks
+    // s && s.trim() means, s is not null/underfined/empty string, and after trimming, it is still not empty
+    // note : this step doesn't actually change the original string, it only checks it
+    // so we still need to call trim() again in the next step
+    .filter(s => s && s.trim())
+    .map(s => s.trim());
+
+  // const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  function capitalize(s){
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  }
+
+  const matched = clean.filter(s => selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
+  const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
+  return [
+    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
+    ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
+  ].join('  ') || 'N/A';
+}
+
 function loadMoreJobs() {
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', async() => {
-        currentPage++;
-        await loadJobs();
-      });
-    }
+
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', async() => {
+      currentPage++;
+      await loadJobs();
+    });
+  }
 }
 
 // ========================================================================
@@ -315,6 +360,7 @@ function loadMoreJobs() {
 // ========================================================================
 
 function showSuggestionsCompaniesSection(e) {
+
     const input = e.target.value.trim().toLowerCase();
     const suggestList = document.getElementById("suggest-list-companies-section");
 
@@ -328,7 +374,7 @@ function showSuggestionsCompaniesSection(e) {
     const matched = allTechStacks.filter(ts => 
         ts.stackName && ts.stackName.toLowerCase().includes(input) &&
         !selectedStacks_companies.includes(ts.stackName)
-    ).slice(0, 10); // 最多显示10个
+    ).slice(0, 5); // 最多显示10个
 
     if (matched.length === 0) {
         suggestList.innerHTML = '<li class="px-4 py-2 text-gray-400">No match</li>';
@@ -350,6 +396,7 @@ function showSuggestionsCompaniesSection(e) {
 }
 
 async function addSelectedStackCompaniesSection() {
+
     const input = document.getElementById("techstack-input-companies-section");
     const raw = input.value.trim();
     if (!raw) return;
@@ -372,89 +419,120 @@ async function addSelectedStackCompaniesSection() {
 }
 
 function renderSelectedStacksCompaniesSection() {
-    const container = document.querySelector(".your-tech-stacks-companies-section");
-    container.innerHTML = '';
-    selectedStacks_companies.forEach(name => {
-        const div = document.createElement('div');
-        div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
-        div.innerHTML = `
-            ${name}
-            <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
-        `;
-        container.appendChild(div);
-    });
-    // 绑定移除按钮
-    container.querySelectorAll(".remove-btn").forEach(btn => {
-        btn.onclick = function() {
-            selectedStacks_companies = selectedStacks_companies.filter(n => n !== btn.dataset.name);
-            renderSelectedStacksCompaniesSection();
 
-            // ⬇️ 手动触发公司筛选
-            renderTechStackByCompany(
-              'companiesContainer',
-              `${window.API_BASE}/api/techstacks/rankings/by-company`,
-              5,
-              selectedStacks_companies
-            );
-        };
-    });
-    // highlightMatchingStacks();
-
+  const container = document.querySelector(".your-tech-stacks-companies-section");
+  container.innerHTML = '';
+  if (selectedStacks_companies.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 italic">No tech stack selected</p>';
+    return;
+  }
+  selectedStacks_companies.forEach(name => {
+      const div = document.createElement('div');
+      div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+      div.innerHTML = `
+          ${name}
+          <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
+      `;
+      container.appendChild(div);
+  });
 }
 
 function applyCompanyFilters() {
   document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
     // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
-    renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 5, selectedStacks_companies);
+    renderTechStackByCompany();
   });
 }
 
-async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, selectedStacks_companies = []) {
-  // 1) 拉数据
-  const res  = await fetch(apiUrl);
+// TODO: this function is way too long, need to refactor it into smaller functions to make it easier to read and maintain
+async function renderTechStackByCompany( perCategory = 5) {
+  
+  // get the tech stack rankings data by company from the backend API
+  const res  = await fetch(`${window.API_BASE}/api/techstacks/rankings/by-company`);
   const rows = await res.json();
-
+  // get the job counts per company from the backend API
   const cntRes  = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
   const cntRows = await cntRes.json();
-  const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
+
+  // const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
+  const jobsCountMap = {}
+  cntRows.forEach(row=>{
+    jobsCountMap[row.company_Id]=row.jobs_Count;
+  })
 
   const byCompany = {};
+  // each row in rows is just one company + one category + one technology
+  // so the same company will appear multiple times in the rows array
+  // the code here just groups them into a tree structure by company and by category
   rows.forEach(r => {
+
     const cid = r.company_Id;
-    byCompany[cid] ??= { id: cid, name: r.company_Name, cats: {} };
-    (byCompany[cid].cats[r.category] ??= []).push({
+    const category = r.category;
+
+    if (!byCompany[cid]) {
+      byCompany[cid] = {
+        id: cid, 
+        name: r.company_Name, 
+        cats: {}};
+    }
+
+    if(!byCompany[cid].cats[category]){
+      byCompany[cid].cats[category] = [];
+    }
+
+    byCompany[cid].cats[category].push({
       tech: (r.technology ?? '').trim(),
       percentage: r.percentage ?? r.Percentage ?? 0
     });
+
   });
 
-  // ⭐ 归一化所选技能，准备过滤
-  // const norm = s => (s ?? '').toString().trim().toLowerCase();
-  const norm = x =>
-  (typeof x === 'string' ? x : (x?.tech ?? ''))
-    .toString()
-    .trim()
-    .toLowerCase();
-  const selectedSet = new Set((selectedStacks_companies || []).map(norm).filter(Boolean));
+  // format a tech skill value into a clean string
+  function formatSkill(x){
+    let skill = "";
+    if(typeof x ==='string'){
+      skill = x;
+    }
+    else if(x && x.tech){
+      skill = x.tech;
+    }
+    return skill.toString().trim().toLowerCase();
+  }
+  console.log('Selected stacks for filtering companies:', selectedStacks_companies);
+  // prepare a unique set of selected stacks for filtering later
+  let selectedSet = new Set();
+  (selectedStacks_companies || []).forEach(item => {
+    const normalized = formatSkill(item);
+    if(normalized){
+      selectedSet.add(normalized);
+    }
+  });
+  console.log('Selected set for filtering companies:', selectedSet);
+  // if there is any selected stack, need to filter companies 
   const shouldFilter = selectedSet.size > 0;
 
-  // 3) 渲染
-  const container = document.getElementById(containerId);
+  const container = document.getElementById("companiesContainer");
   if (!container) return;
 
+  // create a temporary document fragment to hold the generated company cards
+  // note that we use a document fragment here instead of creating dom elements directly under the container like div
+  // because it lets us build all nodes in memory and append them to the dom in one go
+  // which is more efficient and avoids repeated reflows and repaints in the browser, make the rendering faster
   const frag = document.createDocumentFragment();
   const ORDER = ['Frontend', 'Backend', 'Cloud Platforms', 'Database'];
 
   let renderedAny = false; // ⭐ 标记有没有渲染到公司
 
+  // get all the values (companies) from the byCompany object
   Object.values(byCompany)
+    // jobsCountMap[b.id] mean the number of jobs for company b
+    // sort companies by their job counts in descending order
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
-      // ⭐ 若需要过滤，先用“公司完整技术列表”判断是否有任一匹配
       if (shouldFilter) {
-        // 统一取出技术名；兼容字符串或 {tech, percentage}
+        // define a helper function to get the label of a tech stack item
         const labelOf = x => (typeof x === 'string' ? x : (x?.tech ?? ''));
-        // 统一小写化
+        // convert all tech stacks of this company to lower case and trimmed strings
         const norm = x => labelOf(x).trim().toLowerCase();
 
         const allTechsLower = Object.values(comp.cats)
@@ -462,6 +540,7 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
           .map(norm)
           .filter(Boolean);
 
+        // check if there is at least one selected stack in this company's tech stacks
         const hasAnyMatch = allTechsLower.some(t => selectedSet.has(t));
         if (!hasAnyMatch) return; // 跳过本公司（forEach 的本次迭代）
       }
@@ -472,18 +551,20 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
 
       const card = document.createElement('div');
       card.className = 'w-full bg-white rounded-lg hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300 shadow-lg flex flex-col gap-y-2 justify-start p-8';
-
+      // the beforeend here means insert this HMTL at the end of the card container
       card.insertAdjacentHTML('beforeend', `
         <div class="flex justify-between items-center">
           <p><span class="text-lg font-bold">${comp.name}</span> – Tech Profile</p>
-          <p class="mb-2 text-gray-500">Analysed from ${jc} Job Postings</p>
+          <p class="mb-2 text-gray-500">Analysed from <span class="font-mono text-blue-500 font-bold">${jc}</span> Job Postings</p>
         </div>
       `);
 
+      // create a container to hold all categories and their tech stacks
       const gray = document.createElement('div');
       gray.className = 'flex flex-col border gap-y-4 rounded-lg p-4 bg-gray-100';
 
       ORDER.forEach(catLabel => {
+        // get the top N tech stacks for this category in this company
         const techs = (comp.cats[catLabel] || []).slice(0, perCategory);
 
         const row = document.createElement('div');
@@ -509,15 +590,15 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
             if (!t) return;
             const pill = document.createElement('p');
             const label = typeof t === 'string' ? t : (t?.tech ?? '');
-                   
-            // 高亮：selectedStacks 命中的蓝底白字
-            // const isSelected = selectedSet.has(norm(t));
 
-
-            const isSelected = selectedSet.has(norm(label));
+            // check if this tech stack is in the selected set, if so, highlight it differently
+            const isSelected = selectedSet.has(formatSkill(label));
+            // TODO : maybe i should convert all tech stack labels to upper case to make it look better
             const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
+            // highlight the pill differently if this tech stack is selected
             if (isSelected) {
+              // note that we don't show the progress bar for selected tech stacks
               pill.className = 'px-3 py-1 bg-blue-500 text-white rounded-lg relative overflow-hidden';
               const text = document.createElement('span');
               text.textContent = cap(label);
@@ -530,7 +611,7 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
 
               // ⬇️ ③ 插入进度条（仅背景条，样式参考你的示例）
               const bar = document.createElement('span');
-              bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-gray-300 to-gray-100';
+              bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-gray-400 to-white ';
               bar.style.width = pct.toFixed(1) + '%';
               pill.appendChild(bar);
 
@@ -567,7 +648,29 @@ async function renderTechStackByCompany(containerId, apiUrl, perCategory = 5, se
 // setup tab switching and panel display functions
 // ========================================================================
 
+function switchTab() {
+  const sections = ['jobs-section', 'companies-section'];
+  const tabBtns = document.querySelectorAll('.tab-btn');
+
+  // 绑定点击
+  tabBtns.forEach(btn => {
+    // the target used here is a personal data attribute defined in the HTML, which is basically the one of the ids of the two sections
+    btn.addEventListener('click', () => showSection(btn.dataset.target));
+  });
+
+  // determine which section to show when the page loads based on the URL hash
+  const hash = location.hash.replace('#', '');
+  if (sections.includes(hash)) {
+    showSection(hash);
+  } else {
+    showSection('jobs-section'); // 默认显示 jobs panel
+  }
+}
+
 function showSection(id) {
+
+  currentTab = (id === 'jobs-section') ? 'jobs' : 'companies';
+
   const sections = ['jobs-section', 'companies-section'];
   const tabBtns = document.querySelectorAll('.tab-btn');
 
@@ -608,28 +711,15 @@ function showSection(id) {
 
   });
 
-  // 可选：同步 URL hash，刷新后还能保持当前 tab
+  // change the URL hash to match the current tab
+  // this let the browser remember the tab after a refresh
   if (location.hash !== '#' + id) {
     history.replaceState(null, '', '#' + id);
   }
 }
 
-function switchTab() {
-  const sections = ['jobs-section', 'companies-section'];
-  const tabBtns = document.querySelectorAll('.tab-btn');
-
-  // 绑定点击
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => showSection(btn.dataset.target));
-  });
-
-  // 初始：根据 URL hash 或默认显示 jobs
-  const initial = location.hash?.slice(1);
-  showSection(sections.includes(initial) ? initial : 'jobs-section');
-}
-
 // ========================================================================
-// other utility functions
+// function to toggle the nav menu on small screens
 // ========================================================================
 
 function setupToggleBtnClickEvent(){
@@ -645,6 +735,29 @@ function setupToggleBtnClickEvent(){
   });
 
 }
+
+// =================================================
+// functions for handling admin login
+// =================================================
+
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
+}
+
+// ========================================================================
+// these two functions below are no longer used, but i keep them here for future reference
+// ========================================================================
 
 function openModal() {
   document.getElementById('customModal').classList.remove('hidden');
