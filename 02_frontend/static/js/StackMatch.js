@@ -356,7 +356,7 @@ function loadMoreJobs() {
 }
 
 // ========================================================================
-// functions to select tech stacks and render for companies section
+// functions for selecting tech stacks and applying filters in companies section
 // ========================================================================
 
 function showSuggestionsCompaniesSection(e) {
@@ -444,6 +444,10 @@ function applyCompanyFilters() {
   });
 }
 
+// ========================================================================
+// functions to load companies tech stack data and render companies
+// ========================================================================
+
 // format a tech skill value into a clean string
 function formatSkill(x){
   let skill = "";
@@ -522,6 +526,106 @@ function prepareCompanyRenderData(rows, cntRows){
   return {jobsCountMap, byCompany, selectedSet, shouldFilter};
 }
 
+function renderCompanyCard(comp, jc){
+  const link = document.createElement('a');
+  const name = encodeURIComponent(comp.name);
+  link.href = `https://www.seek.co.nz/${name}-jobs/at-this-company`;
+  link.target = '_blank';
+  link.className = 'block';
+
+  const card = document.createElement('div');
+  card.className = 'w-full bg-white rounded-lg hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300 shadow-lg flex flex-col gap-y-2 justify-start p-8';
+  // the beforeend here means insert this HMTL at the end of the card container
+  card.insertAdjacentHTML('beforeend', `
+    <div class="flex justify-between items-center">
+      <p><span class="text-lg font-bold">${comp.name}</span> – Tech Profile</p>
+      <p class="mb-2 text-gray-500">Analysed from <span class="font-mono text-blue-500 font-bold">${jc}</span> Job Postings</p>
+    </div>
+  `);
+
+  // create a container to hold all categories and their tech stacks
+  const gray = document.createElement('div');
+  gray.className = 'flex flex-col border gap-y-4 rounded-lg p-4 bg-gray-100';
+  
+  link.appendChild(card);
+
+  return { link, card, gray };
+
+}
+
+function renderCategoryTags(comp, catLabel, perCategory) {
+  // get the top N tech stacks for this category in this company
+  const techs = (comp.cats[catLabel] || []).slice(0, perCategory);
+
+  const row = document.createElement('div');
+  row.className = 'w-full rounded-lg flex flex-col justify-start  ';
+
+  const nameEl = document.createElement('p');
+  nameEl.textContent = catLabel;
+  nameEl.className = 'mb-1 text-gray-500 text-sm';
+  row.appendChild(nameEl);
+
+  const pills = document.createElement('div');
+  pills.className = 'flex  gap-x-2 ';
+
+  return {techs, row, pills};
+
+}
+
+function renderTechSkillsProgressBar(techs, pills, selectedSet,){
+
+  if (techs.length === 0) {
+    // ⭐ 如果该类没有任何技术栈
+    const noneEl = document.createElement('p');
+    noneEl.className = 'text-gray-400 italic';
+    noneEl.textContent = 'Not specified in job postings';
+    pills.appendChild(noneEl);
+  } else {
+
+    techs.forEach(t => {
+      if (!t) return;
+      const pill = document.createElement('p');
+      const label = typeof t === 'string' ? t : (t?.tech ?? '');
+
+      // check if this tech stack is in the selected set, if so, highlight it differently
+      const isSelected = selectedSet.has(formatSkill(label));
+      // TODO : maybe i should convert all tech stack labels to upper case to make it look better
+      const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+
+      // highlight the pill differently if this tech stack is selected
+      if (isSelected) {
+        // note that we don't show the progress bar for selected tech stacks
+        pill.className = 'px-3 py-1 bg-blue-500 text-white rounded-lg relative overflow-hidden';
+        const text = document.createElement('span');
+        text.textContent = cap(label);
+        pill.appendChild(text);
+
+      } else {
+        pill.className = 'px-3 py-1 bg-white text-gray-700 rounded-lg relative overflow-hidden';
+        // ⬇️ ② 计算百分比（兼容 0–1 / 0–100）
+        const pct = (t.percentage <= 1 ? t.percentage * 100 : t.percentage) || 0;
+
+        // ⬇️ ③ 插入进度条（仅背景条，样式参考你的示例）
+        const bar = document.createElement('span');
+        bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-gray-400 to-white ';
+        bar.style.width = pct.toFixed(1) + '%';
+        pill.appendChild(bar);
+
+        // ⬇️ ④ 保持原有文字渲染（会在进度条之上）
+        const text = document.createElement('span');
+        text.className = 'relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2 whitespace-nowrap';
+        text.textContent = cap(label);
+        pill.appendChild(text);
+      }
+
+      // const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+
+      pills.appendChild(pill);
+    });
+  } 
+
+}
+
 // TODO: this function is way too long, need to refactor it into smaller functions to make it easier to read and maintain
 // if the entire data, logic, and render flow is simple and short, keeping it inside a single function is totally fine
 // but if the function is too long and complex, it should be split according to data, logic and rendering parts for clarity and maintainability
@@ -539,7 +643,6 @@ async function renderTechStackByCompany( perCategory = 5) {
   // which is more efficient and avoids repeated reflows and repaints in the browser, make the rendering faster
   const frag = document.createDocumentFragment();
   const ORDER = ['Frontend', 'Backend', 'Cloud Platforms', 'Database'];
-
   let renderedAny = false; // ⭐ 标记有没有渲染到公司
 
   // get all the values (companies) from the byCompany object
@@ -566,93 +669,23 @@ async function renderTechStackByCompany( perCategory = 5) {
       }
 
       renderedAny = true; // 有公司被渲染
-
       const jc = jobsCountMap[comp.id] || 0;
-
-      const card = document.createElement('div');
-      card.className = 'w-full bg-white rounded-lg hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300 shadow-lg flex flex-col gap-y-2 justify-start p-8';
-      // the beforeend here means insert this HMTL at the end of the card container
-      card.insertAdjacentHTML('beforeend', `
-        <div class="flex justify-between items-center">
-          <p><span class="text-lg font-bold">${comp.name}</span> – Tech Profile</p>
-          <p class="mb-2 text-gray-500">Analysed from <span class="font-mono text-blue-500 font-bold">${jc}</span> Job Postings</p>
-        </div>
-      `);
-
-      // create a container to hold all categories and their tech stacks
-      const gray = document.createElement('div');
-      gray.className = 'flex flex-col border gap-y-4 rounded-lg p-4 bg-gray-100';
+      const { link, card, gray } = renderCompanyCard(comp, jc);
 
       ORDER.forEach(catLabel => {
-        // get the top N tech stacks for this category in this company
-        const techs = (comp.cats[catLabel] || []).slice(0, perCategory);
-
-        const row = document.createElement('div');
-        row.className = 'w-full rounded-lg flex flex-col justify-start  ';
-
-        const nameEl = document.createElement('p');
-        nameEl.textContent = catLabel;
-        nameEl.className = 'mb-1 text-gray-500 text-sm';
-        row.appendChild(nameEl);
-
-        const pills = document.createElement('div');
-        pills.className = 'flex  gap-x-2 ';
-
-        if (techs.length === 0) {
-          // ⭐ 如果该类没有任何技术栈
-          const noneEl = document.createElement('p');
-          noneEl.className = 'text-gray-400 italic';
-          noneEl.textContent = 'Not specified in job postings';
-          pills.appendChild(noneEl);
-        } else {
-
-          techs.forEach(t => {
-            if (!t) return;
-            const pill = document.createElement('p');
-            const label = typeof t === 'string' ? t : (t?.tech ?? '');
-
-            // check if this tech stack is in the selected set, if so, highlight it differently
-            const isSelected = selectedSet.has(formatSkill(label));
-            // TODO : maybe i should convert all tech stack labels to upper case to make it look better
-            const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-
-            // highlight the pill differently if this tech stack is selected
-            if (isSelected) {
-              // note that we don't show the progress bar for selected tech stacks
-              pill.className = 'px-3 py-1 bg-blue-500 text-white rounded-lg relative overflow-hidden';
-              const text = document.createElement('span');
-              text.textContent = cap(label);
-              pill.appendChild(text);
-
-            } else {
-              pill.className = 'px-3 py-1 bg-white text-gray-700 rounded-lg relative overflow-hidden';
-              // ⬇️ ② 计算百分比（兼容 0–1 / 0–100）
-              const pct = (t.percentage <= 1 ? t.percentage * 100 : t.percentage) || 0;
-
-              // ⬇️ ③ 插入进度条（仅背景条，样式参考你的示例）
-              const bar = document.createElement('span');
-              bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-gray-400 to-white ';
-              bar.style.width = pct.toFixed(1) + '%';
-              pill.appendChild(bar);
-
-              // ⬇️ ④ 保持原有文字渲染（会在进度条之上）
-              const text = document.createElement('span');
-              text.className = 'relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2 whitespace-nowrap';
-              text.textContent = cap(label);
-              pill.appendChild(text);
-            }
-
-            // const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-   
-            pills.appendChild(pill);
-          });
-        } 
+        
+        // please note that once a const variable is declared, it can not be re-assigned
+        // however, it can still be modified internally
+        // this is exactly what I did here, i modified the pills element inside renderCategoryTags function, but didn't return and re-assign it
+        const {techs, row, pills} = renderCategoryTags(comp, catLabel, perCategory);
+        renderTechSkillsProgressBar(techs, pills, selectedSet);
+  
         row.appendChild(pills);
         gray.appendChild(row);
       });
 
       card.appendChild(gray);
-      frag.appendChild(card);
+      frag.appendChild(link);
     });
 
   container.innerHTML = '';
