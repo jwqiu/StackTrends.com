@@ -238,7 +238,12 @@ public class TechStackController : ControllerBase
         using var reader = await cmd.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())
-        {
+        {   
+            // backend property names are written in PascalCase to match C# conventions, which mean the first letter of each word is capitalized
+            // ASP.NET Core converts them to camelCase automatically when returning JSON responses, so the first letter of the first word is lowercase
+            // so frontend can use camelCase to access these properties directly
+            // the naming convention in C# is to use PascalCase for class names and properties, and camelCase for local variables and method parameters
+            // please note that the convention in JavaScript is to use camelCase for both variable names and property names
             result.Add(new TechSkillRankByCompany
             {
                 Company_Id     = reader.GetInt64(0),

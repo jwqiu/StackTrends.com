@@ -1,12 +1,16 @@
-const API_BASE = window.API_BASE;
+// const API_BASE = window.API_BASE;
 let allTechStacks = [];
 
 document.addEventListener("DOMContentLoaded", async() => {
 
-    await loadTechStacks();
-    renderTechStacksByCategory();
+  await loadTechStacks();
+  renderTechStacksByCategory();
+  setupToggleBtnClickEvent();
+  fetchLoginModal();
+  setupAdminLinkClickEvent();
     
 });
+
 
 async function loadTechStacks() {
   // 调用后端API获取所有技术栈
@@ -23,7 +27,6 @@ async function loadTechStacks() {
 function renderTechStacksByCategory() {
   if (!allTechStacks || !Array.isArray(allTechStacks)) return;
 
-  // 将分类名转换为容器ID的映射（统一大小写和命名差异）
   const categoryToIdMap = {
     "Frontend": "frontend",
     "Backend": "backend",
@@ -35,15 +38,16 @@ function renderTechStacksByCategory() {
     "Other": "other"
   };
 
-  // 清空所有容器内容（除标题）
+  // clear existing content in all category if any
   Object.values(categoryToIdMap).forEach(id => {
+    // already have these containers in HTML
     const container = document.getElementById(id);
     if (container) {
       container.innerHTML = container.querySelector('h5')?.outerHTML || ""; // 保留标题
     }
   });
 
-  // 遍历数据并插入对应容器
+  // render tags into their respective category containers
   allTechStacks.forEach(stack => {
     const category = stack.category;
     const keyword = stack.stackName || "";
@@ -62,11 +66,35 @@ function renderTechStacksByCategory() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function setupToggleBtnClickEvent(){
+
   const toggleBtn = document.getElementById("menu-toggle");
   const menu = document.getElementById("menu");
 
   toggleBtn.addEventListener("click", () => {
+    // toggle is a built-in method of classList, in this example
+    // if hidden already exists in the classList, it will be removed
+    // if it doesn't exist, it will be added
     menu.classList.toggle("hidden");
   });
-});
+
+}
+
+// =================================================
+// functions for handling admin login
+// =================================================
+
+function fetchLoginModal(){
+  fetch("login-modal.html")
+    .then(res=>res.text())
+    .then(html=>{
+      document.getElementById("modalContainer").innerHTML = html;
+    })
+}
+
+function setupAdminLinkClickEvent() {
+  document.getElementById("adminLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      checkAndEnterAdminPage();
+  })
+}

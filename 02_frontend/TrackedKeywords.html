@@ -44,7 +44,6 @@
 
             </div>
         </nav>
-        <!-- <div class=" w-full text-center bg-gradient-to-b from-blue-500 via-blue-300 to-gray-100 p-16 "> -->
         <div class=" w-full text-center  p-12 ">
 
             <div class="">
@@ -106,18 +105,5 @@
         <script src="static/js/auth-utils.js"></script>
 
         <script src="static/js/TrackedKeywords.js"></script>
-        <script>
-            fetch("login-modal.html")
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("modalContainer").innerHTML = html;
-            });
-        </script>
-        <script>
-            document.getElementById("adminLink").addEventListener("click", (e) => {
-                e.preventDefault();
-                checkAndEnterAdminPage();
-            });
-        </script>
     </body>
 </html>

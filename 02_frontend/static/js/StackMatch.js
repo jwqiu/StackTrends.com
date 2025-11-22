@@ -444,15 +444,30 @@ function applyCompanyFilters() {
   });
 }
 
-// TODO: this function is way too long, need to refactor it into smaller functions to make it easier to read and maintain
-async function renderTechStackByCompany( perCategory = 5) {
-  
+// format a tech skill value into a clean string
+function formatSkill(x){
+  let skill = "";
+  if(typeof x ==='string'){
+    skill = x;
+  }
+  else if(x && x.tech){
+    skill = x.tech;
+  }
+  return skill.toString().trim().toLowerCase();
+}
+
+async function loadAllCompaniesData() {
   // get the tech stack rankings data by company from the backend API
   const res  = await fetch(`${window.API_BASE}/api/techstacks/rankings/by-company`);
   const rows = await res.json();
   // get the job counts per company from the backend API
   const cntRes  = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
   const cntRows = await cntRes.json();
+
+  return {rows, cntRows};
+}
+
+function prepareCompanyRenderData(rows, cntRows){
 
   // const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
   const jobsCountMap = {}
@@ -466,7 +481,11 @@ async function renderTechStackByCompany( perCategory = 5) {
   // the code here just groups them into a tree structure by company and by category
   rows.forEach(r => {
 
-    const cid = r.company_Id;
+    // the property names here are in camelCase, cause the backend ASP.NET Core automatically converts the PascalCase property names to camelCase in the JSON response
+    // when  ASP.NET Core returns JSON responses, it not only converts property names to camelCase, but also normalizes them, like removing underscores
+    // correction : however, it seems that ASP.NET Core does not remove underscores from property names automatically
+    // this is why we can access r.companyId instead of r.Company_Id(what the backend actually return) here directly
+    const cid = r.company_Id; 
     const category = r.category;
 
     if (!byCompany[cid]) {
@@ -487,17 +506,6 @@ async function renderTechStackByCompany( perCategory = 5) {
 
   });
 
-  // format a tech skill value into a clean string
-  function formatSkill(x){
-    let skill = "";
-    if(typeof x ==='string'){
-      skill = x;
-    }
-    else if(x && x.tech){
-      skill = x.tech;
-    }
-    return skill.toString().trim().toLowerCase();
-  }
   console.log('Selected stacks for filtering companies:', selectedStacks_companies);
   // prepare a unique set of selected stacks for filtering later
   let selectedSet = new Set();
@@ -510,6 +518,17 @@ async function renderTechStackByCompany( perCategory = 5) {
   console.log('Selected set for filtering companies:', selectedSet);
   // if there is any selected stack, need to filter companies 
   const shouldFilter = selectedSet.size > 0;
+
+  return {jobsCountMap, byCompany, selectedSet, shouldFilter};
+}
+
+// TODO: this function is way too long, need to refactor it into smaller functions to make it easier to read and maintain
+// if the entire data, logic, and render flow is simple and short, keeping it inside a single function is totally fine
+// but if the function is too long and complex, it should be split according to data, logic and rendering parts for clarity and maintainability
+async function renderTechStackByCompany( perCategory = 5) {
+  
+  const{rows, cntRows} = await loadAllCompaniesData();
+  const {jobsCountMap, byCompany, selectedSet, shouldFilter} = prepareCompanyRenderData(rows, cntRows);
 
   const container = document.getElementById("companiesContainer");
   if (!container) return;
@@ -524,6 +543,7 @@ async function renderTechStackByCompany( perCategory = 5) {
   let renderedAny = false; // ⭐ 标记有没有渲染到公司
 
   // get all the values (companies) from the byCompany object
+  // TODO: split this render loop into smaller functions to make it easier to read and maintain
   Object.values(byCompany)
     // jobsCountMap[b.id] mean the number of jobs for company b
     // sort companies by their job counts in descending order
