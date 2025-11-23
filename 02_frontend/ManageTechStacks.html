@@ -7,6 +7,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="bg-gray-100">
+        <!-- navigation bar -->
         <nav class="bg-white relative shadow py-6 shadow-lg flex justify-between items-center">
             <div class="flex items-start flex-col">
                 <a href="index.html">
@@ -45,8 +46,10 @@
 
             </div>
         </nav>
+        <!-- main content container -->
         <div class="p-8">
             <div class="flex flex-col md:flex-row justify-center gap-x-8 gap-y-8 md:gap-y-0 ">
+                <!-- sidebar menu -->
                 <div class="w-full md:w-[200px] md:sticky md:top-4 md:self-start">
                     <div class="flex flex-col gap-y-3 bg-white shadow-lg rounded-lg p-8 " id="adminContainer">
                         <h2 class="text-lg font-semibold text-gray-700 mb-4">Hi, <span id="adminNameTitle" class="text-blue-500"></span></h2>
@@ -79,9 +82,10 @@
 
                     </div>
                 </div>
+                <!-- main panel -->
                 <div class="w-full md:w-[800px]">
+                    <!-- tech keyword management panel -->
                     <div id="stack-keyword-panel"  style="display:none">
-                    
                         <form id="techStackForm" action="">
                             <div class="flex flex-col gap-4 mb-6 bg-white shadow-lg rounded-lg p-8">
                                 <h2 class="text-xl font-semibold text-gray-600">Add New Stack Keyword</h2>
@@ -163,8 +167,8 @@
                                 </table>
                             </div>
                         </div>
-                        
                     </div>
+                    <!-- category management panel -->
                     <div id="category-panel" class="mb-8" style="display:none">
                         <form action="" id="add-category-form">
                             <div class="max-w-[1200px] bg-white shadow-lg rounded-lg p-8 mb-8">
@@ -202,6 +206,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- dashboard panel -->
                     <div id="dashboard-panel" style="display:none" >
                         <div>
                             <div class="bg-white shadow-lg rounded-lg p-8 mb-8 ">

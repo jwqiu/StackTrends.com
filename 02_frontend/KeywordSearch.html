@@ -7,6 +7,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300    ">
+        <!-- navigation bar -->
         <nav class="bg-white relative shadow py-6 shadow-lg flex justify-between items-center">
             <div class="flex items-start flex-col">
                 <a href="index.html">
@@ -48,6 +49,7 @@
             </div>
         </nav>
         <div class='max-w-[1150px] mx-auto p-8 '>
+            <!-- the container for input box and search button -->
             <div class="flex flex-col  mt-8 p-8 bg-white container mx-auto rounded-lg shadow-lg">
                 <div class="flex gap-x-8 mb-3" >   
                     <div class="w-full text-center bg-white rounded-lg shadow-lg">
@@ -55,14 +57,14 @@
                     </div>
                     <button id="searchButton" class="bg-blue-500 text-white p-2 w-36 rounded-lg" onclick="fetchJobCountsForAllLevels();fetchKeywordMentionStats();renderMatchingJobList()" >Search</button>
                 </div>
-
                 <p class="text-sm text-gray-500">⚠️ Please note: if your keyword contains special characters, the search results may not be fully accurate.</p>
-
             </div>
+            <!-- the header showing the search keyword -->
             <div class="mt-4 container mx-auto flex items-center">
                 <p class="text-sm text-gray-400">Keyword Frequency For:</p>
                 <p id="searchKeyword" class="text-lg ms-2 ">Python</p>
             </div>
+            <!-- the table showing the search statistics result -->
             <div class="container mx-auto flex flex-col    rounded-lg shadow-lg mt-4 p-8 bg-white items-center ">
 
                 <table class="w-full text-sm text-center me-6">
@@ -95,6 +97,7 @@
                 </table>
             </div>
             <div class="container mx-auto mt-8 gap-x-8  grid grid-cols-1 gap-y-8 md:gap-y-0  md:grid-cols-2  ">
+                <!-- the job list matching the keyword search -->
                 <div class="bg-white rounded-lg shadow-lg p-8 order-2 md:order-1">
                     <h1 class="text-xl font-bold ">💼 Matching Job List</h1>
                     <div class="mt-4 flex flex-col gap-y-4" id="jobListContainer">
@@ -102,7 +105,7 @@
                     </div>
                     <button id="load-more-btn" onclick="showMoreJobs()" class="bg-blue-500 text-white p-2 w-36 rounded-lg mt-4 w-full">Load More</button>
                 </div>
-
+                <!-- the job description container -->
                 <div class="flex flex-col gap-y-6 bg-white rounded-lg shadow-lg p-8 max-h-[800px] order-1 md:order-2  md:sticky md:top-4 md:self-start ">
                     <p class="text-xl font-bold">💬 How this tech skill is mentioned in job ads</p>
 
@@ -114,11 +117,7 @@
                 
             </div>
         </div>
-            
-
         <div id="modalContainer"></div>
-
-
         <script src="static/js/config.js"></script>
         <script src="static/js/auth-utils.js"></script>
         <script src="static/js/KeywordSearch.js"></script>

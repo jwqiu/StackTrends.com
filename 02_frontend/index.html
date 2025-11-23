@@ -16,21 +16,18 @@
 
     </head>
     <body class="relative bg-gradient-to-r from-gray-400 via-slate-50 to-slate-100 flex justify-center items-center min-h-screen p-16">
-    <!-- <body class="relative  flex justify-center items-center min-h-screen p-16"> -->
-        <!-- <div class="absolute inset-0 backdrop-blur-md bg-white/30 z-0"></div> -->
+        <!-- background container for the tsparticles animation -->
         <div id="tsparticles" class="absolute inset-0 -z-10"></div>
+        <!-- the platform name at the top left corner -->
         <div class="absolute top-4 left-4 flex items-center gap-x-1 z-10 ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
             </svg>
             <div class="text-xl   text-gray-500">StackRadar</div>
         </div>
-        <!-- <div class="z-10 flex flex-col p-8 xl:p-0 xl:flex-row gap-4 xl:gap-x-12 xl:items-center items-start gap-y-8 xl:gap-y-0 "> -->
+        <!-- main content container -->
         <div class="z-10 flex flex-col lg:mt-8 items-center min-w-[375px]  ">
             <div class="text-center  ">
-                <!-- <p class="text-3xl font-mono xl:text-4xl font-bold text-gray-600 mb-2 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.3s_forwards]">
-                    Discover the
-                </p> -->
                 <p class=" text-3xl sm:text-4xl  lg:text-5xl  font-bold text-blue-600  mb-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.5s_forwards]">
                     Discover the Most In-Demand Tech Skills                
                 </p>
@@ -72,13 +69,8 @@
                 <p id="coldStartHint" class="text-gray-400 mb-4 italic text-sm opacity-0 animate-[fadeIn_0.5s_ease-in-out_2.5s_forwards] delay-1200">* Runs on Azure Free Student Plan — Cold start may take up to a minute :(</p>
 
             </div>
-
-
- 
         </div>
         <script src="static/js/config.js"></script>
         <script src="static/js/Index.js"></script>
-
-
     </body>
 </html>
