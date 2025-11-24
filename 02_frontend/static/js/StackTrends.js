@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupToggleBtnClickEvent();
   setupAdminLinkClickEvent();
   fetchLoginModal();
+  initFadeInOnView();
+
 });
 
 // ========================================================================
@@ -363,6 +365,7 @@ function filterTable(filterValue,clickedButton) {
   }
 
   // update the bar chart based on the filtered data
+  // get the top 10 items from the filtered data
   const top10 = filteredData.slice(0, 10); // Get top 10 items
   const labels = top10.map(item => {
     let name = item.technology ?? item.Technology ?? "";
@@ -377,12 +380,12 @@ function filterTable(filterValue,clickedButton) {
   console.log('labels.length =', labels.length, labels);
   initChart(labels, counts);
 
+  // remove the highlight from all buttons first, and then add highlight to the clicked button
   document.querySelectorAll('.filter-btn').forEach(b => {
     b.classList.remove('bg-blue-500','text-white');
     b.classList.add('bg-gray-200','text-gray-700');
   });
 
-  // —— 再去掉当前按钮的灰底灰字，加上高亮 ——  
   clickedButton.classList.remove('bg-gray-200','text-gray-700');
   clickedButton.classList.add('bg-blue-500','text-white');
 }
@@ -452,12 +455,8 @@ function renderCategoryTags(data) {
       `;
     });
 
-
       // 填充到对应div
     container.innerHTML = html;
-
-    initFadeInOnView();
-
   });
 
 }
@@ -635,11 +634,11 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
       const outer = document.createElement('div');
-      outer.className = 'opacity-0 js-fade-in'; // 外层负责 fadeUp 动画
+      outer.className = 'opacity-0 js-fade-in-companies-card '; // 外层负责 fadeUp 动画
 
       const card = document.createElement('div');
       card.dataset.companyId = comp.id;
-      card.className = 'flex flex-col gap-6 bg-gradient-to-r from-gray-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-gradient-to-r hover:from-blue-300 hover:to-white';
+      card.className = 'flex flex-col gap-6 bg-gradient-to-r from-gray-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300  hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
 
       outer.appendChild(card); // 把 card 放进外壳
       // 公司名
@@ -657,7 +656,7 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
         </div>
     `);
 
-    frag.appendChild(card);
+    frag.appendChild(outer);
 
 
     // 按固定顺序渲染 4 个分类，每组取前三
@@ -689,10 +688,11 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
   });
   container.appendChild(frag);
   initCompanyCardFadeInOnView(); // 只在最后调用一次
+
 }
 
 function initCompanyCardFadeInOnView() {
-  const cards = Array.from(document.querySelectorAll('.js-fade-in'));
+  const cards = Array.from(document.querySelectorAll('.js-fade-in-companies-card'));
   const trigger = document.getElementById('companySectionTitle');
   const observer = new IntersectionObserver((entries, obs) => {
     if (entries.some(entry => entry.isIntersecting)) {
@@ -701,7 +701,7 @@ function initCompanyCardFadeInOnView() {
         setTimeout(() => {
           el.classList.remove('opacity-0');
           el.classList.add('opacity-100', 'animate-fade-up');
-        }, idx * 50);
+        }, idx * 400);
       });
       obs.disconnect();
     }
