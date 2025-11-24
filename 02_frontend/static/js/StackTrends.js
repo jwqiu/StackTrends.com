@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFiltersOptions(); // Load filter options
   updateJobCount();
   fetchLevelCounts();
-  renderTechStackByCompany('companiesContainer', `${window.API_BASE}/api/techstacks/rankings/by-company`, 20);
+  renderTechStackByCompany(`${window.API_BASE}/api/techstacks/rankings/by-company`, 20);
   setupToggleBtnClickEvent();
   setupAdminLinkClickEvent();
   fetchLoginModal();
@@ -406,7 +406,7 @@ function renderCategoryTags(data) {
     "Other"
   ];
 
-  // 分组
+  // loop through all items and group them by category
   const grouped = {};
   data.forEach(item => {
     const category = item.category ?? item.Category;
@@ -416,13 +416,13 @@ function renderCategoryTags(data) {
     grouped[category].push(item);
   });
 
-  // 遍历每个大类，单独填充到各自的div里
+  // loop through each category in the predefined order and render the top 5 items
   categoryOrder.forEach(cat => {
     const techList = (grouped[cat] || [])
       .sort((a, b) => (b.mentions ?? b.Mentions) - (a.mentions ?? a.Mentions))
       .slice(0, 5); // 可调整显示数量
 
-    // 找到前端对应的div
+    // the container div for each category already exists and predefined in the HTML
     const container = document.getElementById(cat);
     if (!container) return;
 
@@ -446,9 +446,6 @@ function renderCategoryTags(data) {
               <span class="w-full text-md text-center  group-hover:font-bold group-hover:hidden truncate text-sm text-gray-600  " title="${name}">
                 ${name}
               </span>
-            
-              
-             
             </div>
           </div>
         </div>
@@ -482,52 +479,10 @@ function fetchLevelCounts() {
     });
 }
 
-async function renderTopTechStackTableByLevel() {
-  const levels = [
-    { key: "junior",        label: "🧑‍🎓 Junior&Graduate" },
-    { key: "intermediate",  label: "👨‍💻 Intermediate"    },
-    { key: "senior",        label: "👨‍💼 Senior"          }
-  ];
-
-  // 并发请求三个 level 的数据
-  const responses = await Promise.all(
-    levels.map(lvl =>
-      fetch(`${window.API_BASE}/api/techstacks/rankings?level=${lvl.key}`)
-        .then(res => res.json())
-    )
-  );
-
-  // 数据结构处理：{category: {junior: [tech1,tech2,tech3], intermediate: [...], ...}}
-  const tableData = {};
-  levels.forEach((lvl, idx) => {
-    const arr = responses[idx];
-    // 对每个 category 只取 mentions 前3的 technology
-    const grouped = {};
-    arr.forEach(item => {
-      const cat  = item.category   ?? item.Category;
-      const tech = item.technology ?? item.Technology;
-      const ment = item.mentions   ?? item.Mentions;
-      if (!grouped[cat]) grouped[cat] = [];
-      const perc = item.percentage ?? item.Percentage;
-      grouped[cat].push({ tech, ment, perc });
-
-    });
-    // 只保留 mentions 前3
-    Object.entries(grouped).forEach(([cat, arr2]) => {
-    const top3 = arr2
-      .sort((a, b) => b.ment - a.ment)
-      .slice(0, 3);
-      if (!tableData[cat]) tableData[cat] = {};
-      tableData[cat][lvl.key] = top3;
-    });
-  });
-
-  // 按照固定顺序展示
-  const categoryOrder = [
-    "Frontend","Backend","Coding Methods and Practices","Cloud Platforms",
-    "DevOps Tools","Database","AI"
-  ];
-
+// const and let are the most commonly used ways to declare variables in JavaScript
+// the difference between const and let is that the const variable cannot be reassigned, while the let variable can be reassigned
+// let and const only work inside the curly braces{} of the function or block they are declared in 
+function renderTechStackByLevelHeader(levels){
   // 生成表格 HTML
   let html = `
     <thead class=" border-none text-gray-700">
@@ -541,28 +496,88 @@ async function renderTopTechStackTableByLevel() {
     </thead>
     <tbody class="text-gray-800">
   `;
+  return html
+}
+
+async function renderTopTechStackTableByLevel() {
+  
+  const levels = [
+    { key: "junior",        label: "🧑‍🎓 Junior&Graduate" },
+    { key: "intermediate",  label: "👨‍💻 Intermediate"    },
+    { key: "senior",        label: "👨‍💼 Senior"          }
+  ];
+
+  // call API in parallel to get ranking data for each level
+  const responses = await Promise.all(
+    levels.map(lvl =>
+      fetch(`${window.API_BASE}/api/techstacks/rankings?level=${lvl.key}`)
+        .then(res => res.json())
+    )
+  );
+
+  // createa a data structure to hold the table data
+  // this data will be used to render the table rows later
+  const tableData = {};
+  // idx just tells us which level we’re on, and responses[idx] gives the matching data,
+  // because the requests are sent in the same order as the levels array (junior → intermediate → senior).
+  levels.forEach((lvl, idx) => {
+    const arr = responses[idx];
+
+    // only group the data by category, doesn't include level here
+    const grouped = {};
+    arr.forEach(item => {
+      const cat  = item.category   ?? item.Category;
+      const tech = item.technology ?? item.Technology;
+      const ment = item.mentions   ?? item.Mentions;
+
+      // if the category doesn't exist in grouped yet, create an empty array for it
+      if (!grouped[cat]) grouped[cat] = [];
+
+      const perc = item.percentage ?? item.Percentage;
+      grouped[cat].push({ tech, ment, perc });
+
+    });
+    // only keep the top 3 technologies per category
+    // object.entries convert the grouped object into an array of [key, value] pairs
+    // so that we can use forEach to loop through each category and its corresponding array of technologies
+    Object.entries(grouped).forEach(([cat, arr2]) => {
+    const top3 = arr2
+      .sort((a, b) => b.ment - a.ment)
+      .slice(0, 3);
+      // added grouped category data into the tableData, organized by category and level
+      if (!tableData[cat]) tableData[cat] = {};
+      tableData[cat][lvl.key] = top3;
+    });
+  });
+
+  // render the table rows in order of predefined categories
+  const categoryOrder = [
+    "Frontend","Backend","Coding Methods and Practices","Cloud Platforms",
+    "DevOps Tools","Database","AI"
+  ];
+  // first, rendering the table header, which is the job counts for each level
+  let html = renderTechStackByLevelHeader(levels);
+
+  // first render the table row by row — each row represents a category.
+  // in most cases, a table is rendered row by row rather than column by column
   categoryOrder.forEach(cat => {
+    // render the first column, which is the category name with a circle 
     html += `<tr class="">
       <td class="px-4 py-2">
         <div class="relative w-16 h-16 flex items-center justify-center ">
           <span class="relative text-lg font-bold text-gray-600 z-10">${cat}</span>
           <span class="absolute inset-0 bg-gray-200 rounded-full"></span>
         </div>
-
       </td>
       ${levels.map(lvl => {
+        // render the following columns, which are the top 3 technologies for each level in that category
+        // create a variable arr to hold the array of top technologies for that category and level
         const arr = tableData[cat]?.[lvl.key] || [];
-        // const displayArr = arr.map((val, idx) => 
-        //   idx === 0 
-        //     ? `<span class="font-bold bg-blue-400 w-full inline-block shadow-lg rounded-lg px-2 py-1 text-white">${capitalize(val)}</span>`
-        //     : capitalize(val)
-        // );*/
+        // Both map() and forEach() can be used on arrays, but map() is meant to return a new value for each element, while forEach() doesn't return anything.
+        // in general, the forEach() doesn't return anything, instead we store the processed data in an external variable
         const displayArr = arr.map((val, idx) => {
-          // val 现在应该是对象 { tech, ment, perc }
-          // if (idx === 0) {
             const width = `${(val.perc * 100).toFixed(2)}%`;
             const label = `${capitalize(val.tech)}`;            
-              // const label = `${capitalize(val.tech)}`;
 
             return `
               <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group shadow-lg px-0 mb-2 py-2 ">
@@ -573,10 +588,6 @@ async function renderTopTechStackTableByLevel() {
                 <span class=" z-10 inline-block w-full  text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
               </span>
             `;
-          // } else {
-          //   // 其他普通文字
-          //   return `${capitalize(val.tech)} (${(val.perc * 100).toFixed(2)}%)`;
-          // }
         });
         return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('') : '-'}</td>`;
       }).join("")}
@@ -590,6 +601,7 @@ async function renderTopTechStackTableByLevel() {
 
 function capitalize(str) {
   if (!str) return "";
+  // Capitalize the first letter of the string
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -598,57 +610,58 @@ function capitalize(str) {
 // ========================================================================
 
 // renderCompanies.js
-export async function renderTechStackByCompany(containerId, apiUrl, companyLimit = 20) {
-  // 1. 拉数据
-  // const res  = await fetch(apiUrl);
-  const url = new URL(apiUrl, window.location.origin);   // 兼容相对/绝对地址
+export async function renderTechStackByCompany(apiUrl, companyLimit = 20) {
+
+  // build the API URL with query parameters
+  const url = new URL(apiUrl, window.location.origin);   
   url.searchParams.set('companyLimit', String(companyLimit));
+  // get the ranking data by company, used for rendering the company card
   const res = await fetch(url.toString());
   const rows = await res.json();
-
+  // get the job counts by company, used for sorting the company cards and rendering card header
   const cntRes       = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
   const cntRows      = await cntRes.json();
-  const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
+  // both approaches create the same jobsCountMap, but the second one (below) is much easier to understand
+  // const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
+  const jobsCountMap = {};
+  for (const row of cntRows) {
+    jobsCountMap[row.company_Id] = row.jobs_Count;
+  }
 
-  // 2. 按 company 分组
   const byCompany = {};
   rows.forEach(r => {
+    // createa a company object grouped by company_Id, each company object contains its id, name, and categories 
     byCompany[r.company_Id] ??= {
       id:   r.company_Id,
       name: r.company_Name,
       cats: {}
     };
+    // then, for each row, add its technology and percentage to the corresponding category array
     const cats = byCompany[r.company_Id].cats;
-    // (cats[r.category] ??= []).push(r.technology);
     (cats[r.category] ??= []).push({
       technology: r.technology,
       percentage: r.percentage
     });
   });
 
-  // 3. 渲染到容器
-  const container = document.getElementById(containerId);
+  const container = document.getElementById('companiesContainer');
   const frag = document.createDocumentFragment();
-  // Object.values(byCompany).forEach(comp => {
   Object.values(byCompany)
     .sort((a, b) => (jobsCountMap[b.id] || 0) - (jobsCountMap[a.id] || 0))
     .forEach(comp => {
       const outer = document.createElement('div');
-      outer.className = 'opacity-0 js-fade-in-companies-card '; // 外层负责 fadeUp 动画
+      // the outer div is used for fade-in animation
+      outer.className = 'opacity-0 js-fade-in-companies-card '; 
 
       const card = document.createElement('div');
       card.dataset.companyId = comp.id;
       card.className = 'flex flex-col gap-6 bg-gradient-to-r from-gray-200 to-white p-8 rounded-xl shadow-lg transform transition-transform duration-300  hover:bg-gradient-to-r hover:from-blue-300 hover:to-white hover:scale-105';
 
-      outer.appendChild(card); // 把 card 放进外壳
-      // 公司名
-      // 先设置 data-id
+      outer.appendChild(card); 
       card.dataset.companyId = comp.id;
 
-      // 计算职位数
       const jc = jobsCountMap[comp.id] || 0;
 
-      // 直接插入 HTML
       card.insertAdjacentHTML('beforeend', `
         <div class="">
           <p class="text-xl font-bold text-blue-600 truncate">${comp.name}</p>
@@ -658,12 +671,10 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
 
     frag.appendChild(outer);
 
-
-    // 按固定顺序渲染 4 个分类，每组取前三
+    // render each category in predefined order
     ['Frontend','Backend','Cloud Platforms','Database'].forEach(cat => {
       const arr = (comp.cats[cat] || []).slice(0, 3);
 
-      // 拼接每个技术的进度条段落
       const colHtml = arr.map((item, idx) => {
         const techName = item.technology.charAt(0).toUpperCase() + item.technology.slice(1);
         const percentage = (item.percentage * 100).toFixed(2) + '%';
@@ -687,8 +698,49 @@ export async function renderTechStackByCompany(containerId, apiUrl, companyLimit
 
   });
   container.appendChild(frag);
-  initCompanyCardFadeInOnView(); // 只在最后调用一次
+  // initialize the fade-in animation for company cards after they are rendered
+  initCompanyCardFadeInOnView(); 
 
+}
+
+// ========================================================================
+// helper functions for all sections
+// ========================================================================
+
+function updateJobCount() {
+  fetch(`${window.API_BASE}/api/jobs/count`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("job-count").textContent = data.count+" job posts";
+      document.getElementById("job-count-2").textContent = data.count+" job posts";
+      document.getElementById("job-count-3").textContent = data.count+" job posts";
+      document.getElementById("job-count-4").textContent = data.count+" job posts";
+    })
+    .catch(err => console.error("Job count fetch failed:", err));
+}
+
+// there are two animation functions in this file, both of them handle fade-in animation but for different components
+// to be specific, the initFadeInOnView function handles general fade-in animation such as those used in the tech stack ranking by category and by level section
+// and the initCompanyCardFadeInOnView function specifically handles the fade-in animation for the company cards in the tech stack ranking by company section
+// the main difference: initFadeInOnView works on static DOM elements that are already present when the page loads, while initCompanyCardFadeInOnView works on dynamically generated elements
+// so the trigger for these two functions are different, the initFadeInOnView is triggered when the page load, while the initCompanyCardFadeInOnView is triggered after the company cards are rendered
+// The animation for the company cards is different from the others — the cards fade in one by one, while the other components fade in all at once
+function initFadeInOnView() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.remove('opacity-0');
+        entry.target.classList.add('animate-fade-up');
+        observer.unobserve(entry.target); // 播放一次就不再监听
+      }
+    });
+  }, {
+    threshold: 0.3  // 进入 30% 就触发
+  });
+
+  document.querySelectorAll('.js-fade-in').forEach(el => {
+    observer.observe(el);
+  });
 }
 
 function initCompanyCardFadeInOnView() {
@@ -708,42 +760,6 @@ function initCompanyCardFadeInOnView() {
   }, { threshold: 0 }); // 只要一点点进入就触发
 
   observer.observe(trigger);
-}
-
-// ========================================================================
-// helper functions for all sections
-// ========================================================================
-
-function updateJobCount() {
-  fetch(`${window.API_BASE}/api/jobs/count`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("job-count").textContent = data.count+" job posts";
-      document.getElementById("job-count-2").textContent = data.count+" job posts";
-      document.getElementById("job-count-3").textContent = data.count+" job posts";
-      document.getElementById("job-count-4").textContent = data.count+" job posts";
-
-
-    })
-    .catch(err => console.error("Job count fetch failed:", err));
-}
-
-function initFadeInOnView() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.remove('opacity-0');
-        entry.target.classList.add('animate-fade-up');
-        observer.unobserve(entry.target); // 播放一次就不再监听
-      }
-    });
-  }, {
-    threshold: 0.3  // 进入 30% 就触发
-  });
-
-  document.querySelectorAll('.js-fade-in').forEach(el => {
-    observer.observe(el);
-  });
 }
 
 function setupToggleBtnClickEvent(){
@@ -886,7 +902,6 @@ async function drawExperiencePie() {
   });
 }
 
-// 2) 渲染 <select>
 function renderLevelOptions() {
   const container = document.getElementById('experienceLevel');
   if (!container) return;
