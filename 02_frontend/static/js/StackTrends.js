@@ -726,6 +726,8 @@ function updateJobCount() {
 // so the trigger for these two functions are different, the initFadeInOnView is triggered when the page load, while the initCompanyCardFadeInOnView is triggered after the company cards are rendered
 // The animation for the company cards is different from the others — the cards fade in one by one, while the other components fade in all at once
 function initFadeInOnView() {
+  // create an observer instance to monitor elements entering the viewport
+  // when an element enters the viewport, the callback function is triggered, it removes the opacity-0 class and adds the animate-fade-up class to trigger the fade-in animation
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -735,30 +737,37 @@ function initFadeInOnView() {
       }
     });
   }, {
-    threshold: 0.3  // 进入 30% 就触发
+    threshold: 0.3  // trigger when 30% of the element is visible
   });
 
+  // observe all elements with the .js-fade-in class
+  // kind of like adding event listeners to multiple elements
   document.querySelectorAll('.js-fade-in').forEach(el => {
     observer.observe(el);
   });
 }
 
 function initCompanyCardFadeInOnView() {
+  // get all company cards and convert the NodeList to an array
   const cards = Array.from(document.querySelectorAll('.js-fade-in-companies-card'));
+  // define the trigger element for the observer
   const trigger = document.getElementById('companySectionTitle');
+  // create an observer instance to monitor when the trigger element enters the viewport
   const observer = new IntersectionObserver((entries, obs) => {
+    // if any of the entries are intersecting (visible in viewport)
     if (entries.some(entry => entry.isIntersecting)) {
-      // 立即显示第一张，其余每张间隔20ms（可调整到你觉得顺滑为止）
+      // immediately show the first card, then show each subsequent card with a 400ms delay
       cards.forEach((el, idx) => {
         setTimeout(() => {
           el.classList.remove('opacity-0');
           el.classList.add('opacity-100', 'animate-fade-up');
         }, idx * 400);
       });
+      // stop observing after the animation is triggered
       obs.disconnect();
     }
-  }, { threshold: 0 }); // 只要一点点进入就触发
-
+  }, { threshold: 0 }); // trigger when just a little bit is visible
+  
   observer.observe(trigger);
 }
 
