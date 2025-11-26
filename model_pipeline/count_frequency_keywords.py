@@ -9,91 +9,111 @@ def load_job_data():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM jobs")
     rows = cursor.fetchall()
+    # cursor.description stores metadata about the query result
+    # it clearly describes what the query result looks like in terms of columns
     if cursor.description is None:
         raise ValueError("No results returned. Check your SQL or table name.")
 
-    colnames = [desc[0] for desc in cursor.description]
+    # [] in python represents a list, but in Javascript and C#, it represents an array
+    # {} in python represents a dictionary, but in Javascript and C#, it represents an object
+    # colnames = [desc[0] for desc in cursor.description]
+    colnames = []
+    for desc in cursor.description:
+        colnames.append(desc[0])
     cursor.close()
     conn.close()
     return pd.DataFrame(rows, columns=colnames) 
 
+# this function extracts top N words from job descriptions grouped by job level
+def get_top_words_by_level(df, text_col='job_des', level_col='job_level', topn=100):
 
-# -------- 新增词频统计函数 -------- #
-# def get_top_words_by_level(df, text_col='job_des', level_col='job_level', topn=100):
-#     """
-#     对每个job_level的所有job_des进行分词统计，输出每个级别的TopN高频词
-#     """
-#     results = {}
+    results = {}
 
-#     # 确保文本是小写
-#     df[text_col] = df[text_col].fillna('').str.lower()
+    # preprcessing, convert all text to lowercase
+    df[text_col] = df[text_col].fillna('').str.lower()
+    # group by job level, groups is just a temporary intermediate object that we use in the following computation
+    groups = df.groupby(level_col)
 
-#     # 循环每个类别（senior, junior, intermediate）
-#     for level, group in df.groupby(level_col):
-#         all_text = ' '.join(group[text_col].tolist())
+    # the level here represents job level like 'Junior', 'Intermediate', 'Senior'
+    # the group here represents the sub-dataframe corresponding to that job level
+    for level, group in groups:
+        # group[text_col] here is a pandas series object representing all job descriptions under that job level
+        # convert it to a list of strings because we need to combine them into one big string for word frequency counting
+        texts = group[text_col].tolist()
+        all_text = ''.join(texts)
 
-#         # 提取英文单词（长度>=3），过滤掉符号、短词
-#         words = re.findall(r'\b[a-z]{3,}\b', all_text)
+        # Extract English words (length >= 3) into a list, filter out symbols and short words
+        words = re.findall(r'\b[a-z]{3,}\b', all_text)
 
-#         # 统计词频
-#         counter = Counter(words)
-#         top_words = counter.most_common(topn)
+        # Count unique words frequency
+        counter = Counter(words)
+        top_words = counter.most_common(topn)
 
-#         results[level] = pd.DataFrame(top_words, columns=['word', 'count'])
+        # result is a dictionary, the key is job level, and the value is a dataframe of top words and their counts
+        results[level] = pd.DataFrame(top_words, columns=['word', 'count'])
 
-#     return results
-
-
-# -------- 主执行函数 -------- #
-# if __name__ == "__main__":
-#     df = load_job_data()
-#     results = get_top_words_by_level(df)
-
-#     # 只取出三个常见级别（可根据实际调整）
-#     levels = ['Junior', 'Intermediate', 'Senior']
-#     levels = [lvl for lvl in levels if lvl in results]
-
-#     # -------- 去重逻辑：保留每个级别独有词 -------- #
-#     # 1️⃣ 先取出所有集合
-#     word_sets = {lvl: set(results[lvl]['word']) for lvl in levels}
-
-#     # 2️⃣ 找出各自独有的词
-#     unique_words = {}
-#     for lvl in levels:
-#         others = set().union(*[word_sets[o] for o in levels if o != lvl])
-#         unique_words[lvl] = word_sets[lvl] - others
-
-#     # 3️⃣ 过滤原结果，只保留独有词
-#     unique_results = {}
-#     for lvl in levels:
-#         df_lvl = results[lvl]
-#         df_unique = df_lvl[df_lvl['word'].isin(unique_words[lvl])]
-#         unique_results[lvl] = df_unique.reset_index(drop=True)
-
-#     # -------- 合并并输出 -------- #
-#     merged = pd.DataFrame()
-#     for lvl in levels:
-#         table = unique_results[lvl].copy()
-#         table.columns = [f"{lvl}_word", f"{lvl}_count"]
-#         merged = pd.concat([merged, table], axis=1)
-
-#     print("\n=== Unique Top Words Comparison Across Job Levels ===")
-#     print(merged.to_string(index=False))
+    return results
 
 
+if __name__ == "__main__":
+    df = load_job_data()
+    results = get_top_words_by_level(df)
 
+    # keep only levels that exist in the results
+    levels = ['Junior', 'Intermediate', 'Senior']
+    # cause results is a dict, so for lvl in results means for lvl in results.keys()
+    levels = [lvl for lvl in levels if lvl in results]
+
+    # word_sets = {lvl: set(results[lvl]['word']) for lvl in levels}
+    # remove duplicated words for each level and store them in a new dict, the key is level, and the value is a set of words(removed duplicates)
+    word_sets = {}
+    for lvl in levels: 
+        words = results[lvl]['word']
+        word_sets[lvl] = set(words)
+
+    # find unique words for each level
+    unique_words = {}
+    for lvl in levels:
+        # get current level's words
+        current_words = word_sets[lvl]
+        # get all other levels' words             
+        all_other_words = set().union(*(word_sets[o] for o in levels if o != lvl))
+        # minus operation to get unique words for the current level
+        unique_words[lvl] = current_words - all_other_words
+
+    # we already have unique words for each level, now we need to filter the original results so we will get both unique words and their counts
+    unique_results = {}
+    for lvl in levels:
+        df_lvl = results[lvl]
+        df_unique = df_lvl[df_lvl['word'].isin(unique_words[lvl])]
+        unique_results[lvl] = df_unique.reset_index(drop=True)
+
+    # merge all unique results into one dataframe for easy comparison
+    merged = pd.DataFrame()
+    for lvl in levels:
+        table = unique_results[lvl].copy()
+        table.columns = [f"{lvl}_word", f"{lvl}_count"]
+        merged = pd.concat([merged, table], axis=1)
+
+    print("\n=== Unique Top Words Comparison Across Job Levels ===")
+    print(merged.to_string(index=False))
+
+
+# count how many job descriptions mention salary or experience with numbers
+# this is a rough analysis before conducting more advanced NLP techniques
 def count_jobs(level='Other'):
+    # load job data and copy only rows with specified level
     df = load_job_data()
     df = df[df['job_level'] == level].copy()
 
     total_jobs = len(df)
 
-    # 分句规则：按句号、问号、感叹号、分号、冒号或换行符切分
+    # rule for splitting sentences
     SENT_SPLIT = re.compile(r'(?<=[.!?;:\n])\s*')
 
-    # 匹配规则：
+    # matching rules:
     # 1) salary + $
-    # 2) experience + 数字
+    # 2) experience + number
     pattern_salary = re.compile(r'(?=.*\bsalary\b)(?=.*\$)', re.IGNORECASE)
     pattern_experience = re.compile(r'(?=.*\bexperience\b)(?=.*\d)', re.IGNORECASE)
 
@@ -102,10 +122,10 @@ def count_jobs(level='Other'):
 
     for _, row in df.iterrows():
         des = str(row['job_des'])
-        # 先粗分
+        # split original long description into sentences
         sentences = [s.strip() for s in SENT_SPLIT.split(des) if s.strip()]
 
-        # 如果句子超过100个单词，再按逗号进一步细分
+        # however, some sentences are still too long (over 100 words), we need to further split them by commas
         refined_sentences = []
         for s in sentences:
             if len(s.split()) > 100:
@@ -114,7 +134,7 @@ def count_jobs(level='Other'):
                 refined_sentences.append(s)
         sentences = refined_sentences
 
-        # 检查是否匹配 salary+$ 或 experience+数字
+        # check if any sentences match the patterns
         if any(pattern_salary.search(s) or pattern_experience.search(s) for s in sentences):
             match_count += 1
             matched_sentences.extend([
@@ -122,7 +142,6 @@ def count_jobs(level='Other'):
                 if pattern_salary.search(s) or pattern_experience.search(s)
             ])
 
-    # 输出结果
     print(f"\n📊 Level: {level}")
     print(f"Total jobs: {total_jobs}")
     print(f"Jobs mentioning salary+$ or experience+number: {match_count}")
@@ -133,8 +152,4 @@ def count_jobs(level='Other'):
         for s in matched_sentences[:10]:
             print(" -", s)
 
-# 示例：查询 “Other” level 中包含 “salary” 和数字的职位
 count_jobs(level='Other')
-
-# 你也可以改成：
-# count_jobs(level='Other', keyword='experience')

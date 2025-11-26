@@ -15,9 +15,9 @@ from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
 
-# ---------------------------
-# 1️⃣ 数据准备
-# ---------------------------
+# ------------------------------------------------------
+# function and configuration for sentence extraction
+# ------------------------------------------------------
 # 假设你已有 train_df, val_df, test_df
 # 每个有列: ['job_title', 'job_des', 'job_level']
 # 如果文本是 job_title + job_des 拼一起更好
@@ -25,9 +25,8 @@ from tqdm import tqdm
 # pattern to split sentences
 SENT_SPLIT = re.compile(r'(?<=[.!?:;·•|])\s+|\n+')
 
-# pattern to detect sentences that contain the word "experience" along with a number
-
-# 先尝试匹配条件 1（数字 + experience）
+# pattern to detect sentences that contain specific keywords
+# experience with numbers
 pattern_experience_num = re.compile(
     r'^(?!.*\$).*?(?:'
     r'\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several)\b[^.]{0,50}\bexperience\b'
@@ -36,7 +35,7 @@ pattern_experience_num = re.compile(
     re.IGNORECASE
 )
 
-# 再准备条件 2（岗位级别类）
+# keywords that indicate job level
 pattern_level = re.compile(
     r'\bintern(ship)?\b'
     r'|\bgraduate|graduat(e|es|ed|ing)\b'
@@ -45,8 +44,7 @@ pattern_level = re.compile(
     re.IGNORECASE
 )
 
-# Pattern to detect sentences that contain the word "experience"
-# pattern_experience     = re.compile(r'\bexperience\b', re.IGNORECASE) 
+# keywords that indicate the skill/experience requirement
 pattern_experience = re.compile(
     r'\b('
     r'experience|experienced|'
@@ -55,12 +53,13 @@ pattern_experience = re.compile(
     re.IGNORECASE
 )
 
-# Pattern to detect sentences that contain the word "salary" along with a dollar sign
+# keywords that indicate salary information
 pattern_salary = re.compile(
     r'(?=.*\b(?:salary|compensation|pay)\b)(?=.*\$)',
     re.IGNORECASE
 ) 
 
+# this function takes a job description as input and extracts relevant sentences based on the selected patterns
 def extract_requirement_text(
     text: str,
     use_experience: bool = True,
@@ -75,7 +74,7 @@ def extract_requirement_text(
         if s:
             sentences.append(s)
 
-    # split long sentences by commas
+    # further split long sentences by commas
     refined_sentences = []
     for s in sentences:
         if len(s.split()) > 100:
@@ -101,11 +100,11 @@ def extract_requirement_text(
             continue
         # check for experience with numbers
         if use_experience_num:
-            if pattern_experience_num.search(s):        # ✅ 优先匹配条件 1（数字 + experience）
-                exp_num_sents.append(s)
+            if pattern_experience_num.search(s): # check condition 1 first
+                exp_num_sents.append(s) # if find sentences match this pattern, add to list
                 continue
-            elif pattern_level.search(s):               # ✅ 如果条件 1 没命中，再尝试条件 2（intern/junior/graduate/experienced）
-                exp_num_sents.append(s)
+            elif pattern_level.search(s): # check condition 2 if condition 1 not met
+                exp_num_sents.append(s) 
                 continue
         # check for salary information
         if use_salary and pattern_salary.search(s):
@@ -115,7 +114,7 @@ def extract_requirement_text(
         if use_experience and pattern_experience.search(s):
             exp_sents.append(s)
 
-    # if none found, relax the condition to just contain "experience"
+    # just in case if use experience is not enabled and nothing matches the selected patterns, then loosen the criteria and match by experience pattern only
     if not (exp_num_sents or salary_sents or exp_sents):
         exp_sents = [s for s in sentences if pattern_experience.search(s) and not s.strip().endswith('?')]
 
@@ -140,11 +139,17 @@ def extract_requirement_text(
 
     return matched
 
+# ------------------------------------------------------
+# main execution code
+# ------------------------------------------------------
+
+# if this script is run directly, execute the following code
+# if this script is imported as a module, the following code will not run
 if __name__ == "__main__":
 
-    # ---------------------------
-    # 1️⃣ 读取数据库数据
-    # ---------------------------
+    # ------------------------------------------------------
+    # 1️⃣ load data from database
+    # ------------------------------------------------------
     conn = get_conn()
     verify_cur = conn.cursor()
     verify_cur.execute("""
@@ -153,21 +158,23 @@ if __name__ == "__main__":
         WHERE job_level IS NOT NULL;
     """)
     rows = verify_cur.fetchall()
-    # 安全检查
+    # safety check
     if verify_cur.description is None:
-        raise RuntimeError("⚠️ SQL 执行失败或没有返回结果，请检查字段名是否正确。")
+        raise RuntimeError("⚠️ no data fetched from database")
+    # get column names
     colnames = [desc[0] for desc in verify_cur.description]
     verify_cur.close()
     conn.close()
-
+    
+    # create a new dataframe
     df = pd.DataFrame(rows, columns=colnames)
-    print(f"总样本数: {len(df)}")
+    print(f"Total samples: {len(df)}")
     print(df['job_level'].value_counts())
 
-    # ---------------------------
-    # 2️⃣ 按类别分层划分数据集
-    # ---------------------------
-    # 先划分 train (0.6) vs temp (0.4)
+    # ------------------------------------------------------
+    # 2️⃣ split the data but keep the job levels balanced
+    # ------------------------------------------------------
+    # First split train (0.6) vs temp (0.4)
     train_df, temp_df = train_test_split(
         df,
         test_size=0.4,
@@ -175,7 +182,7 @@ if __name__ == "__main__":
         random_state=42
     )
 
-    # 再划分 temp -> val/test 各 0.2
+    # Then split temp -> val/test each 0.2
     val_df, test_df = train_test_split(
         temp_df,
         test_size=0.5,
@@ -183,27 +190,29 @@ if __name__ == "__main__":
         random_state=42
     )
 
-    # ---------------------------
-    # 3️⃣ 检查每个子集的分布
-    # ---------------------------
+    # ------------------------------------------------------
+    # 3️⃣ Check the distribution of each subset
+    # ------------------------------------------------------
     def show_distribution(label, data):
-        print(f"\n📊 {label} 集类别分布:")
+        print(f"\n📊 {label} subset category distribution:")
         print(data['job_level'].value_counts())
 
     show_distribution("Train", train_df)
     show_distribution("Validation", val_df)
     show_distribution("Test", test_df)
 
-    # ---------------------------
-    # 4️⃣ 可选：保存或传递变量
-    # ---------------------------
-    # train_df, val_df, test_df 可直接用于模型训练
-    # 例如：
+    # ------------------------------------------------------
+    # 4️⃣ Optional: Save or pass variables
+    # ------------------------------------------------------
+    # train_df, val_df, test_df can be directly used for model training
+    # For example:
     # train_df.to_csv("train_data.csv", index=False)
     # val_df.to_csv("val_data.csv", index=False)
     # test_df.to_csv("test_data.csv", index=False)
 
-
+    # ------------------------------------------------------
+    # 5️⃣ configure different extraction settings and generate embeddings
+    # ------------------------------------------------------
     configs = [
         {"name": "1️⃣: only_exp_num", "use_experience_num": True, "use_salary": False, "use_experience": False},
         {"name": "2️⃣: exp_num+exp", "use_experience_num": True, "use_salary": False, "use_experience": True},
@@ -214,8 +223,14 @@ if __name__ == "__main__":
 
     for cfg in configs:
         
+        # ------------------------------------------------------
+        # 1️⃣ prepare and filter texts for embedding
+        # ------------------------------------------------------
+
         print(f"\n=== Config: {cfg['name']} ===")
 
+        # this extractor function will be applied to each job description in each subset
+        # After extraction, we'll have a new column job_des_filtered that contains only the sentences with relevant information
         train_df['job_des_filtered'] = train_df['job_des'].fillna('').apply(
             lambda x: extract_requirement_text(
                 x,
@@ -240,7 +255,8 @@ if __name__ == "__main__":
                 use_salary=cfg["use_salary"]
             )
         ).tolist()
-
+        
+        # then, combine job title and filtered job description for embedding
         train_df["title_plus_des"] = (
             "This job title is " + train_df["job_title"].astype(str) + ". " +
             train_df["job_des_filtered"].astype(str)
@@ -254,42 +270,8 @@ if __name__ == "__main__":
             test_df["job_des_filtered"].astype(str)
         )
 
+        # filter four types of texts and later evaluate which ones contribute most to classification performance
 
-    # print("\n=== Generating embeddings for RAW JD + Job Title ===")
-
-    # train_df["title_plus_des"] = (
-    #     "This job title is " + train_df["job_title"].astype(str) + ". " +
-    #     train_df["job_des"].astype(str)
-    # )
-    # val_df["title_plus_des"] = (
-    #     "This job title is " + val_df["job_title"].astype(str) + ". " +
-    #     val_df["job_des"].astype(str)
-    # )
-    # test_df["title_plus_des"] = (
-    #     "This job title is " + test_df["job_title"].astype(str) + ". " +
-    #     test_df["job_des"].astype(str)
-    # )
-
-        train_texts = train_df["title_plus_des"].tolist()
-        val_texts = val_df["title_plus_des"].tolist()
-        test_texts = test_df["title_plus_des"].tolist()
-
-        # ---------------------------
-        # 2️⃣ 文本向量化 (Embedding)
-        # ---------------------------
-        print("🔹 Encoding texts with SentenceTransformer ...")
-        model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
-
-        train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
-        val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
-        test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
-
-        # ---------------------------
-        # 3️⃣ save embeddings and labels
-        # ---------------------------
-        os.makedirs("model_pipeline/embeddings", exist_ok=True)
-
-        # # ✅ 提取四类句子
         # test_titles = test_df["job_title"].astype(str).tolist()
         # test_exp_num_texts = test_df["job_des_filtered"].apply(
         #     lambda x: " ".join(re.findall(r'\[Years of experience required\].*?(?=\[|$)', x))
@@ -301,13 +283,53 @@ if __name__ == "__main__":
         #     lambda x: " ".join(re.findall(r'\[Experience and Skills\].*?(?=\[|$)', x))
         # ).tolist()
 
-        # # ✅ 生成四类 embedding
+        # this part of code prepare job title + raw job description for embedding
+
+        # print("\n=== Generating embeddings for RAW JD + Job Title ===")
+        # train_df["title_plus_des"] = (
+        #     "This job title is " + train_df["job_title"].astype(str) + ". " +
+        #     train_df["job_des"].astype(str)
+        # )
+        # val_df["title_plus_des"] = (
+        #     "This job title is " + val_df["job_title"].astype(str) + ". " +
+        #     val_df["job_des"].astype(str)
+        # )
+        # test_df["title_plus_des"] = (
+        #     "This job title is " + test_df["job_title"].astype(str) + ". " +
+        #     test_df["job_des"].astype(str)
+        # )
+
+        # most models expect a list of texts as input
+        train_texts = train_df["title_plus_des"].tolist()
+        val_texts = val_df["title_plus_des"].tolist()
+        test_texts = test_df["title_plus_des"].tolist()
+
+        # ------------------------------------------------------
+        # 2️⃣ start generating embeddings
+        # ------------------------------------------------------
+        print("🔹 Encoding texts with SentenceTransformer ...")
+        # this model performs best among 4 open source models i have tested so far
+        model_emb = SentenceTransformer('intfloat/e5-large-v2',device="cpu")
+
+        # Generate embeddings and convert them to PyTorch tensor format.
+        train_emb = torch.from_numpy(model_emb.encode(train_texts, batch_size=32, show_progress_bar=True))
+        val_emb = torch.from_numpy(model_emb.encode(val_texts, batch_size=32, show_progress_bar=True))
+        test_emb = torch.from_numpy(model_emb.encode(test_texts, batch_size=32, show_progress_bar=True))
+
+        # generate embeddings for four different text types for later analysis
+
         # test_title_emb = torch.from_numpy(model_emb.encode(test_titles, batch_size=32, show_progress_bar=True))
         # test_exp_num_emb = torch.from_numpy(model_emb.encode(test_exp_num_texts, batch_size=32, show_progress_bar=True))
         # test_salary_emb = torch.from_numpy(model_emb.encode(test_salary_texts, batch_size=32, show_progress_bar=True))
         # test_exp_skill_emb = torch.from_numpy(model_emb.encode(test_exp_skill_texts, batch_size=32, show_progress_bar=True))
 
-        # ✅ 保存所有 embedding
+        # ------------------------------------------------------
+        # 3️⃣ save embeddings and labels
+        # ------------------------------------------------------
+        
+        os.makedirs("model_pipeline/embeddings", exist_ok=True)
+
+        # this code saves the embeddings generated from filtered job descriptions along with job level labels
         torch.save({
             "train_emb": train_emb,
             "val_emb": val_emb,
@@ -323,6 +345,7 @@ if __name__ == "__main__":
 
         print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
 
+        # this code saves the embeddings generated from raw job descriptions along with job level labels
         # torch.save({
         #     "train_emb": train_emb,
         #     "val_emb": val_emb,
@@ -330,18 +353,6 @@ if __name__ == "__main__":
         #     "train_labels": train_df["job_level"].tolist(),
         #     "val_labels": val_df["job_level"].tolist(),
         #     "test_labels": test_df["job_level"].tolist(),
-        # }, f"model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+        # }, "model_pipeline/embeddings/raw_jd_embeddings.pt")
 
-        # print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
-
-    # os.makedirs("model_pipeline/embeddings", exist_ok=True)
-    # torch.save({
-    #     "train_emb": train_emb,
-    #     "val_emb": val_emb,
-    #     "test_emb": test_emb,
-    #     "train_labels": train_df["job_level"].tolist(),
-    #     "val_labels": val_df["job_level"].tolist(),
-    #     "test_labels": test_df["job_level"].tolist(),
-    # }, "model_pipeline/embeddings/raw_jd_embeddings.pt")
-
-    # print("✅ Embeddings saved to model_pipeline/embeddings/raw_jd_embeddings.pt")
+        # print("✅ Embeddings saved to model_pipeline/embeddings/raw_jd_embeddings.pt")
