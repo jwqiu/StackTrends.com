@@ -1,5 +1,5 @@
 import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # 把项目根目录加入模块搜索路径
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  
 from python_scraper.connect import get_conn
 import pandas as pd
 import re
@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from itertools import combinations
-
-
 
 def load_job_data():
     conn = get_conn()
@@ -49,24 +47,7 @@ SENT_SPLIT = re.compile(r'(?<=[.!?:;·•|])\s+|\n+')
 
 # pattern to detect sentences that contain the word "experience" along with a number
 
-# pattern_experience_num = re.compile(
-#     r'('
-#     # 条件 1：包含 experience+数字（含 several） 且 不含 $
-#     r'(^(?!.*\$).*?(?:'
-#         r'\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several)\b[^.]{0,50}\bexperience\b'
-#         r'|\bexperience\b[^.]{0,50}\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several)\b'
-#     r'))'
-#     # 条件 2：包含 intern / graduate / junior / experienced
-#     r'|'
-#     r'\bintern(ship)?\b'
-#     r'|\bgraduate|graduat(e|es|ed|ing)\b'
-#     r'|\bjunior\b'
-#     r'|\bexperienced\b'
-#     r')',
-#     re.IGNORECASE
-# )
-
-# 先尝试匹配条件 1（数字 + experience）
+# first, try to match condition 1 (number + experience)
 pattern_experience_num = re.compile(
     r'^(?!.*\$).*?(?:'
     r'\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several)\b[^.]{0,50}\bexperience\b'
@@ -75,7 +56,7 @@ pattern_experience_num = re.compile(
     re.IGNORECASE
 )
 
-# 再准备条件 2（岗位级别类）
+# then, try to match condition 2
 pattern_level = re.compile(
     r'\bintern(ship)?\b'
     r'|\bgraduate|graduat(e|es|ed|ing)\b'
@@ -100,6 +81,7 @@ pattern_salary = re.compile(
     re.IGNORECASE
 ) 
 
+# function to extract requirement-related sentences from job description
 def extract_requirement_text(
     text: str,
     use_experience: bool = True,
@@ -178,7 +160,6 @@ def extract_requirement_text(
         matched = "[Job Description:] " + text
 
     return matched
-
 
 # test different input text combination
 configs = [
@@ -340,7 +321,7 @@ for cfg in configs:
             plt.savefig(fname, dpi=150)
             plt.close()
 
-        # 加上 config 名称到文件名中
+        # include model name and config name in the plot titles and filenames, save the plots
         plot_and_save(
             X_pca,
             f"PCA — {model_name} ({cfg['name']})",

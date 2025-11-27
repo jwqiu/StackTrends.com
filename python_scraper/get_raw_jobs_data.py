@@ -1,10 +1,3 @@
-# import sys
-# import os
-
-# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# if project_root not in sys.path:
-#     sys.path.insert(0, project_root)
-
 import requests
 from openpyxl import Workbook
 import time
@@ -18,22 +11,15 @@ from .connect import get_conn
 import logging
 from requests.exceptions import ConnectionError,HTTPError
 
+# configure basic logging format and level
 logging.basicConfig(
-    level=logging.INFO,  # 你也可以改为 logging.DEBUG 查看更详细信息
+    level=logging.INFO,  
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 base_url = 'https://www.seek.co.nz/api/jobsearch/v5/search?siteKey=NZ-Main&sourcesystem=houston&userqueryid=132bf9afd02e341071614907b92d1843-1679696&userid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&usersessionid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&eventCaptureSessionId=c91709f5-a661-49d5-85a9-cb3ad63dff6b&where=All+New+Zealand&page={}&classification=6281&subclassification=6290,6287,6302&sortmode=ListedDate&pageSize=22&include=seodata,relatedsearches,joracrosslink,gptTargeting,pills&locale=en-NZ&solId=d9cce31f-749c-48c3-aeae-a3d61140f204&relatedSearchesCount=12&baseKeywords='
 
 graphql_url = "https://www.seek.co.nz/graphql"
-
-# wb=Workbook()
-# ws=wb.active
-
-# title=['company_id','company_name','job_id','job_title', 'job_url', 'job_des_origin','job_des','sub_id', 'sub_name','location','listed_date','collected_date','listing_year_month']
-
-
-
 
 import requests
 
@@ -134,7 +120,6 @@ def get_job_details(graphql_url, job_id, headers):
     except Exception as e:  # ✅✅✅【新增：捕获所有未预期的异常】
         logging.warning(f"[Skipped] job_id={job_id} 报错已跳过: {e}")
         return "NA"
-    
     
 def clean_html(raw_html):
     soup = BeautifulSoup(raw_html, "html.parser")

@@ -40,6 +40,7 @@ torch.backends.cudnn.benchmark = False
 # ---------------------------
 
 # set batch size for training
+# batch side represents how many samples are fed into the model per training iteration
 # larger batch size generally speed up training but use more GPU memory
 # smaller batch size may lead to better generalization but slower training
 # batch_size = [16, 32, 64]
@@ -48,12 +49,12 @@ batch_size = [64]
 
 # list of embedding file paths
 embedding_paths = [
-    "model_pipeline/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
-    "model_pipeline/embeddings/2️⃣: exp_num+exp_embeddings.pt",   # 数字+经验词复合特征
-    "model_pipeline/embeddings/3️⃣: exp_num+salary_embeddings.pt",             # 启用全部筛选标准（完整特征）
-    # "model_pipeline/embeddings/4️⃣: all_enabled_embeddings.pt",             # 关闭全部筛选标准（控制组）
-    # "model_pipeline/embeddings/5️⃣: all_disabled_embeddings.pt",          # 仅保留经验相关句子（去除数值）
-    # "model_pipeline/embeddings/raw_jd_embeddings.pt",          # raw jd embeddings
+    "model_pipeline/local_experiments/embeddings/1️⃣: only_exp_num_embeddings_new.pt",             # 仅包含“数字+经验”信息的句向量
+    "model_pipeline/local_experiments/embeddings/2️⃣: exp_num+exp_embeddings.pt",   # 数字+经验词复合特征
+    "model_pipeline/local_experiments/embeddings/3️⃣: exp_num+salary_embeddings.pt",             # 启用全部筛选标准（完整特征）
+    # "model_pipeline/local_experiments/embeddings/4️⃣: all_enabled_embeddings.pt",             # 关闭全部筛选标准（控制组）
+    # "model_pipeline/local_experiments/embeddings/5️⃣: all_disabled_embeddings.pt",          # 仅保留经验相关句子（去除数值）
+    # "model_pipeline/local_experiments/embeddings/raw_jd_embeddings.pt",          # raw jd embeddings
 ]
 
 # ---------------------------
@@ -132,6 +133,8 @@ use_scheduler = [True]
 # use_label_smoothing = [True, False]
 use_label_smoothing = [False]
 
+bc = False # balanced class weights
+
 # ---------------------------
 # training settings
 # ---------------------------
@@ -200,6 +203,7 @@ class MLPClassifier(nn.Module):
 if __name__ == "__main__":
 
     # try all combinations of these hyperparameters
+    # for those fixed parameters, we don't need to include them in the product
     for path, net_cfg, opt, lr, wd, act, bn, sch, ul, uls in itertools.product(embedding_paths, network_configs, optimizer_name, learning_rate, weight_decay, activation, use_batchnorm, use_scheduler, use_layernorm, use_label_smoothing):
 
         print("\n" + "="*120)
@@ -220,6 +224,9 @@ if __name__ == "__main__":
         train_labels = torch.tensor(le.fit_transform(data["train_labels"]), dtype=torch.long)
         val_labels   = torch.tensor(le.transform(data["val_labels"]), dtype=torch.long)
         test_labels  = torch.tensor(le.transform(data["test_labels"]), dtype=torch.long)
+        # for models that use numeric features, we need to normalize or standardize the data to keep all features on a similar scale
+        # if one feature has huge values and another has tiny values, the model may focus too much on the large one, scaling makes training more stable and often lead to better performance
+        # a feature is basically one piece of information about our data, like "years of experience" or "salary"
 
         # extract the embeddings for the train, validation and test sets
         train_emb = data["train_emb"]
@@ -272,11 +279,11 @@ if __name__ == "__main__":
         # ---------------------------
         # define loss function
         # ---------------------------
+        # loss functions are mathematical formulas that measures the difference between the model's predictions and the actual answers, the model tries to minimize the loss during training
 
-        bc = False
-
+        # determine if we need to compute class weights for imbalanced data
         if bc:
-            # 计算每个类别的权重
+            # the code here calculates class weights so mistakes on rare classes
             class_weights = compute_class_weight(
                 class_weight='balanced',
                 classes=np.unique(train_labels.numpy()),
@@ -286,7 +293,7 @@ if __name__ == "__main__":
         else:
             class_weights = None
             
-        # 使用加权损失函数
+        # define the loss function with or without label smoothing
         if uls:
             criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
         else:
@@ -311,19 +318,17 @@ if __name__ == "__main__":
         # training loop
         # ---------------------------
 
-        # 初始化最优验证集 loss。
-        # - 用无穷大（inf）保证第一次比较时任何结果都能被视为“更优”。
+        # initialize the best validation loss to a infinity so any real loss will be lower
         best_val_loss = float('inf')
 
-        # 早停计数器。
-        # - 统计验证集连续多少轮未改善；
-        # - 达到 patience 值后触发早停。
+        # initialize patience counter for early stopping
         patience_counter = 0
-
 
         for epoch in range(epochs):
 
             # start training
+            # this loop goes through the training data batch by batch, runs the model to get predictions, calculates the loss, does backdrop to compute gradients
+            # updates the weights with the optimizer and finally calculates the average loss for the whole epoch
             model.train()
             total_loss = 0
             for X_batch, y_batch in train_loader:
@@ -355,9 +360,9 @@ if __name__ == "__main__":
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 patience_counter = 0
-                save_dir = "model_pipeline"
+                save_dir = "model_pipeline/local_experiments"
                 save_path = os.path.join(save_dir, "best_model.pt")
-                torch.save(model.state_dict(), save_path)  # 保存当前最优模型
+                torch.save(model.state_dict(), save_path)  # save the best model
             else:
                 patience_counter += 1
                 if patience_counter >= patience:
@@ -368,7 +373,7 @@ if __name__ == "__main__":
             print(f"✅ Training finished. Best Val Loss: {best_val_loss:.4f}")
 
         # ---------------------------
-        # 6️⃣ 评估
+        # function to evaluate the model
         # ---------------------------
         def evaluate(model, loader, y_true):
             model.eval()
@@ -382,6 +387,10 @@ if __name__ == "__main__":
 
         val_preds = evaluate(model, val_loader, val_labels)
         test_preds = evaluate(model, test_loader, test_labels)
+
+        # -----------------------------------------------------------------------------------
+        #  evaluation metrics: classification report, accuracy, f1 score and confusion matrix
+        # -----------------------------------------------------------------------------------
 
         # print("\n📊 Validation Results:")
         # print(classification_report(val_labels.cpu().numpy(), val_preds, target_names=le.classes_))
@@ -406,6 +415,10 @@ if __name__ == "__main__":
         # plt.title("Confusion Matrix for Test Set (Best Model)")
         # plt.show()
 
+        # ---------------------------
+        #  evaluation result on all data
+        # ---------------------------
+
         all_emb = torch.cat([train_emb, val_emb, test_emb])
         all_labels = torch.cat([train_labels, val_labels, test_labels])
 
@@ -423,9 +436,11 @@ if __name__ == "__main__":
         # plt.title("Confusion Matrix for All Data (Best Model)")
         # plt.show()
 
+# ---------------------------
+# sensitivity analysis
+# ---------------------------
 
-# # load four types of embeddings for sensitivity analysis
-# data = torch.load("model_pipeline/embeddings/1️⃣: only_exp_num_embeddings.pt")
+# data = torch.load("model_pipeline/local_experiments/embeddings/1️⃣: only_exp_num_embeddings.pt")
 # parts = {
 #     "Job Title": data["test_title_emb"][:50],
 #     "Experience + Number": data["test_exp_num_emb"][:50],

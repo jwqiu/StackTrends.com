@@ -1,14 +1,14 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # 把项目根目录加入模块搜索路径
 import torch
-from model_pipeline.train_classifier import MLPClassifier
+from model_pipeline.local_experiments.train_classifier import MLPClassifier
 import pandas as pd
 from python_scraper.connect import get_conn
 
 
 embedding_paths = {
-    "only_exp_num": "python_scraper/embeddings/1️⃣: only_exp_num_embeddings.pt",
-    # "exp_num+exp": "python_scraper/embeddings/2️⃣: exp_num+exp_embeddings.pt",
+    "only_exp_num": "model_pipeline/production_script/embeddings/1️⃣: only_exp_num_embeddings.pt",
+    # "exp_num+exp": "model_pipeline/production_script/embeddings/2️⃣: exp_num+exp_embeddings.pt",
 
 }
 

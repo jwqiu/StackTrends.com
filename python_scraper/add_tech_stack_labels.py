@@ -1,10 +1,3 @@
-# import sys
-# import os
-
-# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# if project_root not in sys.path:
-#     sys.path.insert(0, project_root)
-
 import pandas as pd
 import re
 from collections import Counter
@@ -35,71 +28,6 @@ def load_keywords():
     return raw_keywords, normalized_keywords
 
 
-# tech_keywords = [
-#     # Frontend 框架
-#     'angular', 'angular.js', 'angularjs', 'css', 'flutter', 'html', 'jquery', 'leaflet',
-#     'next.js', 'nextjs', 'react', 'react native', 'reactjs', 'redux', 'svelte', 'sveltekit', 'tailwind',
-#     'vue', 'vue.js', 'vuejs', 'xamarin', 'javascript', 'typescript', 'html5', 'css3', 'bootstrap', 'material ui', 'ant design', 'element ui',
-
-#     # Backend 框架
-#     '.net', '.net 5', '.net 6', '.net 7', '.net 8', '.net core', 'asp.net',
-#     'django', 'express', 'fastapi', 'flask', 'laravel', 'node.js',
-#     'spring', 'spring boot', 'c#', 'python', 'java', 'go', 'golang', 'c sharp', 'c-sharp', 'c# .net', 'c++', 'php', 'kotlin', 'swift', 'objectivec', 'objective-c',
-#     'nodejs', 'node', 'graphql', 'ruby',
-
-#     # Cloud_Platforms
-#     'alibaba cloud', 'aws', 'aws cdk', 'azure', 'azure devops', 'cloudformation', 'gcp', 'google cloud', 'terraform', 'azure functions', 'azure data factory',
-
-#     # Database / 数据库
-#     'cassandra', 'cosmos db', 'databricks lakehouse', 'dbt', 'mongodb', 'mssql', 'mysql',
-#     'nosql', 'oracle', 'postgres', 'postgresql', 'redis', 'snowflake', 'sql server', 'sqlite', 'spark',
-
-#     # DevOps_tools
-#     'ci/cd', 'cicd', 'cypress', 'docker', 'event-driven architecture', 'git', 'github', 'gitlab', 'jenkins',
-#     'junit', 'kubernetes', 'linux', 'observability', 'playwright', 'powershell', 'bash', 'leaflet', 'streamsets'
-
-#     # API
-#     'api management', 'graphql', 'restful',
-
-#     # Version_Control
-#     'git', 'github', 'gitlab',
-
-#     # Operating_System
-#     'linux',
-
-#     # Other
-#     'ai tools', 'langchain', 'power apps', 'power automate', 'power bi', 'tensorflow', 'kafka', 'fabric'
-# ]
-
-
-# # 关键词归一化映射（变体 → 标准关键词）
-# keyword_aliases = {
-#     'c sharp': 'c#',
-#     'c-sharp': 'c#',
-#     'c# .net': 'c#',
-#     'vue.js': 'vue',
-#     'vuejs': 'vue',
-#     'nextjs': 'next.js',
-#     'reactjs': 'react',
-#     'angularjs': 'angular',
-#     'angular.js': 'angular',
-#     'postgres': 'postgresql',
-#     'mssql': 'sql server',
-#     'golang': 'go',
-#     'objectivec': 'objective-c',
-#     'ci/cd': 'cicd',
-#     'nodejs': 'node.js',     # 反向归一（可选）
-#     'html5': 'html',         # 可选向前归一
-#     'css3': 'css',           # 同上
-#     'react native': 'react',  # 如果你想合并统计 React，可开启此行
-#     '.net core': '.net',
-#     '.net 5': '.net',
-#     '.net 6': '.net',
-#     '.net 7': '.net',
-#     '.net 8': '.net',
-
-# }
-
 def load_job_data():
     conn = get_conn()
     cursor = conn.cursor()
@@ -109,43 +37,6 @@ def load_job_data():
     cursor.close()
     conn.close()
     return pd.DataFrame(rows, columns=colnames) 
-
-# 读取 Excel
-# df = pd.read_excel('job_list_with_details.xlsx')  # 假设有 'Job Description' 列
-
-# def label_job_level(title):
-#     title = title.lower() if isinstance(title, str) else ''
-#     if 'senior' in title:
-#         return 'Senior'
-#     elif 'intermediate' in title:
-#         return 'Intermediate'
-#     elif 'junior' in title or 'graduate' in title or 'internship' in title or 'entry-level' in title or 'intern' in title:
-#         return 'Junior'
-#     else:
-#         return 'Other'
-
-# def label_job_level(title):
-#     if not isinstance(title, str):
-#         return 'Other'
-#     title = title.lower()
-
-#     senior_keywords=['senior','lead','principal','architect','head','manager']
-#     intermediate_keywords=['intermediate','mid-level','mid level','midlevel']
-#     junior_keywords=['junior','graduate','internship','entry-level','intern','entry level','entrylevel','associate']
-
-#     for word in senior_keywords:
-#         if word in title:
-#             return 'Senior'
-
-#     for word in intermediate_keywords:
-#         if word in title:
-#             return 'Intermediate'
-
-#     for word in junior_keywords:
-#         if word in title:
-#             return 'Junior'
-
-#     return 'Other'
 
 def label_job_level(title, description=None):
     """
@@ -269,16 +160,6 @@ def add_tech_stack_labels():
     # 最后调用
     update_tech_tags_and_levels(df)
     print("技术栈和工作经验级别的标签已更新到数据库。")
-
-# 排序并打印统计
-# sorted_tech = tech_counter.most_common()
-# print("技术关键词出现频率：")
-# for tech, count in sorted_tech:
-#     print(f"{tech}: {count}")
-
-# 保存新的 Excel 文件
-# df.to_excel('jobs_with_tech_tags.xlsx', index=False)
-
 
 
 

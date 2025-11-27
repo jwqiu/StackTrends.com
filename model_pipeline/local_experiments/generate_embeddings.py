@@ -327,7 +327,7 @@ if __name__ == "__main__":
         # 3️⃣ save embeddings and labels
         # ------------------------------------------------------
         
-        os.makedirs("model_pipeline/embeddings", exist_ok=True)
+        os.makedirs("model_pipeline/local_experiments/embeddings", exist_ok=True)
 
         # this code saves the embeddings generated from filtered job descriptions along with job level labels
         torch.save({
@@ -341,9 +341,9 @@ if __name__ == "__main__":
             # "test_exp_num_emb": test_exp_num_emb,
             # "test_salary_emb": test_salary_emb,
             # "test_exp_skill_emb": test_exp_skill_emb,  # ✅ 新增
-        }, f"model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+        }, f"model_pipeline/local_experiments/embeddings/{cfg['name']}_embeddings.pt")
 
-        print(f"✅ Embeddings saved to model_pipeline/embeddings/{cfg['name']}_embeddings.pt")
+        print(f"✅ Embeddings saved to model_pipeline/local_experiments/embeddings/{cfg['name']}_embeddings.pt")
 
         # this code saves the embeddings generated from raw job descriptions along with job level labels
         # torch.save({
@@ -353,6 +353,6 @@ if __name__ == "__main__":
         #     "train_labels": train_df["job_level"].tolist(),
         #     "val_labels": val_df["job_level"].tolist(),
         #     "test_labels": test_df["job_level"].tolist(),
-        # }, "model_pipeline/embeddings/raw_jd_embeddings.pt")
+        # }, "model_pipeline/local_experiments/embeddings/raw_jd_embeddings.pt")
 
-        # print("✅ Embeddings saved to model_pipeline/embeddings/raw_jd_embeddings.pt")
+        # print("✅ Embeddings saved to model_pipeline/local_experiments/embeddings/raw_jd_embeddings.pt")
