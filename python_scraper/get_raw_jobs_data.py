@@ -16,30 +16,40 @@ logging.basicConfig(
     level=logging.INFO,  
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
-
-base_url = 'https://www.seek.co.nz/api/jobsearch/v5/search?siteKey=NZ-Main&sourcesystem=houston&userqueryid=132bf9afd02e341071614907b92d1843-1679696&userid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&usersessionid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&eventCaptureSessionId=c91709f5-a661-49d5-85a9-cb3ad63dff6b&where=All+New+Zealand&page={}&classification=6281&subclassification=6290,6287,6302&sortmode=ListedDate&pageSize=22&include=seodata,relatedsearches,joracrosslink,gptTargeting,pills&locale=en-NZ&solId=d9cce31f-749c-48c3-aeae-a3d61140f204&relatedSearchesCount=12&baseKeywords='
-
-graphql_url = "https://www.seek.co.nz/graphql"
+# our scraper gets data from these two URLs
+# we can get most of the fields from the job list API, but the job description is only available through the job detail API
+# the job list endpoint is a normal REST API, and all parameters are passed in the URL, so we can use GET method to fetch data
+job_list_url = 'https://www.seek.co.nz/api/jobsearch/v5/search?siteKey=NZ-Main&sourcesystem=houston&userqueryid=132bf9afd02e341071614907b92d1843-1679696&userid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&usersessionid=c91709f5-a661-49d5-85a9-cb3ad63dff6b&eventCaptureSessionId=c91709f5-a661-49d5-85a9-cb3ad63dff6b&where=All+New+Zealand&page={}&classification=6281&subclassification=6290,6287,6302&sortmode=ListedDate&pageSize=22&include=seodata,relatedsearches,joracrosslink,gptTargeting,pills&locale=en-NZ&solId=d9cce31f-749c-48c3-aeae-a3d61140f204&relatedSearchesCount=12&baseKeywords='
+# but the job detail endpoint is a GraphQL API, and GraphQL requests need to send the query in the JSON body, so we use POSt method to fetch data
+job_detail_url = "https://www.seek.co.nz/graphql"
+# the headers are used to make our requests look like they are coming from a real web browser
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "Accept": "application/json"
+}
 
 import requests
 
+# wrapped GET request with retry logic
+# the for-loop updates attempt count for us, so we don't need to manually increment it
 def safe_get(url, headers=None, params=None, timeout=30, max_attempts=3):
     """带重试的 GET 请求"""
     for attempt in range(1, max_attempts + 1):
         try:
+            # requests.get() method will always return a response object as long as the server sends back an HTTP response - even if the response body might be empty
             resp = requests.get(url, headers=headers, params=params, timeout=timeout)
+            # this checks the HTTP status code, and if it is not 200 OK, it raises an HTTPError exception
             resp.raise_for_status()
             return resp
         except (ConnectionError, HTTPError) as ex:
             logging.warning(f"safe_get 第 {attempt} 次失败: {ex!r}")
-            # print(f"safe_get 第 {attempt} 次失败: {ex!r}")
             if attempt < max_attempts:
                 time.sleep(2)
             else:
                 logging.error(f"safe_get 最后一次尝试失败，URL={url}")
-                # print(f"safe_get 最后一次尝试失败，URL={url}")
                 raise
 
+# wrapped POST request with retry logic
 def safe_post(url, headers=None, json=None, timeout=30, max_attempts=3):
     for attempt in range(1, max_attempts+1):
         try:
@@ -56,7 +66,13 @@ def safe_post(url, headers=None, json=None, timeout=30, max_attempts=3):
                 # print(f"safe_post 最后一次尝试失败，URL={url}")
                 raise
 
-def get_job_details(graphql_url, job_id, headers):
+# to get the job description, this function sends a GraphQL POST request to the job detail endpoint
+# the request includes:
+# 1) headers - to simulate a real browser request
+# 2) payload - which contains the GraphQL query and variables (e.g., jobId)
+# our request asks for the fields id, title, and content(platform: WEB), we only pass in the jobId variable we want
+# along with the sessionId and jobDetailsViewedCorrelationId, the endpoint will then return those fields in the response JSON
+def get_job_details(job_detail_url, job_id, headers):
 
     try:
 
@@ -83,7 +99,7 @@ def get_job_details(graphql_url, job_id, headers):
             }
         }
 
-        response = safe_post(graphql_url, headers=headers, json=payload)
+        response = safe_post(job_detail_url, headers=headers, json=payload)
 
         if response is None:
             logging.warning(f"获取 job {job_id} 返回 None")
@@ -120,11 +136,13 @@ def get_job_details(graphql_url, job_id, headers):
     except Exception as e:  # ✅✅✅【新增：捕获所有未预期的异常】
         logging.warning(f"[Skipped] job_id={job_id} 报错已跳过: {e}")
         return "NA"
-    
+
+# remove all HTML tags and extract clean text from the HTML string
 def clean_html(raw_html):
     soup = BeautifulSoup(raw_html, "html.parser")
     return soup.get_text(separator=" ", strip=True)
 
+# this function is used to clean each field in the job list before saving to database
 def clean_cell(cell):
     if cell is None:
         return None
@@ -135,7 +153,7 @@ def clean_cell(cell):
     s = re.sub(r'[\uD800-\uDFFF]', '', s)
     return s
 
-
+# convert UTC time string to New Zealand local time string
 def to_nz_time(utc_str):
     if utc_str == "NA":
         return "NA"
@@ -146,6 +164,8 @@ def to_nz_time(utc_str):
     except Exception:
         return utc_str
 
+# extract year and month from a datatime string in "YYYY-MM-DD HH:MM:SS" format
+# this is used for monthly job count statistics later
 def extract_year_month(date_str):
     if date_str == "NA":
         return "NA"
@@ -156,11 +176,6 @@ def extract_year_month(date_str):
     except Exception:
         return "NA"
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-    "Accept": "application/json"
-}
-
 def get_jobs_data():
     page = 1
     total_job = 0
@@ -168,10 +183,11 @@ def get_jobs_data():
     jobs = []
 
     while True:
-        url=base_url.format(page)
+        # insert page number into the {} in the job list URL
+        url=job_list_url.format(page)
         logging.info(f"正在爬取{url}")
-        # print(f"正在爬取{url}")
 
+        # request the job list API first
         response = safe_get(url, headers=headers)
 
         if response.status_code == 200:
@@ -181,17 +197,15 @@ def get_jobs_data():
 
             if not job_list:
                 logging.info(f"第 {page} 页没有数据，结束")
-                # print(f"第 {page} 页没有数据，结束")
                 break
             
-        
+            # iterate through each job in the job list
             for job_data in job_list:
                 job_id = job_data['id']
                 if job_id in seen_job_ids:
                     continue
                 seen_job_ids.add(job_id)
                 job=[]
-
 
                 raw_id = job_data.get('advertiser', {}).get('id')
                 try:
@@ -201,7 +215,7 @@ def get_jobs_data():
 
                 job.append(company_id)
 
-                # job.append(job_data.get('companyName') or job_data.get('name') or "N/A")
+                # there are multiple possible fields for company name, we try them one by one until we find a non-empty value
                 companyName = (
                     job_data.get('companyName') or
                     (job_data.get('advertiser') or {}).get('description') or
@@ -214,55 +228,49 @@ def get_jobs_data():
                 job.append(job_data['id'])
                 job.append(job_data['title'])
 
-
                 job_id = job_data['id']
 
+                # construct the URL for this job's detail page
                 job_url = f"https://www.seek.co.nz/job/{job_id}"      
                 job.append(job_url)    
 
+                # logging the job_id so we can track progress in terminal during scraping
                 logging.info(job_id)
-                # print(job_id)
 
-                
-                # 安全地获取 subclassification 字段
                 sub = job_data.get("classifications", [{}])[0].get("subclassification", {})
 
                 job.append(sub.get("id", "NA"))
                 job.append(sub.get("description", "NA"))
 
-                # 新增字段
                 location = job_data.get("locations", [{}])[0].get("label", "NA")
                 job.append(location)
                 job.append(to_nz_time(job_data.get("listingDate", "NA")))
 
-                # 新增当前时间
                 job.append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
                 job.append(extract_year_month(to_nz_time(job_data.get("listingDate", "NA"))))
 
-                job_html = get_job_details(graphql_url, job_id, headers)
+                # get the job description from the job detail API
+                # and store both the original HTML and cleaned text versions
+                job_html = get_job_details(job_detail_url, job_id, headers)
                 job.append(job_html)
 
                 job_cleaned = clean_html(job_html)
                 job.append(job_cleaned)
-
+                
                 job = [clean_cell(c) for c in job]
-                # ws.append(job)
                 jobs.append(job)
                 job_num=job_num+1
 
             logging.info(f"第 {page} 页获取到 {job_num} 个 Job信息")
-            # print(f"第 {page} 页获取到 {job_num} 个 Job信息")
             total_job=total_job+job_num
             page=page+1
 
         else:
             logging.error(f"第 {page} 页请求失败: {response.status_code}")
-            # print(f"第 {page} 页请求失败: {response.status_code}")
             break
 
         time.sleep(random.uniform(1, 3))
-
 
     conn = get_conn()
     cur = conn.cursor()
@@ -300,12 +308,9 @@ def get_jobs_data():
     conn.close()
 
     logging.info(f"总共获取到 {total_job} 个 Job ID")
-    # print(f"总共获取到 {total_job} 个 Job ID")
     logging.info(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
-    # print(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
 
-    # wb.save('job_list_with_details_0618.xlsx')
-
+# count jobs by listing year and month, and store the results in a separate table
 def count_jobs_by_month():
     conn = get_conn()
     cur = conn.cursor()

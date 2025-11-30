@@ -6,6 +6,7 @@ import pandas as pd
 from python_scraper.connect import get_conn
 
 
+# which embedding file to use for classification
 embedding_paths = {
     "only_exp_num": "model_pipeline/production_script/embeddings/1️⃣: only_exp_num_embeddings.pt",
     # "exp_num+exp": "model_pipeline/production_script/embeddings/2️⃣: exp_num+exp_embeddings.pt",
@@ -15,7 +16,7 @@ embedding_paths = {
 for name, path in embedding_paths.items():
 
     # ---------------------------
-    # 1️⃣ 加载 embedding 文件
+    # 1️⃣ load embeddings and metadata
     # ---------------------------
     data = torch.load(path)
     X_embeddings = data['embeddings']
@@ -25,7 +26,8 @@ for name, path in embedding_paths.items():
     raw_texts = data["raw_texts"]
 
     # ---------------------------
-    # 2️⃣ 创建模型实例
+    # 2️⃣ create model instance
+    # the model has been defined in train_classifier.py
     # ---------------------------
     model = MLPClassifier(
         input_dim=input_dim,
@@ -38,14 +40,14 @@ for name, path in embedding_paths.items():
     )
 
     # ---------------------------
-    # 3️⃣ 加载训练好的权重
+    # 3️⃣ load trained weights
     # ---------------------------
-    model.load_state_dict(torch.load("model_pipeline/best_model.pt", map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load("model_pipeline/local_experiments/best_model.pt", map_location=torch.device('cpu')))
     model.eval()
     print(f"✅ Loaded model for embeddings from {path} successfully.")
 
     # ---------------------------
-    # 4️⃣ 模型预测
+    # 4️⃣ evaluate on the embeddings
     # ---------------------------
 
     with torch.no_grad():
@@ -54,13 +56,15 @@ for name, path in embedding_paths.items():
         preds = torch.argmax(probs, dim=1).cpu().numpy()
 
     # ---------------------------
-    # 5️⃣ 映射类别名称
+    # 5️⃣ map predicted indices to labels
     # ---------------------------
-    label_map = {0: "Intermediate", 1: "Junior", 2: "Senior"}  # 要与训练时一致
+    # must be consistent with training
+    # the LabelEncoder assigns class IDs alphabetically
+    label_map = {0: "Intermediate", 1: "Junior", 2: "Senior"} 
     pred_labels = [label_map[i] for i in preds]
 
     # ---------------------------
-    # 6️⃣ 保存结果到 CSV
+    # 6️⃣ save results to CSV
     # ---------------------------
     df = pd.DataFrame({
         "job_id": job_ids,
@@ -80,6 +84,7 @@ for name, path in embedding_paths.items():
     conn = get_conn()
     cursor = conn.cursor()
 
+    # update job level in the database
     for _, row in df.iterrows():
         job_id = row["job_id"]
         job_level = row["pred_label"]
@@ -94,7 +99,7 @@ for name, path in embedding_paths.items():
                 (job_level, job_id),
             )
         except Exception as e:
-            print(f"⚠️ 更新 job_id={job_id} 时出错: {e}")
+            print(f"⚠️ Error updating job_id={job_id}: {e}")
             conn.rollback()
     
     conn.commit()

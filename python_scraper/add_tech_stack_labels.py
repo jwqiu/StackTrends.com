@@ -7,7 +7,7 @@ from .connect import get_conn
 
 def load_keywords():
     """
-    从数据库加载技术关键词
+    load tech stack keywords from the database
     """
     conn = get_conn()
     cursor = conn.cursor()
@@ -24,10 +24,14 @@ def load_keywords():
             raw_keywords.add(raw_kw.strip().lower())
         if normalized_kw and normalized_kw.strip().lower() != raw_kw.strip().lower():
             normalized_keywords[raw_kw.strip().lower()] = normalized_kw.strip().lower()
-
+    # raw_keywords is a set of all unique raw keywords
+    # normalized_keywords is a dict mapping raw keyword to normalized keyword
     return raw_keywords, normalized_keywords
 
-
+# load only newly added jobs that don't have a job level assigned yet
+# however, there is an issue here : if we update the rules or functions for assigning job levels or tech stack tags
+# we may also need to reprocess the old job data to ensure consistency, but this code skips all existing jobs (so it runs faster)
+# so it won't apply the new logic to historical data unless we change it to load all jobs every time
 def load_job_data():
     conn = get_conn()
     cursor = conn.cursor()
@@ -36,8 +40,10 @@ def load_job_data():
     colnames = [desc[0] for desc in cursor.description]  # 获取列名 # type: ignore
     cursor.close()
     conn.close()
+    # return a pandas dataframe
     return pd.DataFrame(rows, columns=colnames) 
 
+# assign job level using keywords matching, prioritizing title over description
 def label_job_level(title, description=None):
     """
     根据职位 title 和 job description 共同判断岗位级别。
@@ -86,7 +92,7 @@ def label_job_level(title, description=None):
     else:
         return 'Other'
 
-
+# update the tech_tags and job_level columns in the database
 def update_tech_tags_and_levels(df):
     conn = get_conn()
     cursor = conn.cursor()
@@ -110,35 +116,35 @@ def update_tech_tags_and_levels(df):
     cursor.close()
     conn.close()
 
-
 def add_tech_stack_labels():
     raw_keywords, normalized_keywords = load_keywords()
 
     df=load_job_data()
-    # 统一小写处理、去除空值
     df['job_des'] = df['job_des'].fillna('').str.lower()
 
-    # 初始化统计器
     tech_counter = Counter()
     job_labels = []
 
-    # 遍历每条 job description
+    # we loop through each job description and check whether each keyword appears in it
     for desc in df['job_des']:
         found = []
         for keyword in raw_keywords:
             match_found = False
 
-            # 判断是否是需要特殊处理的符号关键词（如 .net、c#）
+            # if a keyword contains special characters, like c++, .net, we do a simple substring match
             is_special = any(sym in keyword for sym in ['#', '+', '.', '-', ' '])
 
             if is_special:
                 if keyword in desc:
                     match_found = True
+            # otherwise, we use a regex word boundary match to avoid partial matches
             else:
                 if re.search(r'\b' + re.escape(keyword) + r'\b', desc):
                     match_found = True
 
             if match_found:
+                # use the normalized version if it exists, otherwise use the raw keyword
+                # the first keyword in get() is the lookup key and the second is the fallback value if not found
                 final_keyword = normalized_keywords.get(keyword, keyword)
 
                 if final_keyword not in found:
@@ -146,10 +152,9 @@ def add_tech_stack_labels():
                     tech_counter[final_keyword] += 1
 
         job_labels.append(', '.join(found))
-    # 加入标签列
+    # add the tags column
     df['Tech Tags'] = job_labels
 
-    # df['job_level'] = df['job_title'].apply(label_job_level)
     levels = []
     for i, row in df.iterrows():
         level = label_job_level(row['job_title'], row['job_des'])

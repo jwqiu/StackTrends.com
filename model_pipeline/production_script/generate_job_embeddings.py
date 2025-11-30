@@ -6,6 +6,18 @@ from model_pipeline.local_experiments.generate_embeddings import extract_require
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# the pipeline for classifying job levels first uses a pre-trained and open-source LLM to generate embeddings for the text extracted from job postings
+# the embeddings are simply vectors in a multi-dimensional space that represent the semantic meaning of the text
+# ideally, embeddings generated from job postings of different levels should be separable in the multi-dimensional space, 
+# while embeddings from the same level should be close to each other and share similar patterns
+# then i trained an MLP classifier to classify those embeddigns into different job levels, since the embeddings are already seperable and meaningful in the multi-dimensional space
+# note that the MLP classifier does not classify the raw job text directly, it classifies the embeddings generated from the raw text
+# generating good embeddings is the key to the success of this pipeline
+# generating embeddings first and then using a small model to do the actual task is the modern, standard approch in machine learning and NLP
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 print("🚀 Running generate_job_embeddings.py")
 print("📂 Current file path:", __file__)
 print("📁 Current working dir:", os.getcwd())
@@ -59,10 +71,11 @@ for cfg in configs:
     # generate embeddings for the combined text
     embeddings = torch.from_numpy(model_emb.encode(text, batch_size=32, show_progress_bar=True))
 
+    # save embeddings and associated metadata to a .pt file for later use
     torch.save(
         {
             "embeddings": embeddings,
-            "raw_texts": text,   # ✅ 保存原始用于 embedding 的文本
+            "raw_texts": text,   # keep the raw texts for reference
             "job_id": df["job_id"].tolist(),
             "job_title": df["job_title"].tolist(),
             "job_des": df["job_des"].tolist()

@@ -1,17 +1,15 @@
 import sys
 import os
-
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
-
 from collections import Counter
 import pandas as pd
 from .connect import get_conn
 from psycopg2.extras import execute_values
 from datetime import datetime
 
-
+# load tech tags from jobs table with optional filter
 def load_tags(level=None, company_id=None, month=None):
     conn = get_conn()
     cur = conn.cursor()
@@ -43,13 +41,12 @@ def load_tags(level=None, company_id=None, month=None):
         all_tags.extend(tags)
     return all_tags
 
-
 def create_tech_stack_rank():
 
-    # 定义要处理的技术栈级别
+    # Define the tech stack levels to process
     levels = ['all', 'Senior', 'Intermediate', 'Junior', 'Other']
 
-    # 可选：从 tech_stacks_list 中查出每个 tech 的类别（Frontend、DevOps 等）
+    # fetch each tech's category (Frontend, DevOps, etc.) from tech_stacks_list
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT raw_keyword, category FROM tech_stacks_list")
@@ -59,10 +56,10 @@ def create_tech_stack_rank():
 
     all_dfs = []
     for level in levels:
-        # 加载数据并统计词频
+        # count tech tags frequencies for this level
         tags = load_tags(level)
         tag_counter = Counter(tags)
-        # 单独查job个数
+        # count the number of jobs at this level so we can compute percentages
         conn = get_conn()
         cur = conn.cursor()
         if level and level.lower() != 'all':
@@ -74,28 +71,30 @@ def create_tech_stack_rank():
         cur.close()
         conn.close()
 
-        # 转成 DataFrame，计算百分比
+        # convert the counter to a dataframe for easier processing later
         df = pd.DataFrame(tag_counter.items(), columns=['technology', 'Mentions'])
-        df['Mentions'] = df['Mentions'].astype(int)
+        df['Mentions'] = df['Mentions'].astype(int) # convert to int
+        # create percentage column by dividing mentions by total jobs for each row
         df['Percentage'] = df['Mentions'] / total_jobs
 
-        # （可选）先把映射表的 key 也转成小写，确保匹配成功
+        # convert all keys in category_map to lowercase for case-insensitive matching
         category_map = {k.lower(): v for k, v in category_map.items()}
 
-        # 先转小写再映射，找不到的填 'Other'
+        # map each technology to its category using category_map, convert to lowercase before mapping, fill missing with 'Other'
         df['Category'] = df['technology'].str.lower().map(category_map).fillna('Other')
 
-
+        # add one more column to indicate the job level for this dataframe
         df['Job_Level'] = level
         all_dfs.append(df)
 
+    # combine all levels' dataframes into one
     final_df = pd.concat(all_dfs, ignore_index=True)
 
-    # 最后保存到数据库（覆盖原表）
+    # Finally save to database (overwrite the original table)
     conn = get_conn()
     cur = conn.cursor()
 
-    # 丢掉旧表，重建时包含 job_level 列
+    # Drop old table, recreate with job_level column
     cur.execute("DROP TABLE IF EXISTS tech_stacks_frequency_count")
     cur.execute("""
         CREATE TABLE tech_stacks_frequency_count (
@@ -108,16 +107,26 @@ def create_tech_stack_rank():
     """)
 
     # 批量插入 final_df 中的所有行
-    rows = [
-        (
-            row['Job_Level'],
-            row['Category'],
-            row['technology'],
-            int(row['Mentions']),
-            float(row['Percentage'])
-        )
-        for _, row in final_df.iterrows()
-    ]
+    # rows = [
+    #     (
+    #         row['Job_Level'],
+    #         row['Category'],
+    #         row['technology'],
+    #         int(row['Mentions']),
+    #         float(row['Percentage'])
+    #     )
+    #     for _, row in final_df.iterrows()
+    # ]
+
+    # build a list of tuples to be used as parameters for the SQL insert
+    rows = []
+    for _, row in final_df.iterrows():
+        job_level = row['Job_Level']
+        category = row['Category']
+        technology = row['technology']
+        mentions = int(row['Mentions'])
+        percentage = float(row['Percentage'])
+        rows.append((job_level, category, technology, mentions, percentage)) # this is a tuple, which is immutable
 
     execute_values(
         cur,
@@ -142,9 +151,6 @@ def update_job_counts_by_company():
     conn = get_conn()
     cur = conn.cursor()
 
-    # 删除旧表，重建新表
-    # cur.execute("DROP TABLE IF EXISTS job_counts_by_company")
-    # change this to insert new data rather than dropping or clearing the table
     cur.execute("TRUNCATE TABLE job_counts_by_company")
     cur.execute("""
         INSERT INTO job_counts_by_company (company_id, company_name, jobs_count)
@@ -161,18 +167,15 @@ def update_job_counts_by_company():
     conn.close()
     print("job_counts_by_company表已刷新。")
 
-
+# TODO: do not drop the table every time, just update it
 def create_tech_stack_rank_by_company():
-    from collections import Counter
-    import pandas as pd
-    from psycopg2.extras import execute_values
 
     conn = get_conn()
     cur = conn.cursor()
 
     update_job_counts_by_company()
 
-    # 找出职位数超过10的公司
+    # filter those companies with more than 10 jobs
     cur.execute("""
         SELECT company_id, company_name
         FROM job_counts_by_company
@@ -181,9 +184,13 @@ def create_tech_stack_rank_by_company():
     """)
     top_companies = cur.fetchall()  # [(id1, name1), (id2, name2), ...]
 
-    # 加载 tech → category 映射
+    # fetch all (raw_keyword, category) rows and build a dictionary for mapping
+    # convert raw_keyword to lowercase for safe mapping later
     cur.execute("SELECT raw_keyword, category FROM tech_stacks_list")
-    category_map = {k.lower(): v for k, v in cur.fetchall()}
+    # category_map = {k.lower(): v for k, v in cur.fetchall()}
+    category_map = {}
+    for k, v in cur.fetchall():
+        category_map[k.lower()] = v
 
     cur.close()
     conn.close()
@@ -191,11 +198,11 @@ def create_tech_stack_rank_by_company():
     all_dfs = []
 
     for company_id, company_name in top_companies:
-        # 加载该公司所有职位的 tags
-        tags = load_tags(company_id=company_id)  # 你需要支持 company_id 参数
+        # load tech tags for this company
+        tags = load_tags(company_id=company_id)  
         tag_counter = Counter(tags)
 
-        # 获取该公司职位总数
+        # get total job count for this company
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM jobs WHERE company_id = %s", (company_id,))
@@ -203,17 +210,18 @@ def create_tech_stack_rank_by_company():
         cur.close()
         conn.close()
 
-        # 计算频率 DataFrame
+        # count tech frequencies and compute percentages
         df = pd.DataFrame(tag_counter.items(), columns=['technology', 'Mentions'])
         df['Mentions'] = df['Mentions'].astype(int)
         df['Percentage'] = df['Mentions'] / total_jobs
 
         df['Category'] = df['technology'].str.lower().map(category_map).fillna('Other')
-        # 排序：Category 升序、Mentions 降序
+        # sort by Category ascending, Mentions descending
         df = df.sort_values(['Category', 'Mentions'], ascending=[True, False])
-        # 分组取每组前三
+        # only keep top 5 technologies per category
         df = df.groupby('Category', group_keys=False).head(5)
 
+        # assign company info values to the whole column, not row by row
         df['Company_ID'] = company_id
         df['Company_Name'] = company_name
 
@@ -267,7 +275,7 @@ def update_landing_summary():
     conn = get_conn()
     cur = conn.cursor()
 
-    # 统计三个数值
+    # count total jobs, companies, keywords
     cur.execute("SELECT COUNT(*) FROM public.jobs")
     result = cur.fetchone()
     jobs_count = result[0] if result else 0
@@ -280,7 +288,9 @@ def update_landing_summary():
     result = cur.fetchone()
     keyword_count = result[0] if result else 0
 
-    # 插入统计数据
+    # unlike other functions, we do not drop the table here but just insert a new row
+    # there is one more column in the database called updated_at with default value as current timestamp, so we do not need to insert it here
+    # when we use the data later, we just pick the latest row based on updated_at
     cur.execute("""
         INSERT INTO landing_summary (jobs_count, company_count, keyword_count)
         VALUES (%s, %s, %s)
@@ -292,8 +302,8 @@ def update_landing_summary():
 
     print("✅ landing_summary 数据已更新。")
 
-
-
+# the functions below are not in use right now
+# generate months from 2025-06 to last month
 def generate_months():
     months = pd.period_range(
         start="2025-06",

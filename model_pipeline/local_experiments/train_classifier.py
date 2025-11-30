@@ -216,7 +216,9 @@ if __name__ == "__main__":
 
         data = torch.load(path)
 
-        # label encoding, convert string labels to integers
+        # label encoding, convert label level string labels to integers
+        # the numeric IDs are assigned based on lexicographical order of the class names
+        # (e.g., ['Intermediate', 'Junior', 'Senior'] → 0, 1, 2).
         le = LabelEncoder()
         # first the encoder checks all labes in training set to learn all label categories
         # and assign each category a numeric ID
