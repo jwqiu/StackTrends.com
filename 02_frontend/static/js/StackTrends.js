@@ -464,7 +464,7 @@ function renderCategoryTags(data) {
 
 function fetchLevelCounts() {
 
-  return fetch(`${API_BASE}/api/jobs/stats/by-level`)
+  return fetch(`${API_BASE}/api/stats/jobs/level`)
 
     .then(resp => {
       if (!resp.ok) throw new Error('请求失败 ' + resp.status);
@@ -619,7 +619,7 @@ export async function renderTechStackByCompany(apiUrl, companyLimit = 20) {
   const res = await fetch(url.toString());
   const rows = await res.json();
   // get the job counts by company, used for sorting the company cards and rendering card header
-  const cntRes       = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
+  const cntRes       = await fetch(`${window.API_BASE}/api/stats/jobs/company`);
   const cntRows      = await cntRes.json();
   // both approaches create the same jobsCountMap, but the second one (below) is much easier to understand
   // const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
@@ -708,7 +708,7 @@ export async function renderTechStackByCompany(apiUrl, companyLimit = 20) {
 // ========================================================================
 
 function updateJobCount() {
-  fetch(`${window.API_BASE}/api/jobs/count`)
+  fetch(`${window.API_BASE}/api/stats/jobs/count`)
     .then(res => res.json())
     .then(data => {
       document.getElementById("job-count").textContent = data.count+" job posts";

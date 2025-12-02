@@ -114,7 +114,7 @@ function getLandingSummaryCounts() {
 async function renderJobsChart() {
   try {
     
-    const res = await fetch(`${API_BASE}/api/jobs/stats/by-month`);
+    const res = await fetch(`${API_BASE}/api/stats/jobs/month`);
     const data = await res.json();
 
     // loop through each data point to extract time and counts, store in arrays

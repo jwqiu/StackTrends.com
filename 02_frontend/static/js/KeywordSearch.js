@@ -94,7 +94,7 @@ function renderKeywordHeader() {
 }
 
 // this function is triggered by the search button's onclick event
-// TODO: using api/jobs/stats/by-level here would be more efficient than the current api/jobs/count
+// TODO: using api/jobs/stats/by-level here would be more efficient than the current api/jobs/stats/count
 // it avoids sending 4 separate requests for each job level count
 async function fetchJobCountsForAllLevels() {
   
@@ -107,9 +107,9 @@ async function fetchJobCountsForAllLevels() {
     if (level !== 'All') params.append('job_level', level);
 
     // example for URL with params:
-    // All levels: api/jobs/count
-    // Junior level: api/jobs/count?job_level=Junior  
-    return fetch(`${window.API_BASE}/api/jobs/count?${params.toString()}`)
+    // All levels: api/jobs/stats/count
+    // Junior level: api/jobs/stats/count?job_level=Junior  
+    return fetch(`${window.API_BASE}/api/stats/jobs/count?${params.toString()}`)
       .then(res => res.json())
       .then(data => ({
         level,

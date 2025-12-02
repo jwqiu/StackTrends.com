@@ -217,7 +217,7 @@ function applyFilters() {
 
 async function getFilterResultsCount() {
 
-  let url = `${API_BASE}/api/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+  let url = `${API_BASE}/api/stats/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
 
   if (selectedStacks.length > 0) {
     for (const kw of selectedStacks) {
@@ -465,7 +465,7 @@ async function loadAllCompaniesData() {
   const res  = await fetch(`${window.API_BASE}/api/techstacks/rankings/by-company`);
   const rows = await res.json();
   // get the job counts per company from the backend API
-  const cntRes  = await fetch(`${window.API_BASE}/api/jobs/stats/by-company`);
+  const cntRes  = await fetch(`${window.API_BASE}/api/stats/jobs/company`);
   const cntRows = await cntRes.json();
 
   return {rows, cntRows};
