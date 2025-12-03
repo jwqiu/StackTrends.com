@@ -26,26 +26,6 @@ namespace StackTrends.Models
         public string? JobLocation { get; set; } // 工作地点
     }
 
-    public class JobCountByLevelDto
-    {
-        public string Level { get; set; } = default!;   // e.g. "Senior", "Junior"…
-        public int Count { get; set; }              // 该级别下的职位总数
-        }
-        
-    public sealed class JobCountByMonthDto
-    {
-        public string YearMonth { get; set; } = "";  // e.g. "2025/04"
-        public int Count { get; set; }
-    }
-
-    // This class is not currently used.
-    public class ExperienceLevelCount
-    {
-        public string Level { get; set; } = default!;
-        public int Mentions { get; set; }
-        public double Percentage { get; set; }
-    }
-    
     // TODO: the KeywordMatchStats and LevelMatchStats classes could be combined into a single class 
     // public class KeywordMatchStats
     // {
@@ -62,12 +42,6 @@ namespace StackTrends.Models
         public double Percentage { get; set; }
     }
 
-    public class JobCountByCompany
-    {
-        public int Company_Id { get; set; }
-        public int Jobs_Count { get; set; }
-        public string? Company_name { get; set; }
-    }
 
     // public class KeywordsCount
     // {
