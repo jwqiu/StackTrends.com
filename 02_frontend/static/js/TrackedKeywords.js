@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async() => {
 async function loadTechStacks() {
   // 调用后端API获取所有技术栈
   try {
-    const response = await fetch(`${API_BASE}/api/techstacks/list`);
+    const response = await fetch(`${API_BASE}/api/keywords/list`);
     allTechStacks = await response.json();
 
 
