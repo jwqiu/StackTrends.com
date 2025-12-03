@@ -7,7 +7,6 @@ using StackTrends.Models;
 // this controller is currently not in use, but kept for potential future use
 // ============================================================================================================
 
-
 namespace StackTrends.Controllers
 {   
     

@@ -36,7 +36,7 @@ async function loadTechStacks() {
   // then, add event listeners to monitor input box changes and button clicks
   // so that we can show suggestions matching the input and add selected tech stack to the selected list
   try {
-    const response = await fetch(`${API_BASE}/api/techstacks/list`);
+    const response = await fetch(`${API_BASE}/api/keywords/list`);
     allTechStacks = await response.json();
     // if we call a function directly, we must pass in the parameters outselves.
     // but if a function is called by an event listener, the browser will pass in the event object automatically into that function
@@ -120,7 +120,7 @@ function setupRemoveTagListener() {
 
 async function normalizeKeyword(rawKeyword) {
 
-  const url = `${API_BASE}/api/techstacks/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
+  const url = `${API_BASE}/api/keywords/normalize?keyword=${encodeURIComponent(rawKeyword)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Normalize request failed: ${res.status}`);
@@ -462,7 +462,7 @@ function formatSkill(x){
 
 async function loadAllCompaniesData() {
   // get the tech stack rankings data by company from the backend API
-  const res  = await fetch(`${window.API_BASE}/api/techstacks/rankings/by-company`);
+  const res  = await fetch(`${window.API_BASE}/api/rankings/by-company`);
   const rows = await res.json();
   // get the job counts per company from the backend API
   const cntRes  = await fetch(`${window.API_BASE}/api/stats/jobs/company`);

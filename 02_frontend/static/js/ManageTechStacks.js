@@ -197,7 +197,7 @@ function setupAdminLinkClickEvent() {
 
 async function loadTechStacks() {
     try {
-        const res = await fetch(`${API_BASE}/api/techstacks/list`);
+        const res = await fetch(`${API_BASE}/api/keywords/list`);
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         allTechStacks = await res.json();
         renderTechStacks();
@@ -250,7 +250,7 @@ async function submitTechStack() {
   }
 
   // 3. Send POST request
-  const res = await fetch(`${API_BASE}/api/techstacks/add`, {
+  const res = await fetch(`${API_BASE}/api/keywords/add`, {
     method: 'POST',
     // always include the token in the headers when requesting/calling a protected API
     // the token is stored in sessionStorage after login
@@ -293,7 +293,7 @@ async function deleteTechStack(id) {
 
   try {
     // for DELETE requests, we usually don't need a body and Content-Type header
-    const res = await fetch(`${API_BASE}/api/techstacks/delete/${id}`, {
+    const res = await fetch(`${API_BASE}/api/keywords/delete/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('jwt')}`
@@ -373,7 +373,7 @@ async function editTechStack(id) {
       // el.dataset.field gets the value of the data-field attribute
       payload[el.dataset.field] = el.value.trim();
     });
-    const res = await fetch(`${API_BASE}/api/techstacks/update/${id}`, {
+    const res = await fetch(`${API_BASE}/api/keywords/update/${id}`, {
       method: 'PUT',
       // both POST and PUT requests sending JSON data need this header 'Content-Type':'application/json',
       headers: {

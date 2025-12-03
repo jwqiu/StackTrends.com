@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFiltersOptions(); // Load filter options
   updateJobCount();
   fetchLevelCounts();
-  renderTechStackByCompany(`${window.API_BASE}/api/techstacks/rankings/by-company`, 20);
+  renderTechStackByCompany(`${window.API_BASE}/api/rankings/by-company`, 20);
   setupToggleBtnClickEvent();
   setupAdminLinkClickEvent();
   fetchLoginModal();
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // load the ranking data and trigger rendering functions
 async function loadTechRankData() {
   try {
-    const response = await fetch(`${window.API_BASE}/api/techstacks/rankings`);
+    const response = await fetch(`${window.API_BASE}/api/rankings/by-level`);
     allData = await response.json();
 
     allLevelData = allData
@@ -510,7 +510,7 @@ async function renderTopTechStackTableByLevel() {
   // call API in parallel to get ranking data for each level
   const responses = await Promise.all(
     levels.map(lvl =>
-      fetch(`${window.API_BASE}/api/techstacks/rankings?level=${lvl.key}`)
+      fetch(`${window.API_BASE}/api/rankings/by-level?level=${lvl.key}`)
         .then(res => res.json())
     )
   );
