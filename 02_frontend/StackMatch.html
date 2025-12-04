@@ -5,6 +5,18 @@
         <title>StackRadar</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-up {
+                animation: fadeUp 0.8s ease-out forwards;
+            }
+            .job-card {
+                opacity: 0; /* ⭐ 初始隐藏状态（关键） */
+            }
+        </style>
     </head>
     <body class="bg-gradient-to-tr from-white via-gray-100 to-blue-300 min-h-screen">
         <!-- navigation bar -->
@@ -96,7 +108,7 @@
                                 <input id="techstack-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" placeholder="Enter Tech Skill...">
                                 <ul id="suggest-list" class="absolute bg-white border border-gray-200 rounded w-full z-10 max-h-60 overflow-y-auto hidden"></ul>
                             </div>
-                            <button id="add-btn" class="bg-white border border-blue-400 text-blue-400 px-8 py-2 rounded-lg hover:bg-blue-400 hover:text-white mt-2">
+                            <button id="add-btn" class="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-blue-600  mt-2">
                                 Add
                             </button>
                         </div>
@@ -128,7 +140,7 @@
                     </div>
 
                     <div>
-                        <button class="apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 mb-4 rounded-md hover:bg-blue-600">Show Matching Jobs</button>
+                        <button class=" apply-filters-btn w-full bg-blue-500 text-white px-4 py-2 mb-4 rounded-md hover:bg-blue-600">Show Matching Jobs</button>
                         <div>   
                             <p style="display:none" class="mb-3">🔍 <span id="results-count" class="font-bold  text-blue-500" >#</span> Results matching your Tech Skills and Level</p>
                             <!-- <p class="text-gray-600">📧 Want email alerts about the latest jobs that match your skills and level? — 
@@ -144,7 +156,7 @@
                 <div class="flex-1 mb-8">
                     <div class="space-y-6 " id="job-list">
                     </div>
-                    <button id="load-more-btn" class="bg-blue-500 border rounded-lg border-blue-200 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600 w-full">
+                    <button id="load-more-btn" style="display: none;" class=" bg-white border rounded-lg  text-blue-500 px-4 py-2 mt-6 rounded hover:bg-gray-100 w-full">
                         Load More
                     </button>
                     

@@ -255,6 +255,9 @@ async function loadJobs() {
   allJobs = [...allJobs, ...data.jobs]; 
   hasMore = data.hasMore;
   renderJobs(); // 渲染第一页
+  if (currentPage === 1) {
+    animateJobCards(); // 仅第一页动画
+  }
 
 }
 
@@ -276,7 +279,7 @@ function renderJobs() {
 
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
-        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
+        <div class="${currentPage === 1 ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
           <h3 class="font-bold text-lg text-grey-700">${job.jobTitle}</h3>
           <p class="text-sm text-gray-600 mt-1 ">
             ${job.companyName ?? 'N/A'} 
@@ -312,9 +315,20 @@ function renderJobs() {
   });
   const loadMoreBtn = document.getElementById('load-more-btn');
   if (loadMoreBtn) {
-    loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+    setTimeout(() => {
+      loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+    }, 1000);
   }
 
+}
+
+function animateJobCards() {
+  const cards = document.querySelectorAll('.job-card');
+  cards.forEach((card, index) => {
+    setTimeout(() => {
+      card.classList.add('animate-fade-up');
+    }, index * 350); 
+  });
 }
 
 // this function requires two parameters as input, stacks is an array of tech keywords required for a job, selected is an array of tech keywords selected by the user
