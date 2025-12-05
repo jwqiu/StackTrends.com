@@ -4,8 +4,8 @@ let topChart;
 let experienceChart = null;
 let selectedIndex = -1;
 let level_labels = [];
-let allLevelData = []; // level=all 的数据
-let allData = []; // 全部数据
+let allLevelData = []; // only data for "All" level
+let allData = []; // data including all levels
 let levelCounts = [];
 
 // if the page visibility changes ( the user switch to another tab and come back, or adjust the size of browser window )
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFiltersOptions(); // Load filter options
   updateJobCount();
   fetchLevelCounts();
-  renderTechStackByCompany(`${window.API_BASE}/api/rankings/by-company`, 20);
+  renderTechStackByCompany(20);
   setupToggleBtnClickEvent();
   setupAdminLinkClickEvent();
   fetchLoginModal();
@@ -34,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // the overall tech stack ranking table and chart
 // ========================================================================
 
-// load the ranking data and trigger rendering functions
+// load the ranking data and trigger rendering functions(including a table and a chart in first section, and rankings by category in the second section)
+// when the page loads, I use a separate function to fetch data from the backend and then trigger the rendering functions
+// this way, the data fetching and rendering logic are separated, making the code more modular and easier to maintain
 async function loadTechRankData() {
   try {
     const response = await fetch(`${window.API_BASE}/api/rankings/by-level`);
@@ -46,14 +48,15 @@ async function loadTechRankData() {
         (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage)
       );
     renderTechTableRows(allLevelData);
-    renderCategoryTags(allLevelData);
+    renderRankingsByCategory(allLevelData);
     
     // only show top 10 in the bar chart
     const top10= allLevelData.slice(0, 10); // Get top 10 items
     let labels = top10.map(item => item.technology ?? item.Technology);
     labels = labels.map(label => label.charAt(0).toUpperCase() + label.slice(1));
     const counts = top10.map(item => item.percentage ?? item.Percentage);
-
+    
+    // after loading the data, initialize the chart
     if (!topChart) {
       initChart(labels, counts);
     } else {
@@ -239,6 +242,7 @@ function initChart(labels, data) {
   // window.dispatchEvent(new Event('resize'));
 }
 
+// render the table on the right side of the chart
 async function renderTechTableRows(data, limit) {
   const tbody = document.getElementById('techTable');
   tbody.innerHTML = '';
@@ -394,7 +398,7 @@ function filterTable(filterValue,clickedButton) {
 // tech stack rankings by category
 // ========================================================================
 
-function renderCategoryTags(data) {
+function renderRankingsByCategory(data) {
   const categoryOrder = [
     "Frontend",
     "Backend",
@@ -462,6 +466,7 @@ function renderCategoryTags(data) {
 // tech stack rankings by different experience levels
 // ========================================================================
 
+// fetch job counts for each experience level and then trigger the header rendering and table rendering
 function fetchLevelCounts() {
 
   return fetch(`${API_BASE}/api/stats/jobs/level`)
@@ -610,10 +615,12 @@ function capitalize(str) {
 // ========================================================================
 
 // renderCompanies.js
-export async function renderTechStackByCompany(apiUrl, companyLimit = 20) {
+// this function combines data fetching and rendering logic for the tech stack rankigns by company section
+// it fetches the ranking data and job counts, processes them and then renders the company cards
+export async function renderTechStackByCompany(companyLimit = 20) {
 
   // build the API URL with query parameters
-  const url = new URL(apiUrl, window.location.origin);   
+  const url = new URL(`${window.API_BASE}/api/rankings/by-company`, window.location.origin);   
   url.searchParams.set('companyLimit', String(companyLimit));
   // get the ranking data by company, used for rendering the company card
   const res = await fetch(url.toString());

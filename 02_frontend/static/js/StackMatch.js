@@ -13,13 +13,13 @@ let currentTab = 'jobs';
 
 document.addEventListener("DOMContentLoaded", () => {
     loadJobs();
-    loadMoreJobs();
+    initLoadMoreButton();
     loadTechStacks();
-    filterJobsByLevel();
-    applyFilters();
+    handleJobLevelClick();
+    initApplyFiltersButton();
     getFilterResultsCount();
-    switchTab();
-    applyCompanyFilters(); 
+    initSwitchTab();
+    initApplyCompanyFiltersButton(); 
     renderTechStackByCompany();
     setupToggleBtnClickEvent();
     setupRemoveTagListener();
@@ -31,15 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
 // tech stacks selection and management functions
 // ======================================================
 
+// when page load, call backend API to get all tech keywords, store in variable allTechStacks
+// then, add event listeners to monitor input box changes and button clicks
+// so that we can show suggestions matching the input and add selected tech stack to the selected list
 async function loadTechStacks() {
-  // when page load, call backend API to get all tech keywords, store in variable allTechStacks
-  // then, add event listeners to monitor input box changes and button clicks
-  // so that we can show suggestions matching the input and add selected tech stack to the selected list
+
   try {
     const response = await fetch(`${API_BASE}/api/keywords/list`);
     allTechStacks = await response.json();
     // if we call a function directly, we must pass in the parameters outselves.
     // but if a function is called by an event listener, the browser will pass in the event object automatically into that function
+    // add event listeners here, trigger functions when user types something in the input box or clicks the add button
     document.getElementById("techstack-input").addEventListener("input", showSuggestions);
     document.getElementById("add-btn").addEventListener("click", addSelectedStack);
     document.getElementById("techstack-input-companies-section").addEventListener("input", showSuggestionsCompaniesSection);
@@ -50,9 +52,12 @@ async function loadTechStacks() {
   }
 }
 
+// this function will be triggered when user types something in the input box
+// when the user is typing, it checks the input value in real time and shows any matching tech-stack keywords in the suggestion list
+// cause the event object is passed in automatically by the brower when this function is called by an event listener
+// we can access the input value by e.target.value
 function showSuggestions(e) {
-    // cause the event object is passed in automatically by the brower when this function is called by an event listener
-    // we can access the input value by e.target.value
+
     const input = e.target.value.trim().toLowerCase();
     const suggestList = document.getElementById("suggest-list");
 
@@ -87,9 +92,22 @@ function showSuggestions(e) {
     });
 }
 
+// we add a click listener here, when the user clicks anywhere on the page, the browser checks whether the clicked target has the remove-btn class
+// if does, calling removeTag function below to remove the tag
+// because the selected tech stack tags and their remove buttons are generated dynamically after page load
+// so we can not attach a click event listener to the remove button directly when the page loads
+function setupRemoveTagListener() {
+
+  document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('remove-btn')) {
+      removeTag(event.target);
+    }
+  });
+}
+
+// if user clicks the remove button on a selected tech stack tag
+// remove the element that contains the selected tech stack name and remove it from the selectedStacks array
 function removeTag(button) {
-  // if user clicks the remove button on a selected tech stack tag
-  // remove the element that contains the selected tech stack name and remove it from the selectedStacks array
   button.parentElement.remove();
   if (currentTab === 'jobs') {
     const name = button.dataset.name;
@@ -104,18 +122,6 @@ function removeTag(button) {
     renderSelectedStacksCompaniesSection();
     searchBtn.click();
   }
-}
-
-function setupRemoveTagListener() {
-  // we add a click listener here, when the user clicks anywhere on the page, the browser checks whether the clicked target has the remove-btn class
-  // if does, calling removeTag function to remove the tag
-  // because the selected tech stack tags and their remove buttons are generated dynamically after page load
-  // so we can not attach a click event listener to the remove button directly when the page loads
-  document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('remove-btn')) {
-      removeTag(event.target);
-    }
-  });
 }
 
 async function normalizeKeyword(rawKeyword) {
@@ -155,6 +161,7 @@ async function addSelectedStack() {
 
 // there are two ways to trigger this function, when the user clicks the add button to add new tech stack or when user clicks the remvove button to remove a tech stack
 // this function is triggered if the selectedStacks array is changed
+// a common way to add event listeners to dynamically generated remove button is to attach them after rendering, however, using event delegation is the recommended best practice
 function renderSelectedStacks() {
   const container = document.querySelector(".your-tech-stacks");
   container.innerHTML = '';
@@ -178,14 +185,17 @@ function renderSelectedStacks() {
 // filtering and loading jobs data functions
 // ======================================================
 
-function filterJobsByLevel() {
+// when user clicks a job level button, update the currentJobLevel variablen
+// then, after the user clicks apply filters button, the loadJobs function will be called to load the filtered jobs data
+function handleJobLevelClick() {
   
   document.querySelectorAll('.filter').forEach(btn => {
     btn.addEventListener('click', () => {
       currentJobLevel = btn.dataset.filter;
-      currentPage = 1;
-      allJobs = [];
+      // currentPage = 1;
+      // allJobs = [];
 
+      // update button styles
       document.querySelectorAll('.filter').forEach(b => {
         b.classList.remove('bg-blue-500', 'text-white');
         b.classList.add('bg-gray-200', 'text-gray-700');  
@@ -204,10 +214,10 @@ function filterJobsByLevel() {
 
 }
 
-function applyFilters() {
+// when user clicks the apply filters button, reset currentpage to 1, clear all jobs array
+// these two variables will be used in loadJobs function to determine what data to display
+function initApplyFiltersButton() {
     document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
-    // when user clicks the apply filters button, reset currentpage to 1, clear all jobs array
-    // these two variables will be used in loadJobs function to determine what data to display
     currentPage = 1;
     allJobs = [];
     await loadJobs();
@@ -235,6 +245,8 @@ async function getFilterResultsCount() {
 
 }
 
+// this function loads jobs data from the backend API with the current filters and page settings
+// the renderJobs function is called after the data is loaded to display the jobs on the page
 async function loadJobs() {
   
   let url = `${API_BASE}/api/jobs/list?page=${currentPage}&size=${jobsPerPage}`;
@@ -254,9 +266,9 @@ async function loadJobs() {
   // ... here means unpacking both arrays and appending the new items to the existing array
   allJobs = [...allJobs, ...data.jobs]; 
   hasMore = data.hasMore;
-  renderJobs(); // 渲染第一页
+  renderJobs(); // render jobs after loading new data
   if (currentPage === 1) {
-    animateJobCards(); // 仅第一页动画
+    animateJobCards(); // animate only on the first page
   }
 
 }
@@ -265,6 +277,7 @@ async function loadJobs() {
 // functions to display and render jobs
 // ======================================================
 
+// this function will be called after the jobs data is loaded from the backend API
 function renderJobs() {
 
   const jobList = document.getElementById('job-list');
@@ -275,7 +288,7 @@ function renderJobs() {
   jobsToShow.forEach(job => {
 
     // get the HTML for the job's tech requirements with highlighted stacks
-    const stacks = highlightStacksHtml(job.requiredStacks, selectedStacks);
+    const stacks = highlightMatches(job.requiredStacks, selectedStacks);
 
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
@@ -313,6 +326,7 @@ function renderJobs() {
     // insert the job HTML at the end of the job list container
     jobList.insertAdjacentHTML('beforeend', html);
   });
+  // show the load more button if there are more jobs to load, but with a delay of 1 second, to allow the job cards animation to complete first
   const loadMoreBtn = document.getElementById('load-more-btn');
   if (loadMoreBtn) {
     setTimeout(() => {
@@ -336,7 +350,7 @@ function animateJobCards() {
 // this function returns the HTML for a job tech requirements
 // and hightlights the ones that match the user's selected tech stacks
 // to use this code, simply insert it into the container where the job's tech requirements are displayed
-function highlightStacksHtml(stacks, selected) {
+function highlightMatches(stacks, selected) {
   
   const clean = stacks
     // s && s.trim() means, s is not null/underfined/empty string, and after trimming, it is still not empty
@@ -358,7 +372,8 @@ function highlightStacksHtml(stacks, selected) {
   ].join('  ') || 'N/A';
 }
 
-function loadMoreJobs() {
+// when the page loads, add a click event listener to the load more button
+function initLoadMoreButton() {
 
   const loadMoreBtn = document.getElementById('load-more-btn');
   if (loadMoreBtn) {
@@ -373,6 +388,7 @@ function loadMoreJobs() {
 // functions for selecting tech stacks and applying filters in companies section
 // ========================================================================
 
+// this function will be triggered when user types something in the input box for companies section, and shows matching suggestions
 function showSuggestionsCompaniesSection(e) {
 
     const input = e.target.value.trim().toLowerCase();
@@ -409,6 +425,8 @@ function showSuggestionsCompaniesSection(e) {
     });
 }
 
+// this function is triggered when user clicks the add button in the companies section
+// it will add the selected tech stack to the selectedStacks_companies array and re-render the selected stacks
 async function addSelectedStackCompaniesSection() {
 
     const input = document.getElementById("techstack-input-companies-section");
@@ -451,7 +469,8 @@ function renderSelectedStacksCompaniesSection() {
   });
 }
 
-function applyCompanyFilters() {
+// add a click event listener to the apply filters button in the companies section
+function initApplyCompanyFiltersButton() {
   document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
     // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
     renderTechStackByCompany();
@@ -474,17 +493,19 @@ function formatSkill(x){
   return skill.toString().trim().toLowerCase();
 }
 
+// load all necessary data before rendering companies
+// get the tech stack rankings data by company from the backend API
+// get the job counts per company from the backend API
 async function loadAllCompaniesData() {
-  // get the tech stack rankings data by company from the backend API
   const res  = await fetch(`${window.API_BASE}/api/rankings/by-company`);
   const rows = await res.json();
-  // get the job counts per company from the backend API
   const cntRes  = await fetch(`${window.API_BASE}/api/stats/jobs/company`);
   const cntRows = await cntRes.json();
 
   return {rows, cntRows};
 }
 
+// prepare the data used for rendering companies cards in renderTechStackByCompany
 function prepareCompanyRenderData(rows, cntRows){
 
   // const jobsCountMap = cntRows.reduce((m, x) => (m[x.company_Id] = x.jobs_Count, m), {});
@@ -643,6 +664,7 @@ function renderTechSkillsProgressBar(techs, pills, selectedSet,){
 // TODO: this function is way too long, need to refactor it into smaller functions to make it easier to read and maintain
 // if the entire data, logic, and render flow is simple and short, keeping it inside a single function is totally fine
 // but if the function is too long and complex, it should be split according to data, logic and rendering parts for clarity and maintainability
+// this function will be triggered when the page loads and when user applies filters in the companies section
 async function renderTechStackByCompany( perCategory = 5) {
   
   const{rows, cntRows} = await loadAllCompaniesData();
@@ -715,7 +737,8 @@ async function renderTechStackByCompany( perCategory = 5) {
 // setup tab switching and panel display functions
 // ========================================================================
 
-function switchTab() {
+// when the page loads, add click event listeners to the top tab buttons
+function initSwitchTab() {
   const sections = ['jobs-section', 'companies-section'];
   const tabBtns = document.querySelectorAll('.tab-btn');
 
