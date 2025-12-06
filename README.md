@@ -63,7 +63,8 @@ STACKTRENDS.COM/
 
 - **Frontend**: JavaScript, HTML, Tailwind CSS (will be migrated to React)
 - **Backend**: C# · ASP.NET Core Web API (RESTful)
-- **Data pipeline**: Python + Requests → GraphQL API → ETL Pipeline → Data Cleaning & Processing → PostgreSQL on Azure
+- **Data pipeline**: Python + Requests → GraphQL API → ETL Pipeline → Data Cleaning & Processing → Saved to DB
+- **Database**: PostgreSQL on Azure
 - **Model pipeline**: Sentence Embeddings → PyTorch → MLP Classifier
 - **Cloud**: Azure (App Service, Static Web App, Azure Database for PostgreSQL)
 
