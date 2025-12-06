@@ -31,7 +31,7 @@ The diagram below shows how frontend, backend, web scraping, and database intera
 StackRadar consists of four main modules:
 
 - `python_scraper`: Collects and processes real job data, stores it in PostgreSQL
-- `model_pipeline`: Performs job-level classification using text embeddings and an MLP classifier
+- `model_pipeline`: Performs job-level classification using text embeddings and an MLP classifier, this process is executed locally and manually to classify unlabeled jobs into senior, intermediate, or junior
 - `01_backend`: ASP.NET Core web API that exposes clean, preprocessed job and tech-stack ranking data to frontend
 - `02_frontend`: Frontend that fetches API data and visualizes job and tech-stack rankings insights
 
