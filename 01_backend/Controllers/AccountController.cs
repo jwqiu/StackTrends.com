@@ -13,7 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 // ============================================================================================================
 // there are 3 endpoints for user authentication in this controller: login, logout, and check login status
-// only the admin role can log in to the backend to manage tech keywords and categories
+// only the admin role can log in to manage tech keywords and categories
 // ============================================================================================================
 namespace StackTrends.Controllers
 {

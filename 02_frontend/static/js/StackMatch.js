@@ -11,20 +11,48 @@ let currentPage = 1;
 let hasMore = true;
 let currentTab = 'jobs';
 
+// when the page loads, the following functions will be executed
 document.addEventListener("DOMContentLoaded", () => {
-    loadJobs();
-    initLoadMoreButton();
-    loadTechStacks();
-    handleJobLevelClick();
-    initApplyFiltersButton();
-    getFilterResultsCount();
-    initSwitchTab();
-    initApplyCompanyFiltersButton(); 
-    renderTechStackByCompany();
-    setupToggleBtnClickEvent();
-    setupRemoveTagListener();
-    fetchLoginModal();
-    setupAdminLinkClickEvent();
+  
+  //----------------------------------------
+  // initialize tab switching functionality
+  //----------------------------------------
+  initSwitchTab();
+
+  //----------------------------------------------------------------
+  // fetch data used for this page and initialize event listeners
+  //----------------------------------------------------------------
+  loadJobs();
+  loadTechStacks(); // input and add event listeners will be set up inside this function
+
+  //--------------------------------------
+  // handle filtering-related functions
+  //--------------------------------------
+  handleJobLevelClick();
+  initApplyCompanyFiltersButton(); 
+  initApplyFiltersButton();
+  getFilterResultsCount();
+  setupRemoveTagListener();
+
+  //--------------------------------------
+  // trigger fetch, process and render companies section
+  //--------------------------------------
+  renderTechStackByCompany();
+
+  //-------------------------------------
+  // set up admin login-related functions
+  //-------------------------------------
+  fetchLoginModal();
+  setupAdminLinkClickEvent();
+
+  //--------------------------------
+  // helper functions
+  //--------------------------------
+  setupToggleBtnClickEvent();
+  initLoadMoreButton();
+
+
+
 });
 
 // ======================================================

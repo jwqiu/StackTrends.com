@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 using Microsoft.AspNetCore.Authorization;
 
+// ============================================================================================================
+// there are 2 endpoints to get the tech skills ranking, ranking by overall mentions and ranking by each company (might be merged into 1 endpoint later)
+// ============================================================================================================
+
 namespace StackTrends.Controllers
 {
     [ApiController]

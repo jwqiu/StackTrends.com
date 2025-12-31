@@ -23,6 +23,8 @@ print("📂 Current file path:", __file__)
 print("📁 Current working dir:", os.getcwd())
 
 # only use the model with the best embedding separation score, the one we tested in visualize_embedding_separation.py in model_pipeline
+# this is a pretrained transformer-based language model called E5-large-v2, accessed through the SentenceTransformers library
+# this model designed for text embeddings rather than text generation
 model_emb = SentenceTransformer("intfloat/e5-large-v2") 
 os.makedirs("model_pipeline/production_script/embeddings", exist_ok=True)
 

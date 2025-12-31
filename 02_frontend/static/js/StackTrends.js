@@ -17,16 +17,37 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
+// when the page loads, the following functions will be executed
 document.addEventListener('DOMContentLoaded', () => {
-  loadTechRankData(); // Load the overall tech stack rankings data
-  renderFiltersOptions(); // Load filter options
-  updateJobCount();
+  //----------------------------------------------------------------------------------------------------------------------
+  // load the data used for first and second section, which includes the overall rankings and rankings by category
+  // the processing and rendering UI logic will be triggered inside the loadTechRankData function
+  //----------------------------------------------------------------------------------------------------------------------
+  loadTechRankData(); 
+  renderFiltersOptions(); // Load and render filter options for the overall ranking table
+
+  //----------------------------------------------------------------------------------------------------------------------
+  // start triggering the data fetching and rendering for the third section, which is the rankings by experience level
+  //----------------------------------------------------------------------------------------------------------------------
   fetchLevelCounts();
+
+  //---------------------------------------------------------------
+  // trigger the last section, which is the rankings by company
+  //---------------------------------------------------------------
   renderTechStackByCompany(20);
-  setupToggleBtnClickEvent();
+
+  //-------------------------------------
+  // set up admin login-related functions
+  //-------------------------------------
   setupAdminLinkClickEvent();
   fetchLoginModal();
-  initFadeInOnView();
+  
+  //-------------------------------------
+  // helper functions
+  //-------------------------------------
+  updateJobCount(); // update job count number displayed on the page
+  initFadeInOnView(); // initialize the fade-in animation for various sections
+  setupToggleBtnClickEvent(); 
 
 });
 
@@ -711,7 +732,7 @@ export async function renderTechStackByCompany(companyLimit = 20) {
 }
 
 // ========================================================================
-// helper functions for all sections
+// helper functions
 // ========================================================================
 
 function updateJobCount() {

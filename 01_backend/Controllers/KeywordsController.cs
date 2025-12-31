@@ -4,9 +4,7 @@ using StackTrends.Models;
 using Microsoft.AspNetCore.Authorization;
 
 // ============================================================================================================
-// there are 8 endpoints in this controller related to tech keywords management and ranking
-// 1, there are 6 endpoints to manage the tech keywors, including: get all tech keywords, add a new keyword, delete, update, normalize a keyword and get the total number of existing keywords
-// 2, there are 2 endpoints to get the tech skills ranking, ranking by overall mentions and ranking by each company (might be merged into 1 endpoint later)
+// there are 6 endpoints to manage the tech keywors, including: get all tech keywords, add a new keyword, delete, update, normalize a keyword and get the total number of existing keywords
 // ============================================================================================================
 namespace StackTrends.Controllers
 {
