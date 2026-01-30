@@ -64,7 +64,7 @@ async function loadTechRankData() {
     allData = await response.json();
 
     allLevelData = allData
-      .filter(item => (item.level ?? item.Level)?.toLowerCase() === 'all')
+      .filter(item => (item.level ?? item.Level)?.toLowerCase() === 'all') // use only "All" level data for overall ranking and category ranking
       .sort((a, b) =>
         (b.percentage ?? b.Percentage) - (a.percentage ?? a.Percentage)
       );

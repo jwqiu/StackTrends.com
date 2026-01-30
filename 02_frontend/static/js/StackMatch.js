@@ -150,6 +150,7 @@ function removeTag(button) {
     renderSelectedStacksCompaniesSection();
     searchBtn.click();
   }
+  scrollToTop();
 }
 
 async function normalizeKeyword(rawKeyword) {
@@ -250,6 +251,7 @@ function initApplyFiltersButton() {
     allJobs = [];
     await loadJobs();
     await getFilterResultsCount();
+    scrollToTop();
   });
 }
 
@@ -502,6 +504,7 @@ function initApplyCompanyFiltersButton() {
   document.querySelector('.apply-filters-btn--companies-section')?.addEventListener('click', async () => {
     // 这里假设 allCompaniesData, jobsCountMap 已经提前获取并缓存过
     renderTechStackByCompany();
+    scrollToTop();
   });
 }
 
@@ -837,9 +840,10 @@ function showSection(id) {
 }
 
 // ========================================================================
-// function to toggle the nav menu on small screens
+// small helper functions
 // ========================================================================
 
+// function to toggle the nav menu on small screens
 function setupToggleBtnClickEvent(){
 
   const toggleBtn = document.getElementById("menu-toggle");
@@ -852,6 +856,10 @@ function setupToggleBtnClickEvent(){
     menu.classList.toggle("hidden");
   });
 
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // =================================================
