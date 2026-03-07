@@ -159,6 +159,8 @@ def update_job_counts_by_company():
             company_name, 
             COUNT(*) AS jobs_count
         FROM jobs
+        WHERE company_id IS NOT NULL
+        AND company_name IS NOT NULL
         GROUP BY company_id, company_name
         ORDER BY jobs_count DESC
     """)

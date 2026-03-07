@@ -20,7 +20,6 @@ namespace StackTrends.Controllers
         {
             _conn = conn;
         }
-    
         [HttpGet("landing-summary")]
         public async Task<ActionResult<LandingSummary>> GetLandingSummary()
         {
@@ -102,7 +101,8 @@ namespace StackTrends.Controllers
             await _conn.CloseAsync();
             return Ok(new { count });
         }
-
+        
+        // return job number at each experience level
         [HttpGet("jobs/level")]
         public async Task<ActionResult<IEnumerable<JobCountByLevelDto>>> GetCountByLevel()
         {
@@ -177,6 +177,7 @@ namespace StackTrends.Controllers
         // use ActionResult<T> when the action should return a typed result on success, and HTTP error results when something goes wrong
         // use IActionResult when the action only returns HTTP responses and no specific types needs to be declared
         // the type after ActionResult<> indicates the data type returned on a successful response
+        // return the number of jobs for each company, including only those with more than 10 postings
         [HttpGet("jobs/company")]
         public async Task<ActionResult<IEnumerable<JobCountByCompany>>> GetTop20CompaniesByJobCount()
         {

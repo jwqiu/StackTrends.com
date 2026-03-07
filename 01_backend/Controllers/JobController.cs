@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 
 // ============================================================================================================
-// there are 7 endpoints in this controller related to job data
+// there are 3 endpoints in this controller related to job data
 // 1, return a list of jobs filtered by job level and keywords, with pagination support
-// 2, return the total number of jobs matching the filter criteria
-// 3, return job number at each experience level
-// 4, return the total number of jobs listed each month
-// 5, return the number of jobs for each company, including only those with more than 10 postings
-// 6, return a list of jobs that contain a specific keyword in their description
-// 7, return statistics about how many jobs match a specific keyword
+// 2, return a list of jobs that contain a specific keyword in their description
+// 3, return statistics about how many jobs match a specific keyword
 // ============================================================================================================
 namespace StackTrends.Controllers
 {
