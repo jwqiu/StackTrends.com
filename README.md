@@ -32,7 +32,12 @@ The following diagram illustrates how these components interact within the syste
 
 ## 5. Job Level Classification Pipeline
 
-TBD
+This pipeline predicts the job level for each posting using a hybrid approach that combines rule-based logic and machine learning. The pipeline consists of two main stages:
+
+- a rule-based keyword matching method applied to job titles to directly assign job levels when possible
+- an embedding-based machine learning pipeline that extracts key information from job descriptions and predicts job levels using sentence embeddings and an MLP classifier
+
+![Job Level Classification Pipeline](./docs/Classification_Pipeline_Flow.jpeg)
 
 ## 6. Project Structure
 
