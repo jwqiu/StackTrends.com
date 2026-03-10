@@ -35,13 +35,3 @@ Good luck to everyone on your job search journey.  🚀
 **Junwen**
 
 
-<!-- 
-For those of you who might be interested in the actual tech stack I used to build StackRadar, here it is:
-
-- **Frontend**: Javascript, HTML, Tailwind CSS (The Frontend part will be rewritten in React in the near future)  
-- **Backend**: C# with ASP.NET Core Web API (RESTful architecture)  
-- **Data Collection**: Python + Requests + BeautifulSoup  
-- **Cloud Platform**: Microsoft Azure (App Service, Static Web App, PostgreSQL Flexible Server)  
-- **Database**: PostgreSQL  
-- **GitHub Repo**: [https://github.com/jwqiu/StackTrends.com.git](https://github.com/jwqiu/StackTrends.com.git) -->
-
