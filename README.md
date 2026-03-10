@@ -20,11 +20,11 @@ StackRadar is a full-stack web platform that helps junior developers in New Zeal
 Curious about the origin of this project?  
 👉 [**Read the full story behind StackRadar**](./docs/TheStoryBehindStackRadar.md)
 
-## 4. System Architecture
+## 4. System Overview
 
 The diagram below shows how frontend, backend, web scraping, and database interact in the system
 
-![System Architecture](./docs/system_architecture.jpg)
+![System Architecture](./docs/system_overview.jpeg)
 
 ## 5. Project Structure & Folder Layout
 
