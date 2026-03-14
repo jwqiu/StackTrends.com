@@ -4,6 +4,7 @@
 
 StackRadar is designed to quantify technology demand in the New Zealand job market and visualize these insights through a full-stack web application. It aims to help developers make more informed learning decisions.
 
+
 ## 2. Live Demo & Screenshots  
 
 ### 2.1 Live Site 
@@ -15,7 +16,20 @@ StackRadar is designed to quantify technology demand in the New Zealand job mark
 ![Landing Page](./docs/stackradar_landing_page.jpg)
 ![SkillsTrend Page](./docs/skillstrend.jpg)
 
-## 3. System Overview
+
+## 3. Tech Stack Used
+
+- **Frontend**: JavaScript, HTML, Tailwind CSS
+- **Backend**: C# · ASP.NET Core Web API (RESTful)
+- **Data pipeline**: Python, Requests, BeautifulSoup, Pandas
+- **Database**: PostgreSQL (Azure Database for PostgreSQL)
+- **Classification pipeline**: Sentence Transformers (embeddings), PyTorch MLP classifier
+- **Cloud**: Azure (App Service, Static Web App)
+
+
+## 4. Technical Implementation
+
+### 4.1 System Overview 
 
 The system consists of three main components: 
 - a data pipeline that collects and processes publicly available job posting data
@@ -26,20 +40,21 @@ The following diagram illustrates how these components interact within the syste
 
 ![System Overview](./docs/system_overview.jpeg)
 
-## 4. Backend API Overview
+### 4.2 Backend API Overview
 
 ![API Endpoint Overview](./docs/API_Endpoint_Overview.png)
 
-## 5. Job Level Classification Pipeline
+### 4.3 Job Level Classification Pipeline
 
-This pipeline predicts the job level for each posting using a hybrid approach that combines rule-based logic and machine learning. The pipeline consists of two main stages:
+This pipeline simulates human reasoning to predict the job level for each posting, using a hybrid approach that combines rule-based logic and machine learning. The pipeline consists of two main stages:
 
 - a rule-based keyword matching method applied to job titles to directly assign job levels when possible
 - an embedding-based machine learning pipeline that extracts key information from job descriptions and predicts job levels using sentence embeddings and an MLP classifier
 
 ![Job Level Classification Pipeline](./docs/Classification_Pipeline_Flow.jpeg)
 
-## 6. Project Structure
+
+## 5. Project Structure
 
 ```bash
 STACKTRENDS.COM/
@@ -53,13 +68,5 @@ STACKTRENDS.COM/
 └── StackTrends.sln      
 ```
 
-## 7. Tech Stack Used in StackRadar
-
-- **Frontend**: JavaScript, HTML, Tailwind CSS
-- **Backend**: C# · ASP.NET Core Web API (RESTful)
-- **Data pipeline**: Python, Requests, BeautifulSoup, Pandas
-- **Database**: PostgreSQL (Azure Database for PostgreSQL)
-- **Classification pipeline**: Sentence Transformers (embeddings), PyTorch MLP classifier
-- **Cloud**: Azure (App Service, Static Web App)
 
 
