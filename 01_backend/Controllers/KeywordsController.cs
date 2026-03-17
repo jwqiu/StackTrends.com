@@ -4,7 +4,8 @@ using StackTrends.Models;
 using Microsoft.AspNetCore.Authorization;
 
 // ============================================================================================================
-// there are 6 endpoints to manage the tech keywors, including: get all tech keywords, add a new keyword, delete, update, normalize a keyword and get the total number of existing keywords
+// there are 6 endpoints to manage the tech keywors
+// including: get all tech keywords, add a new keyword, delete, update, normalize a keyword and get the total number of existing keywords
 // ============================================================================================================
 namespace StackTrends.Controllers
 {

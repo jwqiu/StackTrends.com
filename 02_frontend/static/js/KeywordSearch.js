@@ -161,7 +161,7 @@ async function fetchKeywordMentionStats() {
   // our backend defines a query parameter named 'keyword', so we must use keyword= here when building the URL
   // actually, we can remove encodeURIComponent here and this will still work for most normal keywords without special characters
   // but it's a good practice to always encode URL parameters to avoid potential issues with special characters
-  const url = `${window.API_BASE}/api/jobs/search/stats?keyword=${encodeURIComponent(keyword)}`;
+  const url = `${window.API_BASE}/api/stats/jobs/search/?keyword=${encodeURIComponent(keyword)}`;
   try {
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch data');

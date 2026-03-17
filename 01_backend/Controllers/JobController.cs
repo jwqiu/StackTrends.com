@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using StackTrends.Models;
 
 // ============================================================================================================
-// there are 3 endpoints in this controller related to job data
+// there are 2 endpoints in this controller related to job data
 // 1, return a list of jobs filtered by job level and keywords, with pagination support
 // 2, return a list of jobs that contain a specific keyword in their description
-// 3, return statistics about how many jobs match a specific keyword
 // ============================================================================================================
 namespace StackTrends.Controllers
 {
@@ -141,8 +140,6 @@ namespace StackTrends.Controllers
         }
 
 
-
-
         // return jobs that contain the specified keyword in their description
         [HttpGet("search/list")]
         public async Task<ActionResult<List<Job>>> SearchJobsByKeyword([FromQuery] string keyword)
@@ -198,106 +195,6 @@ namespace StackTrends.Controllers
             return Ok(jobs);
         }
 
-        // this endpoint returns data about how many jobs match a specific keyword entered by the user
-        [HttpGet("search/stats")]
-        public async Task<IActionResult> GetKeywordMatchStats([FromQuery] string keyword)
-        {
-            if (string.IsNullOrWhiteSpace(keyword))
-                return BadRequest("Keyword is required.");
-
-            await _conn.OpenAsync();
-
-            // an object is a single instance of a data structure, usually matching one class on the backend, while an array is a list of such objects
-            var stats = new List<LevelMatchStats>();
-
-            // first, count the total number of jobs
-            const string allJobsSql = @"SELECT COUNT(*) FROM jobs;";
-            int allJobs = 0;
-            await using (var cmd = new NpgsqlCommand(allJobsSql, _conn))
-            {
-                allJobs = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-            }
-
-            // then, count how many jobs match the keyword, only support 1 keyword per request for now
-            const string allMatchesSql = @"
-                SELECT COUNT(*) 
-                FROM jobs 
-                WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)";
-
-            int allMatches = 0;
-            await using (var cmd = new NpgsqlCommand(allMatchesSql, _conn))
-            {
-                cmd.Parameters.AddWithValue("kw", keyword);
-                allMatches = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-            }
-
-            double allJobsPercentage = allJobs > 0
-                ? Math.Round(allMatches * 100.0 / allJobs, 2)
-                : 0.0;
-
-            stats.Add(new LevelMatchStats{
-                Level = "All",
-                MatchCount = allMatches,
-                Percentage = allJobsPercentage
-            });
-
-            // count the total number of jobs at each experience level
-            // TODO : create a table to store number of jobs by level to avoid counting every time
-            const string levelJobsSql = @"
-            SELECT job_level, COUNT(*) AS TotalCount
-            FROM jobs
-            GROUP BY job_level;";
-
-            var levelJobsDict = new Dictionary<string, int>();
-
-            await using (var cmd = new NpgsqlCommand(levelJobsSql, _conn))
-            {
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-                    var level = reader["job_level"].ToString();
-                    var total = Convert.ToInt32(reader["TotalCount"]);
-                    levelJobsDict[level] = total;
-                }
-            }
-
-            // count how many jobs match the keyword at each experience level
-            const string levelJobsMatchSql = @"
-            SELECT job_level, COUNT(*) AS MatchCount
-            FROM jobs
-            WHERE to_tsvector('english', job_des) @@ plainto_tsquery('english', @kw)
-            GROUP BY job_level
-            ORDER BY
-                CASE job_level
-                    WHEN 'Senior' THEN 1
-                    WHEN 'Intermediate' THEN 2
-                    WHEN 'Junior' THEN 3
-                    ELSE 4
-                END;";
-
-            await using (var cmd = new NpgsqlCommand(levelJobsMatchSql, _conn))
-            {
-                cmd.Parameters.AddWithValue("kw", keyword);
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-                    var level = reader["job_level"].ToString();
-                    var matchCount = Convert.ToInt32(reader["MatchCount"]);
-                    var percentage = levelJobsDict.ContainsKey(level) && levelJobsDict[level] > 0
-                        ? Math.Round(matchCount * 100.0 / levelJobsDict[level], 2)
-                        : 0.0;
-
-                    stats.Add(new LevelMatchStats
-                    {
-                        Level = level,
-                        MatchCount = matchCount,
-                        Percentage = percentage
-                    });
-                }
-            }
-
-            await _conn.CloseAsync();
-            return Ok(stats);
-        }
+  
     }
 }
