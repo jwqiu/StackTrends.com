@@ -16,7 +16,7 @@ python_scraper/*.pyc
 python_scraper/local.settings.json
 python_scraper/python_packages/
 
-*.png
+# *.png
 !API_Endpoint_Overview.png
 *.csv
 
