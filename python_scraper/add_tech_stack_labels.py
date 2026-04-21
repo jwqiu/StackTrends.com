@@ -22,8 +22,11 @@ def load_keywords():
     for raw_kw, normalized_kw in rows:
         if raw_kw:
             raw_keywords.add(raw_kw.strip().lower())
-        if normalized_kw and normalized_kw.strip().lower() != raw_kw.strip().lower():
-            normalized_keywords[raw_kw.strip().lower()] = normalized_kw.strip().lower()
+        if normalized_kw:        
+        # if normalized_kw and normalized_kw.strip() != raw_kw.strip():
+            normalized_keywords[raw_kw.strip().lower()] = normalized_kw.strip()
+            # normalized_keywords[raw_kw.strip().lower()] = normalized_kw.strip().lower()
+
     # raw_keywords is a set of all unique raw keywords
     # normalized_keywords is a dict mapping raw keyword to normalized keyword
     return raw_keywords, normalized_keywords
@@ -35,7 +38,9 @@ def load_keywords():
 def load_job_data():
     conn = get_conn()
     cursor = conn.cursor()
+    # cursor.execute("SELECT * FROM jobs")
     cursor.execute("SELECT * FROM jobs WHERE job_level IS NULL or job_level =''")
+
     rows = cursor.fetchall()
     colnames = [desc[0] for desc in cursor.description]  # 获取列名 # type: ignore
     cursor.close()

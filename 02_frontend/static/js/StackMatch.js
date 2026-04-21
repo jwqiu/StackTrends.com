@@ -389,16 +389,15 @@ function highlightMatches(stacks, selected) {
     .filter(s => s && s.trim())
     .map(s => s.trim());
 
-  // const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-  function capitalize(s){
-    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-  }
+  // function capitalize(s){
+  //   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  // }
 
   const matched = clean.filter(s => selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
   const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
   return [
-    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${capitalize(s)}</span>`),
-    ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${capitalize(s)}</span>`)
+    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${s}</span>`),
+    ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${s}</span>`)
   ].join('  ') || 'N/A';
 }
 

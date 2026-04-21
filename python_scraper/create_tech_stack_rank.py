@@ -37,7 +37,8 @@ def load_tags(level=None, company_id=None, month=None):
     all_tags = []
     for row in rows:
         tags = row[0].split(',')  # 逗号分隔
-        tags = [t.strip().lower() for t in tags if t.strip()]
+        # tags = [t.strip().lower() for t in tags if t.strip()]
+        tags = [t.strip() for t in tags if t.strip()]
         all_tags.extend(tags)
     return all_tags
 
