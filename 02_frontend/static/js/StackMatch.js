@@ -655,14 +655,16 @@ function renderTechSkillsProgressBar(techs, pills, selectedSet,){
       // check if this tech stack is in the selected set, if so, highlight it differently
       const isSelected = selectedSet.has(formatSkill(label));
       // TODO : maybe i should convert all tech stack labels to upper case to make it look better
-      const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+      // const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
       // highlight the pill differently if this tech stack is selected
       if (isSelected) {
         // note that we don't show the progress bar for selected tech stacks
         pill.className = 'px-3 py-1 bg-blue-500 text-white rounded-lg relative overflow-hidden';
         const text = document.createElement('span');
-        text.textContent = cap(label);
+        // text.textContent = cap(label);
+        text.textContent = label;
+
         pill.appendChild(text);
 
       } else {
@@ -679,7 +681,9 @@ function renderTechSkillsProgressBar(techs, pills, selectedSet,){
         // ⬇️ ④ 保持原有文字渲染（会在进度条之上）
         const text = document.createElement('span');
         text.className = 'relative z-10 text-gray-500 text-sm inline-block w-full text-right px-2 whitespace-nowrap';
-        text.textContent = cap(label);
+        // text.textContent = cap(label);
+        text.textContent = label;
+
         pill.appendChild(text);
       }
 
