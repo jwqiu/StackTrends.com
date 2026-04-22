@@ -24,6 +24,8 @@ namespace StackTrends.Models
         public DateTime? ListedDate { get; set; } // 可选，可能不需要
 
         public string? JobLocation { get; set; } // 工作地点
+        public string? JobLevel { get; set; } // 工作经验要求（如 Junior, Intermediate, Senior）
+        public int? YearOfExperience { get; set; } // 工作年限要求
     }
 
     // TODO: the KeywordMatchStats and LevelMatchStats classes could be combined into a single class 

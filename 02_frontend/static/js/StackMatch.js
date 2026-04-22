@@ -323,24 +323,23 @@ function renderJobs() {
     const html = `
       <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
         <div class="${currentPage === 1 ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
-          <h3 class="font-bold text-lg text-grey-700">${job.jobTitle}</h3>
-          <p class="text-sm text-gray-600 mt-1 ">
-            ${job.companyName ?? 'N/A'} 
-          </p>
-          <div class="flex justify-between items-center  mt-1">
+        <h3 class="font-bold text-xl text-grey-700 mr-3">${job.jobTitle}</h3>
+          
+          <div class="flex justify-between items-center">
             <div>
-              <p class="text-sm text-gray-600 mt-1 mt-1 ">
-                📍 ${job.jobLocation ?? 'N/A'}
+              <p class="text-md text-gray-600  ">
+                ${job.companyName ?? 'N/A'} 
               </p>
             </div>
             <div>
-              <p class="text-sm text-gray-600 ">
-                Posted on 🗓️ ${job.listedDate 
-                ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
-                : 'N/A'}
+              <p class="text-md text-gray-600 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" class="size-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                ${job.jobLocation ?? 'N/A'}
               </p>
             </div>
-
           </div>
           <div class="mt-4 bg-gray-100 p-4 rounded shadow-md">
             <p class="inline-flex items-center text-sm text-gray-500 gap-1 mt-0">
@@ -350,7 +349,28 @@ function renderJobs() {
               ${stacks}
             </p>
           </div>
+          <div class="flex justify-between items-center ">
+            <div>
+              <p class="text-sm mt-5 text-gray-400 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                  <path fillRule="evenodd" d="M4 1.75a.75.75 0 0 1 1.5 0V3h5V1.75a.75.75 0 0 1 1.5 0V3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2V1.75ZM4.5 6a1 1 0 0 0-1 1v4.5a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-7Z" clipRule="evenodd" />
+                </svg>
+                ${job.listedDate 
+                ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
+                : 'N/A'}
+              </p>
+            </div>
+            <div class="flex items-center mt-5 ">
+              <div class=" bg-gray-100 text-gray-500 px-3 py-1 mr-3 rounded text-sm">
+                <p>${job.yearOfExperience ? `${job.yearOfExperience} yrs exp` : 'Exp not specified'}</p>
+              </div>
+              <div class=" bg-gray-100 text-gray-500 px-3 py-1 rounded text-sm">
+                <p>${job.jobLevel ?? 'N/A'}</p>
+              </div>
+            </div>
+          </div>
         </div>
+
       </a>
     `;
     // insert the job HTML at the end of the job list container

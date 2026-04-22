@@ -72,7 +72,7 @@ namespace StackTrends.Controllers
             SELECT 
                 company_id, company_name, job_id, job_title, job_url, sub_id, sub_name,
                 tech_tags as required_stacks,
-                listed_date, location"
+                listed_date, location, job_level, year_of_experience"
                 // check if matchExpr is empty
             + (string.IsNullOrEmpty(matchExpr)
                 ? "" // if empty, do not add anything
@@ -127,6 +127,8 @@ namespace StackTrends.Controllers
                         .ToList(),
                     ListedDate = reader["listed_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["listed_date"]),
                     JobLocation = reader["location"] == DBNull.Value ? null : reader["location"].ToString(),
+                    JobLevel = reader["job_level"] == DBNull.Value ? null : reader["job_level"].ToString(),
+                    YearOfExperience = reader["year_of_experience"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["year_of_experience"]),
                 };
 
                 jobs.Add(job);

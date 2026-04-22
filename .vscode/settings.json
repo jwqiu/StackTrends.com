@@ -13,8 +13,7 @@
         "reportOptionalCall":               "none",
         "reportOptionalSubscriptAccess":    "none"
     },
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "python-envs.defaultEnvManager": "ms-python.python:venv"
 }
 
 // {

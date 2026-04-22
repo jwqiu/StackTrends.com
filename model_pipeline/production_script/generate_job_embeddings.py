@@ -1,6 +1,9 @@
 import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # 把项目根目录加入模块搜索路径
-from connect import get_conn
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # 把项目根目录加入模块搜索路径
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+sys.path.insert(0, project_root)
+# from connect import get_conn
+from python_scraper.connect import get_conn
 import torch
 from model_pipeline.local_experiments.generate_embeddings import extract_requirement_text
 from sentence_transformers import SentenceTransformer
