@@ -111,23 +111,25 @@ function initChart(labels, data) {
       labels: labels,
       datasets: [{
         data: data,
-        borderWidth: 1,
+        borderWidth: 0,
         barPercentage: 1,      // 条在分类格子里占80%高度
-        categoryPercentage: 0.7, // 每个分类格子本身占用可用空间的80%
+        categoryPercentage: 0.80, // 每个分类格子本身占用可用空间的80%
         // barThickness: barThickness,        // 绝对高度，直接控制条的“粗细”
 
         backgroundColor: [
           '#60a5fa', // Azure - 深蓝
           '#93c5fd', // AWS - 中深蓝
           '#bfdbfe', // React - 中蓝
-          '#dbeafe', // C# - 浅蓝
-          '#e0f2fe', // JavaScript - 最浅蓝
+          '#e5e7eb', // .NET - 浅灰
+          '#e5e7eb', // .NET - 浅灰
           '#e5e7eb', // .NET - 浅灰
           '#e5e7eb', // TypeScript - 浅灰
           '#e5e7eb', // Python - 浅灰
           '#e5e7eb', // Git - 浅灰
           '#e5e7eb'  // CSS - 浅灰
         ]
+
+      
       }]
     },
     options: {
@@ -135,7 +137,7 @@ function initChart(labels, data) {
       responsive: true,
       maintainAspectRatio: false,     // ← 这一行打开
       layout: {
-        padding: { left: 20, top: 0, bottom: 0 }
+        padding: { left: 0, top: 0, bottom: 0 }
       },
       scales: {
         y: {
@@ -236,7 +238,7 @@ function initChart(labels, data) {
       },
       elements: {
         bar: {
-          borderRadius: 10, // ✅ 圆角柱状条
+          borderRadius: 5, // ✅ 圆角柱状条
           borderSkipped: false,
           barThickness: barThickness // 控制柱子宽度
         }
@@ -271,8 +273,8 @@ async function renderTechTableRows(data, limit) {
   (limit ? data.slice(0, limit) : data).forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="border px-4 py-2">${item.category ?? item.Category}</td>
-      <td class="border px-4 py-2">${
+      <td class="border px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">${item.category ?? item.Category}</td>
+      <td class="border px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">${
         (item.technology ?? item.Technology)
           .charAt(0).toUpperCase() + (item.technology ?? item.Technology).slice(1)
       }</td>
