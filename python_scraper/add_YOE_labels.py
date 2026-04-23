@@ -9,6 +9,7 @@ def load_job_data():
     cursor = conn.cursor()
     # cursor.execute("SELECT job_id, job_des, year_of_experience FROM jobs WHERE year_of_experience IS NULL")
     cursor.execute("SELECT job_id, job_des, year_of_experience FROM jobs WHERE job_level IS NULL or job_level =''")
+    # cursor.execute("SELECT job_id, job_des, year_of_experience FROM jobs")
 
     rows = cursor.fetchall()
     colnames = [desc[0] for desc in cursor.description]  # 获取列名 # type: ignore
@@ -44,17 +45,13 @@ def extract_single_yoe_from_text(text, window_size=10):
     
      # ========= 1️⃣ YEAR logic =========
     for match in re.finditer(r'\byears?\b', text):
-        start, end = match.span()
-
-        left_part = text[max(0, start - window_size):start]
-        right_part = text[end:min(len(text), end + window_size)]
-        window_text = left_part + " " + right_part
+        left_part = text[max(0, match.start() - window_size):match.start()]
 
         # replace word numbers with digits in the window
         for word, num in word_to_num.items():
-            window_text = re.sub(rf'\b{word}\b', num, window_text)
+            left_part = re.sub(rf'\b{word}\b', num, left_part)
 
-        nums = re.findall(r'\b(10|[1-9])\b', window_text)
+        nums = re.findall(r'\b(10|[1-9])\b', left_part)
 
         # if there is exactly one valid number in the window, extract it as a candidate YOE
         if len(nums) == 1:
