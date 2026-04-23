@@ -362,7 +362,15 @@ function renderJobs() {
             </div>
             <div class="flex items-center mt-5 ">
               <div class=" border text-gray-500 px-3 py-1 mr-3 rounded text-sm">
-                <p>${job.yearOfExperience ? `${job.yearOfExperience} yrs exp` : 'Exp not specified'}</p>
+                <p>
+                  ${
+                    job.yearOfExperience === 0
+                      ? "< 1 yr"
+                      : job.yearOfExperience
+                        ? `${job.yearOfExperience} yrs exp`
+                        : "Exp not specified"
+                  }
+                </p>
               </div>
               <div class=" border text-gray-500 px-3 py-1 rounded text-sm">
                 <p>${job.jobLevel ?? 'N/A'}</p>

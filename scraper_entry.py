@@ -8,9 +8,9 @@ from python_scraper.create_tech_stack_rank import get_top_growing_and_declining_
 
 get_jobs_data()
 count_jobs_by_month()
+update_year_of_experience()
 add_tech_stack_labels()
 create_tech_stack_rank()
 create_tech_stack_rank_by_company()
 update_landing_summary()
 # get_top_growing_and_declining_techs()
-update_year_of_experience()
