@@ -50,7 +50,12 @@ namespace StackTrends.Models
     // {
     //     public int Count { get; set; }
     // }
-
+    public class UpdateJobAttributesRequest
+    {
+        public int? YearOfExperience { get; set; }
+        public string? JobLevel { get; set; }
+        public List<string>? TechStacks { get; set; }
+    }
 
 }
 

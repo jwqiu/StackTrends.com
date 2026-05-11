@@ -13,6 +13,7 @@ let hasMore = true;
 let currentTab = 'jobs';
 let jobLevel_review = "";
 let yoe_review = "";
+let currentReviewJobId = null;
 
 // when the page loads, the following functions will be executed
 document.addEventListener("DOMContentLoaded", () => {
@@ -951,6 +952,8 @@ function closeModal() {
 
 function openJobReviewModal(jobId) {
   const job = allJobs.find(j => j.jobId === jobId);
+  currentReviewJobId = jobId;
+
   document.getElementById('jobReviewModal').classList.remove('hidden');
   document.getElementById("jobTitle").innerText = job.jobTitle;
   document.getElementById("company").innerText = job.companyName;
@@ -976,8 +979,9 @@ function openJobReviewModal(jobId) {
     const buttonLevel = button.dataset.level;
 
     button.classList.remove(
-      "bg-blue-600",
+      "bg-blue-500",
       "text-white",
+      "font-bold",
       "border-blue-500"
     );
 
@@ -987,8 +991,9 @@ function openJobReviewModal(jobId) {
 
     if (buttonLevel === job.jobLevel) {
       button.classList.add(
-        "bg-blue-600",
+        "bg-blue-500",
         "text-white",
+        "font-bold",
         "border-blue-500"
       );
 
@@ -1109,8 +1114,9 @@ function setupJobLevelReviewClickEvent() {
 
       jobLevelButtons.forEach(btn => {
         btn.classList.remove(
-          "bg-blue-600",
+          "bg-blue-500",
           "text-white",
+          "font-bold",
           "border-blue-500"
         );
 
@@ -1118,8 +1124,9 @@ function setupJobLevelReviewClickEvent() {
       });
 
       this.classList.add(
-        "bg-blue-600",
+        "bg-blue-500",
         "text-white",
+        "font-bold",
         "border-blue-500"
       );
 
@@ -1160,4 +1167,48 @@ function checkConfirmReviewPermission() {
     // hide hint text
     confirmReviewHint.classList.add('hidden');
   }
+}
+
+document.getElementById("confirmReviewBtn").addEventListener("click", function () {
+  console.log("Confirm Review button clicked");
+
+  if (!currentReviewJobId) {
+    alert("No job selected.");
+    return;
+  }
+
+  confirmJobReview(currentReviewJobId);
+});
+
+async function confirmJobReview(jobId) {
+  const payload = {
+    yearOfExperience: yoe_review === "" ? null : Number(yoe_review),
+    jobLevel: jobLevel_review,
+    techStacks: selectedStacks_review
+  };
+
+  const response = await fetch(`${window.API_BASE}/api/jobs/${jobId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    alert("Failed to update job attributes.");
+    return;
+  }
+  const job = allJobs.find(job => job.jobId === jobId);
+
+  if (job) {
+    job.yearOfExperience = payload.yearOfExperience;
+    job.jobLevel = payload.jobLevel;
+    job.requiredStacks = payload.techStacks;
+  }
+
+  alert("Job attributes updated successfully.");
+
+  closeJobReviewModal();
+  await loadJobs();
 }

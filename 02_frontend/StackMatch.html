@@ -219,7 +219,7 @@
             <div class="bg-white p-16 w-[1100px] h-[700px] flex gap-12 rounded-lg shadow-lg  ">
               
                 <div class="items-center h-[600px] w-1/2">
-                    <div class="flex h-[70px] justify-between ">
+                    <div class="flex h-[70px] justify-between items-center ">
                         <div>
                             <div class="font-bold truncate w-64" id="jobTitle" ></div>
                             <div id="company" ></div>
@@ -228,7 +228,7 @@
                             <a 
                                 id="jobLink"
                                 target="_blank"
-                                class="text-blue-600 underline hover:text-blue-800 hover:underline transition"
+                                class="text-blue-600  underline hover:text-blue-800 hover:underline transition"
                             >
                                 View Original Job
                             </a>
@@ -252,7 +252,7 @@
                             <div class="font-bold">Manual Review</div>
 
                             <button 
-                                class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition">
+                                class="text-blue-600 underline hover:text-blue-800">
                                 Get LLM Analysis
                             </button>
                         </div>
@@ -279,7 +279,7 @@
 
                                 <button 
                                     id="manual-add-btn" 
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                                     Add
                                 </button>
                             </div>
@@ -299,7 +299,7 @@
                             <input id="manual-yoe-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" >
                         </div>
 
-                        <div class="mb-5">
+                        <div class="mb-8">
                             <label class="block text-sm  mb-2">Job Level</label>
                             <div class="flex gap-2">
                                 <button type="button"
@@ -322,16 +322,17 @@
                             </div>
                              <input type="hidden" id="manual-job-level-input">
                         </div>
-
-                        <button 
+                         <button 
                             id="confirmReviewBtn"
-                            class="px-5 py-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold ">
+                            class=" py-3 w-full  text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold">
                             Confirm Review
                         </button>
                         <p id="confirmReviewHint" class="mt-2 text-sm text-red-500 hidden">
                             Admin access is required to confirm the review.
                         </p>
+                        
                     </div>
+                   
                 </div>
             </div>
         </div>

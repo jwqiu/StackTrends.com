@@ -199,6 +199,74 @@ namespace StackTrends.Controllers
             return Ok(jobs);
         }
 
-  
+        [HttpPut("{jobId}")]
+        public async Task<IActionResult> UpdateJobAttributes(
+            int jobId,
+            [FromBody] UpdateJobAttributesRequest request)
+        {
+            try
+            {
+                await _conn.OpenAsync();
+
+                var sql = @"
+                    UPDATE public.jobs
+                    SET 
+                        year_of_experience = @yearOfExperience,
+                        job_level = @jobLevel,
+                        tech_tags = @techTags
+                    WHERE job_id = @jobId;
+                ";
+
+                await using var cmd = new NpgsqlCommand(sql, _conn);
+
+                cmd.Parameters.AddWithValue("jobId", jobId);
+
+                cmd.Parameters.AddWithValue(
+                    "yearOfExperience",
+                    request.YearOfExperience.HasValue
+                        ? request.YearOfExperience.Value
+                        : DBNull.Value
+                );
+
+                cmd.Parameters.AddWithValue(
+                    "jobLevel",
+                    string.IsNullOrWhiteSpace(request.JobLevel)
+                        ? DBNull.Value
+                        : request.JobLevel
+                );
+
+                var techTagsText = request.TechStacks == null
+                    ? null
+                    : string.Join(", ", request.TechStacks);
+
+                cmd.Parameters.AddWithValue(
+                    "techTags",
+                    string.IsNullOrWhiteSpace(techTagsText)
+                        ? DBNull.Value
+                        : techTagsText
+                );
+
+                var rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                if (rowsAffected == 0)
+                {
+                    return NotFound(new { message = "Job not found." });
+                }
+
+                return Ok(new { message = "Job attributes updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Failed to update job attributes.",
+                    error = ex.Message
+                });
+            }
+            finally
+            {
+                await _conn.CloseAsync();
+            }
+        }
     }
 }
