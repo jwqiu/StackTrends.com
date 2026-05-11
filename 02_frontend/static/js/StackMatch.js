@@ -5,11 +5,14 @@ let currentJobLevel = "ALL";
 let allTechStacks = [];
 let selectedStacks = [];
 let selectedStacks_companies = [];
+let selectedStacks_review = [];
 let allJobs = []; // 存全部jobs
 let jobsPerPage = 20;
 let currentPage = 1;
 let hasMore = true;
 let currentTab = 'jobs';
+let jobLevel_review = "";
+let yoe_review = "";
 
 // when the page loads, the following functions will be executed
 document.addEventListener("DOMContentLoaded", () => {
@@ -51,7 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupToggleBtnClickEvent();
   initLoadMoreButton();
 
-
+  //--------------------------------
+  // functions related to job review modal
+  //--------------------------------
+  setupYoeReviewInputEvent();
+  setupJobLevelReviewClickEvent();
 
 });
 
@@ -74,6 +81,10 @@ async function loadTechStacks() {
     document.getElementById("add-btn").addEventListener("click", addSelectedStack);
     document.getElementById("techstack-input-companies-section").addEventListener("input", showSuggestionsCompaniesSection);
     document.getElementById("add-btn-companies-section").addEventListener("click", addSelectedStackCompaniesSection);
+    document.getElementById("manual-techstack-input").addEventListener("input", showSuggestionsReviewSection);
+    document.getElementById("manual-add-btn").addEventListener("click", addManualSelectedStack);
+
+
 
   } catch (error) {
     console.error('Error loading tech stacks:', error);
@@ -143,13 +154,16 @@ function removeTag(button) {
     selectedStacks = selectedStacks.filter(n => n !== name);
     renderSelectedStacks();
     searchBtn.click();
-  } else {
+    selectedStacks_review = selectedStacks_review.filter(n => n !== name);
+    renderManualSelectedStacks();
+  } else if (currentTab === 'companies') {
     const name = button.dataset.name;
     const searchBtn = document.querySelector('.apply-filters-btn--companies-section')
     selectedStacks_companies = selectedStacks_companies.filter(n => n !== name);
     renderSelectedStacksCompaniesSection();
     searchBtn.click();
   }
+
   scrollToTop();
 }
 
@@ -176,8 +190,11 @@ async function addSelectedStack() {
     if (!norm) norm = raw;
     console.log(`Normalized value is: ${norm}`);
 
-    // 避免重复
-    if (!selectedStacks.includes(norm)) {
+    const alreadyExists = selectedStacks.some(
+        stack => stack.toLowerCase() === norm.toLowerCase()
+    );
+
+    if (!alreadyExists) {
         selectedStacks.push(norm);
         renderSelectedStacks();
         console.log(`Added tech stack: ${norm}`);
@@ -321,7 +338,7 @@ function renderJobs() {
     const stacks = highlightMatches(job.requiredStacks, selectedStacks);
 
     const html = `
-      <a href="${job.jobUrl}" target="_blank" class="block no-underline text-inherit">
+      <div onclick='openJobReviewModal(${job.jobId})' class="block no-underline text-inherit cursor-pointer">
         <div class="${currentPage === 1 ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
         <h3 class="font-bold text-xl text-grey-700 mr-3">${job.jobTitle}</h3>
           
@@ -378,8 +395,7 @@ function renderJobs() {
             </div>
           </div>
         </div>
-
-      </a>
+      </div>        
     `;
     // insert the job HTML at the end of the job list container
     jobList.insertAdjacentHTML('beforeend', html);
@@ -393,6 +409,7 @@ function renderJobs() {
   }
 
 }
+
 
 function animateJobCards() {
   const cards = document.querySelectorAll('.job-card');
@@ -496,7 +513,11 @@ async function addSelectedStackCompaniesSection() {
     console.log(`Normalized value is: ${norm}`);
 
     // 避免重复
-    if (!selectedStacks_companies.includes(norm)) {
+    const alreadyExists = selectedStacks_companies.some(
+        stack => stack.toLowerCase() === norm.toLowerCase()
+    );
+
+    if (!alreadyExists) {
         selectedStacks_companies.push(norm);
         renderSelectedStacksCompaniesSection();
         console.log(`Added tech stack: ${norm}`);
@@ -922,4 +943,221 @@ function openModal() {
 
 function closeModal() {
   document.getElementById('customModal').classList.add('hidden');
+}
+
+// ========================================================================
+// functions for handling job review modal display and data population
+// ========================================================================
+
+function openJobReviewModal(jobId) {
+  const job = allJobs.find(j => j.jobId === jobId);
+  document.getElementById('jobReviewModal').classList.remove('hidden');
+  document.getElementById("jobTitle").innerText = job.jobTitle;
+  document.getElementById("company").innerText = job.companyName;
+  document.getElementById("jobDescription").innerHTML = job.jobDesOrigin;
+  document.getElementById("jobLink").href = job.jobUrl;
+
+  selectedStacks_review = job.requiredStacks ? [...job.requiredStacks] : [];
+  renderManualSelectedStacks();
+
+  yoe_review = job.yearOfExperience;
+  const manualYoeInput = document.getElementById("manual-yoe-input");
+  if (manualYoeInput) {
+    manualYoeInput.value =
+      job.yearOfExperience === null || job.yearOfExperience === undefined
+        ? ""
+        : job.yearOfExperience;
+  }
+
+  jobLevel_review = job.jobLevel;
+  const jobLevelButtons = document.querySelectorAll(".job-level-btn");
+
+  jobLevelButtons.forEach(button => {
+    const buttonLevel = button.dataset.level;
+
+    button.classList.remove(
+      "bg-blue-600",
+      "text-white",
+      "border-blue-500"
+    );
+
+    button.classList.add(
+      "border-gray-300"
+    );
+
+    if (buttonLevel === job.jobLevel) {
+      button.classList.add(
+        "bg-blue-600",
+        "text-white",
+        "border-blue-500"
+      );
+
+      button.classList.remove(
+        "border-gray-300"
+      );
+    }
+  });
+  checkConfirmReviewPermission();
+}
+
+function closeJobReviewModal() {
+  document.getElementById('jobReviewModal').classList.add('hidden');
+}
+
+function showSuggestionsReviewSection(e) {
+
+    const input = e.target.value.trim().toLowerCase();
+    const suggestList = document.getElementById("manual-suggest-list");
+
+    if (!input) {
+        suggestList.innerHTML = '';
+        suggestList.classList.add('hidden');
+        return;
+    }
+
+    // filter tech keywords matching the input
+    const matched = allTechStacks.filter(ts => 
+        ts.stackName && ts.stackName.toLowerCase().includes(input) &&
+        !selectedStacks.includes(ts.stackName)
+    ).slice(0, 5); 
+    
+    if (matched.length === 0) {
+        suggestList.innerHTML = '<li class="px-4 py-2 text-gray-400">No match</li>';
+    } else {
+        suggestList.innerHTML = matched.map(ts =>
+            `<li class="px-4 py-2 hover:bg-blue-100 cursor-pointer" data-name="${ts.stackName}">${ts.stackName}</li>`
+        ).join('');
+    }
+    suggestList.classList.remove('hidden');
+
+    // 点击候选项自动填充
+    suggestList.querySelectorAll('li[data-name]').forEach(li => {
+        li.addEventListener('click', () => {
+            document.getElementById("manual-techstack-input").value = li.dataset.name;
+            suggestList.innerHTML = '';
+            suggestList.classList.add('hidden');
+        });
+    });
+}
+
+// this function is triggered when user clicks the add button
+async function addManualSelectedStack() {
+
+    const input = document.getElementById("manual-techstack-input");
+    const raw = input.value.trim();
+    if (!raw) return;
+    console.log(`Raw value is: ${raw}`);
+
+    let norm = await normalizeKeyword(raw);
+    if (!norm) norm = raw;
+    console.log(`Normalized value is: ${norm}`);
+
+
+    // 避免重复
+    const alreadyExists = selectedStacks_review.some(
+        stack => stack.toLowerCase() === norm.toLowerCase()
+    );
+
+    if (!alreadyExists) {
+        selectedStacks_review.push(norm);
+        renderManualSelectedStacks();
+        console.log(`Added tech stack: ${norm}`);
+        console.log(`Current selected stacks: ${selectedStacks_review.join(', ')}`);
+    }
+    input.value = '';
+    document.getElementById("manual-suggest-list").innerHTML = '';
+    document.getElementById("manual-suggest-list").classList.add('hidden');
+}
+
+function renderManualSelectedStacks() {
+  const container = document.querySelector(".manual-tech-stacks");
+  container.innerHTML = '';
+  if (selectedStacks_review.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 italic">No tech stack selected</p>';
+    return;
+  }
+  selectedStacks_review.forEach(name => {
+      const div = document.createElement('div');
+      div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+      div.innerHTML = `
+          ${name}
+          <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
+      `;
+      container.appendChild(div);
+  });
+
+}
+
+function setupYoeReviewInputEvent() {
+  const manualYoeInput = document.getElementById("manual-yoe-input");
+
+  if (!manualYoeInput) return;
+
+  manualYoeInput.addEventListener("input", function () {
+    yoe_review = this.value.trim() === "" ? "" : Number(this.value);
+
+    console.log("Current YOE review:", yoe_review);
+  });
+}
+
+function setupJobLevelReviewClickEvent() {
+  const jobLevelButtons = document.querySelectorAll(".job-level-btn");
+
+  jobLevelButtons.forEach(button => {
+    button.addEventListener("click", function () {
+      jobLevel_review = this.dataset.level;
+
+      jobLevelButtons.forEach(btn => {
+        btn.classList.remove(
+          "bg-blue-600",
+          "text-white",
+          "border-blue-500"
+        );
+
+        btn.classList.add("border-gray-300");
+      });
+
+      this.classList.add(
+        "bg-blue-600",
+        "text-white",
+        "border-blue-500"
+      );
+
+      this.classList.remove("border-gray-300");
+
+      console.log("Current Job Level review:", jobLevel_review);
+    });
+  });
+}
+
+
+function checkConfirmReviewPermission() {
+  const isAdmin = sessionStorage.getItem('isAdmin');
+
+  const confirmReviewBtn = document.getElementById('confirmReviewBtn');
+  const confirmReviewHint = document.getElementById('confirmReviewHint');
+
+  if (!confirmReviewBtn || !confirmReviewHint) return;
+
+  if (!isAdmin) {
+    // non-admin: disable the button
+    confirmReviewBtn.disabled = true;
+
+    // change button style
+    confirmReviewBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    confirmReviewBtn.classList.add('bg-gray-300', 'cursor-not-allowed');
+
+    // show hint text
+    confirmReviewHint.classList.remove('hidden');
+  } else {
+    // admin: enable the button
+    confirmReviewBtn.disabled = false;
+
+    // restore button style
+    confirmReviewBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+    confirmReviewBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+    // hide hint text
+    confirmReviewHint.classList.add('hidden');
+  }
 }

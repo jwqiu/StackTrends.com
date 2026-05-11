@@ -145,7 +145,8 @@ namespace StackTrends.Controllers
             {
                 await _conn.CloseAsync();
                 // 命中 normalized_keyword，直接用原词返回
-                return Ok(new { normalized = keyword });
+                // return Ok(new { normalized = keyword });
+                return Ok(new { normalized = normObj.ToString() });
             }
 
             // if not, check whether it matches any value in the raw_keyword column

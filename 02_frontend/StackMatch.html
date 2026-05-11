@@ -199,7 +199,7 @@
         </div>
 
 
-        <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <!-- <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
             <div class="bg-white p-6 rounded-2xl shadow-lg max-w-md w-full text-start">
                 <p class="text-gray-800 text-lg font-bold mb-4">Thanks for your TRUST! 🤝</p>
                 <p class="text-gray-800 text-lg mb-4">But this feature is still in the oven — stay tuned! 🍞😜</p>
@@ -207,9 +207,134 @@
                 Close
                 </button>
             </div>
-        </div>
+        </div> -->
         <div id="modalContainer"></div>
+        <!-- Job Review Modal -->
+        <div id="jobReviewModal" class="hidden fixed inset-0  bg-opacity-50 flex items-center justify-center z-50 bg-gradient-to-tr from-white/90 via-gray-100/90 to-blue-300/90">
+            <button onclick="closeJobReviewModal()" class="absolute top-6 right-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 ">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="bg-white p-16 w-[1100px] h-[700px] flex gap-12 rounded-lg shadow-lg  ">
+              
+                <div class="items-center h-[600px] w-1/2">
+                    <div class="flex h-[70px] justify-between ">
+                        <div>
+                            <div class="font-bold truncate w-64" id="jobTitle" ></div>
+                            <div id="company" ></div>
+                        </div>
+                        <div>
+                            <a 
+                                id="jobLink"
+                                target="_blank"
+                                class="text-blue-600 underline hover:text-blue-800 hover:underline transition"
+                            >
+                                View Original Job
+                            </a>
+                        </div>
+                    </div>
+                    <div class="h-[500px] ">
+                        <div id="jobDescription" class=" rounded-lg h-full overflow-y-auto whitespace-pre-wrap text-sm"></div>
+                    </div>
+                </div>
+      
+                <div class="h-[550px] w-1/2 ">
+                    <!-- <div class="h-1/2  mb-6 p-8 bg-gray-100 rounded-lg shadow overflow-y-auto">
+                        <div class="font-bold text-md mb-2">Rules + Embedding Analysis</div>
+                        <div id="" class="text-sm ">Tech Stack Requirements:</div>
+                        <div id="rulesTechStacks" class="flex flex-wrap gap-2 text-sm mt-2"></div>
+                        <div id="rulesYOE" class="text-sm mt-3">Year Of Experience:</div>
+                        <div id="rulesJobLevel" class="text-sm mt-3">Job Level:</div>
+                    </div> -->
+                    <div class="mb-6 p-8 bg-gray-100 rounded-lg shadow overflow-y-auto">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-bold">Manual Review</div>
 
+                            <button 
+                                class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition">
+                                Get LLM Analysis
+                            </button>
+                        </div>
+                        
+                        <div class="mt-2 w-full">
+                            <label class="block text-sm font-semibold mb-1">
+                                Tech Stack Requirements
+                            </label>
+
+                            <div class="mb-2 flex gap-3">
+                                <div class="relative flex-1">
+                                    <input 
+                                        id="manual-techstack-input" 
+                                        type="text" 
+                                        class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" 
+                                        placeholder="Enter Tech Skill..."
+                                    >
+
+                                    <ul 
+                                        id="manual-suggest-list" 
+                                        class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto hidden text-sm">
+                                    </ul>
+                                </div>
+
+                                <button 
+                                    id="manual-add-btn" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap flex-col items-start gap-y-0 gap-x-2 mt-4 ">
+                            <label for="" class="text-sm text-nowrap">Currently selected skills:</label>
+                                
+                            <div class="manual-tech-stacks italic flex flex-wrap gap-2 mt-2 ">
+                                <p class="text-sm text-gray-400">No tech skills selected</p>
+                            </div>
+                            
+                        </div>
+                        
+                    
+                        <div class="mb-3 mt-3">
+                            <label class="block text-sm  mb-1">Years of Experience</label>
+                            <input id="manual-yoe-input" type="text" class="border border-gray-300 rounded-lg p-2 mt-2 w-full" >
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="block text-sm  mb-2">Job Level</label>
+                            <div class="flex gap-2">
+                                <button type="button"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    data-level="Junior">
+                                    🧑‍🎓 Junior
+                                </button>
+
+                                <button type="button"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    data-level="Intermediate">
+                                    👨‍💻 Intermediate
+                                </button>
+
+                                <button type="button"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    data-level="Senior">
+                                    👨‍💼 Senior
+                                </button>
+                            </div>
+                             <input type="hidden" id="manual-job-level-input">
+                        </div>
+
+                        <button 
+                            id="confirmReviewBtn"
+                            class="px-5 py-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold ">
+                            Confirm Review
+                        </button>
+                        <p id="confirmReviewHint" class="mt-2 text-sm text-red-500 hidden">
+                            Admin access is required to confirm the review.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="static/js/config.js"></script>
         <script src="static/js/StackMatch.js"></script>
         <script src="static/js/auth-utils.js"></script>
