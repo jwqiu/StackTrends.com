@@ -955,9 +955,9 @@ function openJobReviewModal(jobId) {
   currentReviewJobId = jobId;
 
   document.getElementById('jobReviewModal').classList.remove('hidden');
-  document.getElementById("jobTitle").innerText = job.jobTitle;
+  // document.getElementById("jobTitle").innerText = job.jobTitle;
   // document.getElementById("company").innerText = job.companyName;
-  document.getElementById("jobDescription").innerHTML = job.jobDesOrigin;
+  document.getElementById("jobDescription").innerHTML = (job.jobDesOrigin || "").trimStart();
   document.getElementById("jobLink").href = job.jobUrl;
 
   selectedStacks_review = job.requiredStacks ? [...job.requiredStacks] : [];
