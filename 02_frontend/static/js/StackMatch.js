@@ -359,7 +359,7 @@ function renderJobs() {
               </p>
             </div>
           </div>
-          <div class="mt-4 bg-gray-100 p-4 rounded shadow-md">
+          <div class="border-l-4 border-blue-500 pl-4 mt-4 ">
             <p class="inline-flex items-center text-sm text-gray-500 gap-1 mt-0">
                  Tech Requirements:
             </p>
@@ -443,7 +443,7 @@ function highlightMatches(stacks, selected) {
   const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
   return [
     ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${s}</span>`),
-    ...unmatched.map(s => `<span class=" bg-white rounded-lg px-2 py-1 text-gray-500">${s}</span>`)
+    ...unmatched.map(s => `<span class=" bg-blue-100 rounded-lg px-2 py-1 text-gray-500">${s}</span>`)
   ].join('  ') || 'N/A';
 }
 
@@ -979,10 +979,10 @@ function openJobReviewModal(jobId) {
     const buttonLevel = button.dataset.level;
 
     button.classList.remove(
-      "bg-blue-500",
-      "text-white",
-      "font-bold",
-      "border-blue-500"
+      "text-blue-500",
+      "border-blue-500", 
+      "hover:bg-blue-100"
+
     );
 
     button.classList.add(
@@ -991,14 +991,14 @@ function openJobReviewModal(jobId) {
 
     if (buttonLevel === job.jobLevel) {
       button.classList.add(
-        "bg-blue-500",
-        "text-white",
-        "font-bold",
-        "border-blue-500"
+        "text-blue-500",
+        "border-blue-500",
+        "hover:bg-blue-100"
       );
 
       button.classList.remove(
-        "border-gray-300"
+        "border-gray-300",
+        "hover:bg-blue-50"
       );
     }
   });
@@ -1182,27 +1182,22 @@ async function confirmJobReview(jobId) {
 }
 
 
-// function updateJobLevelButtonStyle() {
-//   const buttons = document.querySelectorAll(".job-level-btn");
-
-//   buttons.forEach(button => {
-//     const level = button.dataset.level;
-
-//     if (level === jobLevel_review) {
-//       button.classList.add("bg-blue-600", "text-white");
-//       button.classList.remove("bg-white", "text-gray-700");
-//     } else {
-//       button.classList.remove("bg-blue-600", "text-white");
-//       button.classList.add("bg-white", "text-gray-700");
-//     }
-//   });
-// }
-
-
 document.getElementById("autoFillWithLlmBtn").addEventListener("click", autoFillWithLLM);
 
 async function autoFillWithLLM() {
   const jobDescription = document.getElementById("jobDescription").innerText;
+  const autoFillBtn = document.getElementById("autoFillWithLlmBtn");
+  const confirmReviewBtn = document.getElementById('confirmReviewBtn');
+
+  // show loading
+  autoFillBtn.innerHTML = `
+    <div class="w-5 h-5 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+  `;
+  autoFillBtn.disabled = true;
+
+  confirmReviewBtn.disabled = true;
+  confirmReviewBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
+  confirmReviewBtn.classList.add("bg-gray-300", "cursor-not-allowed");
 
   if (!jobDescription || jobDescription.trim() === "") {
     alert("No job description found.");
@@ -1259,6 +1254,13 @@ async function autoFillWithLLM() {
   } catch (error) {
     console.error(error);
     alert("Something went wrong when calling LLM.");
+  } finally {
+    // restore button text
+    autoFillBtn.innerHTML = "Auto-fill with AI";
+    autoFillBtn.disabled = false;
+    confirmReviewBtn.disabled = false;
+    confirmReviewBtn.classList.remove("bg-gray-300", "cursor-not-allowed");
+    confirmReviewBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
   }
 }
 
@@ -1272,20 +1274,20 @@ function setupJobLevelReviewClickEvent() {
 
       jobLevelButtons.forEach(btn => {
         btn.classList.remove(
-          "bg-blue-500",
-          "text-white",
           "font-bold",
-          "border-blue-500"
+          "border-blue-500",
+          "text-blue-500"
+         
         );
 
         btn.classList.add("border-gray-300");
       });
 
       this.classList.add(
-        "bg-blue-500",
-        "text-white",
         "font-bold",
-        "border-blue-500"
+        "border-blue-500",
+        "text-blue-500"
+
       );
 
       this.classList.remove("border-gray-300");

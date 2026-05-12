@@ -206,12 +206,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
             </button>
-            <div class="bg-white p-16 w-[1100px] h-[700px] flex gap-12 rounded-lg shadow-lg  ">
+            <div class="bg-white p-16 w-[1100px] h-[700px] flex gap-8 rounded-lg shadow-lg  ">
               
                 <div class="items-center h-[600px] w-1/2">
                     <div class="flex h-[50px] flex-col  ">
                         <div>
-                            <div class="font-bold truncate w-80" id="jobTitle" ></div>
+                            <div class="font-bold text-lg truncate w-92" id="jobTitle" ></div>
                             <!-- <div id="company" ></div> -->
                         </div>
                         <div>
@@ -237,92 +237,94 @@
                         <div id="rulesYOE" class="text-sm mt-3">Year Of Experience:</div>
                         <div id="rulesJobLevel" class="text-sm mt-3">Job Level:</div>
                     </div> -->
-                    <div class=" px-8 flex flex-col gap-3 h-full  overflow-y-auto">
-                        <div class="flex flex-col items-start mb-1  h-[50px]">
-                            <div class="font-bold">Review Extracted Information</div>
+                    <div class=" px-8  flex flex-col gap-3 h-full  overflow-y-auto">
+                        <div class="flex flex-col items-start mb-1  h-[40px]">
+                            <div class=" text-lg font-bold">Review Extracted Information</div>
 
+                           
+                        </div>
+                        <div class="flex flex-col gap-8 mb-6">
+                            <div class="border-l-4 border-blue-500 pl-4 ">
+                                <div class="flex flex-wrap flex-col items-start gap-y-0 mb-4 gap-x-2 ">
+                                    <label for="" class="text-sm text-nowrap font-semibold">Suggested Tech Stack:</label>
+                                        
+                                    <div class="manual-tech-stacks italic flex flex-wrap gap-2 mt-2 ">
+                                        <p class="text-sm text-gray-400">No tech skills mentioned</p>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mt-4 w-full ">
+                                    <!-- <label class="block text-sm  mb-3">
+                                        Add more tech skills mentioned (optional):
+                                    </label> -->
+
+                                    <div class="flex gap-3">
+                                        <div class="relative flex-1 ">
+                                            <input 
+                                                id="manual-techstack-input" 
+                                                type="text" 
+                                                class="border placeholder:text-sm border-gray-300 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" 
+                                                placeholder="Add a tech stack..."
+                                            >
+
+                                            <ul 
+                                                id="manual-suggest-list" 
+                                                class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto hidden text-sm">
+                                            </ul>
+                                        </div>
+
+                                        <button 
+                                            id="manual-add-btn" 
+                                            class="bg-white text-blue-500 border border-blue-500 px-3 py-1 rounded-lg hover:bg-blue-50">
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="border-l-4 border-blue-500 pl-4 flex flex-col  ">
+                                <label class="font-semibold text-sm mb-3 ">Suggested YOE:</label>
+                                <input id="manual-yoe-input" type="text" class="border border-gray-300 rounded-lg p-1 placeholder:text-sm " placeholder="Year of Experience" >
+                            </div>
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <label class="block text-sm font-semibold  mb-2">Suggested Job Level</label>
+                                <div class="flex gap-2">
+                                    <button type="button"
+                                        class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-50 hover:border-blue-100 transition"
+                                        data-level="Junior">
+                                        🧑‍🎓 Junior
+                                    </button>
+
+                                    <button type="button"
+                                        class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-50 hover:border-blue-100 transition"
+                                        data-level="Intermediate">
+                                        👨‍💻 Intermediate
+                                    </button>
+
+                                    <button type="button"
+                                        class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-50 hover:border-blue-100 transition"
+                                        data-level="Senior">
+                                        👨‍💼 Senior
+                                    </button>
+                                </div>
+                                <input type="hidden" id="manual-job-level-input">
+                            </div>
+                        </div>
+                        <div class="flex gap-4 ">
                             <button 
-                                id="autoFillWithLlmBtn"
-                                class="text-blue-600 underline hover:text-blue-800">
-                                Auto Fill with LLM >>
+                                    id="autoFillWithLlmBtn"
+                                    class="py-3 w-full flex justify-center items-center  bg-white text-blue-500 rounded-lg border hover:bg-blue-50 border-blue-500  ">
+                                    Auto-fill with AI
+                            </button>
+                            <button 
+                                id="confirmReviewBtn"
+                                class=" py-3 w-full   bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold">
+                                Confirm Changes
                             </button>
                         </div>
                         
-                        <div class="bg-gray-100 rounded-lg shadow p-6">
-                            <div class="flex flex-wrap flex-col items-start gap-y-0 mb-4 gap-x-2 ">
-                                <label for="" class="text-sm text-nowrap font-semibold">Suggested Tech Skills:</label>
-                                    
-                                <div class="manual-tech-stacks italic flex flex-wrap gap-2 mt-2 ">
-                                    <p class="text-sm text-gray-400">No tech skills mentioned</p>
-                                </div>
-                                
-                            </div>
-                            <div class="mt-6 w-full ">
-                                <!-- <label class="block text-sm  mb-3">
-                                    Add more tech skills mentioned (optional):
-                                </label> -->
-
-                                <div class="flex gap-3">
-                                    <div class="relative flex-1 ">
-                                        <input 
-                                            id="manual-techstack-input" 
-                                            type="text" 
-                                            class="border placeholder:text-sm border-gray-300 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" 
-                                            placeholder="Add More Here"
-                                        >
-
-                                        <ul 
-                                            id="manual-suggest-list" 
-                                            class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto hidden text-sm">
-                                        </ul>
-                                    </div>
-
-                                    <button 
-                                        id="manual-add-btn" 
-                                        class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
-                                        Add
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    
-                        <div class="mb-3 mt-3 bg-gray-100 rounded-lg  shadow p-4">
-                            <label class="font-semibold text-sm me-3 ">Suggested YOE:</label>
-                            <input id="manual-yoe-input" type="text" class="border border-gray-300 rounded-lg p-1 placeholder:text-sm " placeholder="Year of Experience" >
-                        </div>
-
-                        <div class="bg-gray-100 rounded-lg shadow p-4 mb-4">
-                            <label class="block text-sm font-semibold  mb-2">Suggested Job Level</label>
-                            <div class="flex gap-2">
-                                <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
-                                    data-level="Junior">
-                                    🧑‍🎓 Junior
-                                </button>
-
-                                <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
-                                    data-level="Intermediate">
-                                    👨‍💻 Intermediate
-                                </button>
-
-                                <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
-                                    data-level="Senior">
-                                    👨‍💼 Senior
-                                </button>
-                            </div>
-                             <input type="hidden" id="manual-job-level-input">
-                        </div>
-                         <button 
-                            id="confirmReviewBtn"
-                            class=" py-3 w-full  text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold">
-                            Confirm Review
-                        </button>
-                        <p id="confirmReviewHint" class=" text-sm text-red-500 hidden">
-                            Admin access is required to confirm the review.
+                        <p id="confirmReviewHint" class=" text-sm  hidden">
+                            * Admin access is required to confirm the changes.
                         </p>
                         
                     </div>

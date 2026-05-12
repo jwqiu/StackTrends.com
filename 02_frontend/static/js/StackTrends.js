@@ -463,7 +463,7 @@ function renderRankingsByCategory(data) {
 
       html += `
         <div class="">
-          <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105  shadow-lg relative">
+          <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105   relative">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-white to-white"></div>
             <div class="absolute top-0 left-0 h-full bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
             <div class="relative z-10 flex items-center group-hover:justify-center h-full px-2">
@@ -608,12 +608,12 @@ async function renderTopTechStackTableByLevel() {
             const label = `${capitalize(val.tech)}`;            
 
             return `
-              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group shadow-lg px-0 mb-2 py-2 ">
+              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group  px-0 mb-2 py-2 ">
                 <span class="absolute left-0 top-0 h-full  rounded-md bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100" style="width: ${width};"></span>
                 <span class="px-2 z-10  text-sm text-gray-700 text-shadow    opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   ${width}
                 </span>
-                <span class=" z-10 inline-block w-full  text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
+                <span class=" z-10 inline-block text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
               </span>
             `;
         });
