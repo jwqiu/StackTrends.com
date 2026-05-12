@@ -106,7 +106,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton(new ChatClient(
     model: "gpt-4.1-mini",
-    apiKey: builder.Configuration["OpenAI:ApiKey"]
+    apiKey: builder.Configuration["OpenAI__ApiKey"]
 ));
 
 // build the web application instance using the previously configured builder
