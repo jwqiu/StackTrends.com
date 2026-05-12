@@ -4,7 +4,9 @@
 
 const LOCAL_API = "https://localhost:5001";
 
-const PROD_API = "https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net";
+// const PROD_API = "https://stacktrends-api-cshjb2ephxbjdffa.newzealandnorth-01.azurewebsites.net";
+const PROD_API = "https://stacktrends-api-v2-heh4cvffh3c4bwde.australiaeast-01.azurewebsites.net";
+
 
 // if hostname is localhost or 127.0.0.1, use LOCAL_API, otherwise use PROD_API
 // the result is stored in window.API_BASE for global access
