@@ -219,10 +219,10 @@
             <div class="bg-white p-16 w-[1100px] h-[700px] flex gap-12 rounded-lg shadow-lg  ">
               
                 <div class="items-center h-[600px] w-1/2">
-                    <div class="flex h-[50px]  justify-between items-center ">
+                    <div class="flex h-[50px] flex-col  ">
                         <div>
                             <div class="font-bold truncate w-64" id="jobTitle" ></div>
-                            <div id="company" ></div>
+                            <!-- <div id="company" ></div> -->
                         </div>
                         <div>
                             <a 
@@ -248,12 +248,13 @@
                         <div id="rulesJobLevel" class="text-sm mt-3">Job Level:</div>
                     </div> -->
                     <div class=" px-8 flex flex-col gap-3 h-full  overflow-y-auto">
-                        <div class="flex justify-between items-center h-[50px]">
+                        <div class="flex flex-col items-start mb-1  h-[50px]">
                             <div class="font-bold">Review Extracted Information</div>
 
                             <button 
+                                id="autoFillWithLlmBtn"
                                 class="text-blue-600 underline hover:text-blue-800">
-                                Get LLM Analysis
+                                Auto Fill with LLM >>
                             </button>
                         </div>
                         
@@ -306,19 +307,19 @@
                             <label class="block text-sm font-semibold  mb-2">Suggested Job Level</label>
                             <div class="flex gap-2">
                                 <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
                                     data-level="Junior">
                                     🧑‍🎓 Junior
                                 </button>
 
                                 <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
                                     data-level="Intermediate">
                                     👨‍💻 Intermediate
                                 </button>
 
                                 <button type="button"
-                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-blue-700 hover:text-white transition"
+                                    class="job-level-btn px-3 py-2 border border-gray-300 rounded-lg text-sm hover:border-blue-500 hover:border-2 transition"
                                     data-level="Senior">
                                     👨‍💼 Senior
                                 </button>

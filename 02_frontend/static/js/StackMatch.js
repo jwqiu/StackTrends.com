@@ -956,7 +956,7 @@ function openJobReviewModal(jobId) {
 
   document.getElementById('jobReviewModal').classList.remove('hidden');
   document.getElementById("jobTitle").innerText = job.jobTitle;
-  document.getElementById("company").innerText = job.companyName;
+  // document.getElementById("company").innerText = job.companyName;
   document.getElementById("jobDescription").innerHTML = job.jobDesOrigin;
   document.getElementById("jobLink").href = job.jobUrl;
 
@@ -1105,38 +1105,6 @@ function setupYoeReviewInputEvent() {
   });
 }
 
-function setupJobLevelReviewClickEvent() {
-  const jobLevelButtons = document.querySelectorAll(".job-level-btn");
-
-  jobLevelButtons.forEach(button => {
-    button.addEventListener("click", function () {
-      jobLevel_review = this.dataset.level;
-
-      jobLevelButtons.forEach(btn => {
-        btn.classList.remove(
-          "bg-blue-500",
-          "text-white",
-          "font-bold",
-          "border-blue-500"
-        );
-
-        btn.classList.add("border-gray-300");
-      });
-
-      this.classList.add(
-        "bg-blue-500",
-        "text-white",
-        "font-bold",
-        "border-blue-500"
-      );
-
-      this.classList.remove("border-gray-300");
-
-      console.log("Current Job Level review:", jobLevel_review);
-    });
-  });
-}
-
 
 function checkConfirmReviewPermission() {
   const isAdmin = sessionStorage.getItem('isAdmin');
@@ -1211,4 +1179,118 @@ async function confirmJobReview(jobId) {
 
   closeJobReviewModal();
   await loadJobs();
+}
+
+
+// function updateJobLevelButtonStyle() {
+//   const buttons = document.querySelectorAll(".job-level-btn");
+
+//   buttons.forEach(button => {
+//     const level = button.dataset.level;
+
+//     if (level === jobLevel_review) {
+//       button.classList.add("bg-blue-600", "text-white");
+//       button.classList.remove("bg-white", "text-gray-700");
+//     } else {
+//       button.classList.remove("bg-blue-600", "text-white");
+//       button.classList.add("bg-white", "text-gray-700");
+//     }
+//   });
+// }
+
+
+document.getElementById("autoFillWithLlmBtn").addEventListener("click", autoFillWithLLM);
+
+async function autoFillWithLLM() {
+  const jobDescription = document.getElementById("jobDescription").innerText;
+
+  if (!jobDescription || jobDescription.trim() === "") {
+    alert("No job description found.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${window.API_BASE}/api/llm/analyze-job-description`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        jobDescription: jobDescription
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("LLM API error:", errorData);
+      alert(errorData.error);
+      return;
+    }
+
+    const data = await response.json();
+
+    const analysis = data.analysis;
+
+    // update global variables
+    selectedStacks_review = analysis.requiredSkills || [];
+    yoe_review = analysis.yearOfExperience === null || analysis.yearOfExperience === undefined
+      ? ""
+      : analysis.yearOfExperience;
+
+    // jobLevel_review = analysis.jobLevel || "";
+
+    // update UI
+    renderManualSelectedStacks();
+
+    const manualYoeInput = document.getElementById("manual-yoe-input");
+    if (manualYoeInput) {
+      manualYoeInput.value = yoe_review;
+    }
+
+    // updateJobLevelButtonStyle();
+    const targetButton = document.querySelector(
+    `.job-level-btn[data-level="${analysis.jobLevel}"]`
+    );
+
+    if (targetButton) {
+      targetButton.click();
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong when calling LLM.");
+  }
+}
+
+
+function setupJobLevelReviewClickEvent() {
+  const jobLevelButtons = document.querySelectorAll(".job-level-btn");
+
+  jobLevelButtons.forEach(button => {
+    button.addEventListener("click", function () {
+      jobLevel_review = this.dataset.level;
+
+      jobLevelButtons.forEach(btn => {
+        btn.classList.remove(
+          "bg-blue-500",
+          "text-white",
+          "font-bold",
+          "border-blue-500"
+        );
+
+        btn.classList.add("border-gray-300");
+      });
+
+      this.classList.add(
+        "bg-blue-500",
+        "text-white",
+        "font-bold",
+        "border-blue-500"
+      );
+
+      this.classList.remove("border-gray-300");
+
+      console.log("Current Job Level review:", jobLevel_review);
+    });
+  });
 }

@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using OpenAI.Chat;
 
 // create a web application builder, like laying the foundation where we prepare everything(services, settings, tools) before building the web app
 var builder = WebApplication.CreateBuilder(args);
@@ -102,6 +103,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // register the authorization services so i can mark which backend endpoints need authentication to access
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton(new ChatClient(
+    model: "gpt-4.1-mini",
+    apiKey: builder.Configuration["OpenAI:ApiKey"]
+));
 
 // build the web application instance using the previously configured builder
 var app = builder.Build();
