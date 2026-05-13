@@ -287,7 +287,7 @@ async function renderTechTableRows(data, limit) {
 
 async function renderFiltersOptions() {
   const root = document.getElementById('category-filters');
-  root.innerHTML = '';
+  root.innerHTML = ''; 
 
   // create a dropdown button/trigger
   const trigger = document.createElement('div');

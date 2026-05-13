@@ -1076,7 +1076,7 @@ async function addManualSelectedStack() {
 
     if (!alreadyExists) {
         selectedStacks_review.push(norm);
-        renderManualSelectedStacks();
+        await renderManualSelectedStacks();
         console.log(`Added tech stack: ${norm}`);
         console.log(`Current selected stacks: ${selectedStacks_review.join(', ')}`);
     }
@@ -1085,23 +1085,60 @@ async function addManualSelectedStack() {
     document.getElementById("manual-suggest-list").classList.add('hidden');
 }
 
-function renderManualSelectedStacks() {
+
+async function checkKeywordExists(keyword) {
+  const response = await fetch(`${window.API_BASE}/api/keywords/exists?keyword=${encodeURIComponent(keyword)}`);
+
+  if (!response.ok) {
+    console.error("Failed to check keyword:", keyword);
+    return false;
+  }
+
+  const data = await response.json();
+  return data.exists;
+}
+
+async function renderManualSelectedStacks() {
   const container = document.querySelector(".manual-tech-stacks");
   container.innerHTML = '';
+
   if (selectedStacks_review.length === 0) {
-    container.innerHTML = '<p class="text-gray-400 italic">No tech stack selected</p>';
+    container.innerHTML = '<p class="text-gray-400 italic">No tech stack mentioned</p>';
     return;
   }
-  selectedStacks_review.forEach(name => {
-      const div = document.createElement('div');
-      div.className = "flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
-      div.innerHTML = `
-          ${name}
-          <button class="remove-btn ml-2 text-blue-600 hover:text-red-500" data-name="${name}">&times;</button>
-      `;
-      container.appendChild(div);
-  });
 
+  let firstNonExistingElement = null;
+
+  for (const name of selectedStacks_review) {
+    const exists = await checkKeywordExists(name);
+
+    const div = document.createElement('div');
+
+    div.className = exists
+      ? "relative flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
+      : "relative flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+
+    div.innerHTML = `
+      ${!exists ? `
+        <span class="absolute -top-2 -left-1 bg-red-500 text-white text-[9px] px-1 rounded-full leading-tight">
+          New
+        </span>
+      ` : ""}
+
+      ${name}
+      <button class="remove-btn ml-2 ${exists ? 'text-blue-600' : 'text-blue-600'} hover:text-red-500" data-name="${name}">&times;</button>
+    `;
+
+    if (exists) {
+      container.insertBefore(div, firstNonExistingElement);
+    } else {
+      container.appendChild(div);
+
+      if (!firstNonExistingElement) {
+        firstNonExistingElement = div;
+      }
+    }
+  }
 }
 
 function setupYoeReviewInputEvent() {
@@ -1166,18 +1203,53 @@ async function confirmJobReview(jobId) {
     techStacks: selectedStacks_review
   };
 
+  const token = sessionStorage.getItem("jwt");
+
+  // save the new tech stacks to the backend if they don't exist
+  const newStacks = selectedStacks_review.filter(stack =>
+    stack && stack.trim() !== ""
+  );
+
+  const addResponses = await Promise.all(
+    newStacks.map(stackName =>
+      fetch(`${window.API_BASE}/api/keywords/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          stackName: stackName.trim(),
+          normalizedStackName: stackName.trim(),
+          category: "Other"
+        })
+      })
+    )
+  );
+
+  // check whether adding keywords failed
+  for (const res of addResponses) {
+    if (!res.ok) {
+      console.error("Failed to add keyword:", res.status, await res.text());
+    }
+  }
+
+  // update the job information and save to the database
   const response = await fetch(`${window.API_BASE}/api/jobs/${jobId}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
+    console.error("Failed to update job attributes:", response.status, await response.text());
     alert("Failed to update job attributes.");
     return;
   }
+
   const job = allJobs.find(job => job.jobId === jobId);
 
   if (job) {
@@ -1191,7 +1263,6 @@ async function confirmJobReview(jobId) {
   closeJobReviewModal();
   await loadJobs();
 }
-
 
 document.getElementById("autoFillWithLlmBtn").addEventListener("click", autoFillWithLLM);
 
@@ -1238,7 +1309,22 @@ async function autoFillWithLLM() {
     const analysis = data.analysis;
 
     // update global variables
-    selectedStacks_review = analysis.requiredSkills || [];
+    const llmSkills = analysis.requiredSkills || [];
+
+    for (const skill of llmSkills) {
+      const cleanSkill = skill.trim();
+
+      if (!cleanSkill) continue;
+
+      const alreadyExists = selectedStacks_review.some(
+        existingSkill => existingSkill.trim().toLowerCase() === cleanSkill.toLowerCase()
+      );
+
+      if (!alreadyExists) {
+        selectedStacks_review.push(cleanSkill);
+      }
+    }
+
     yoe_review = analysis.yearOfExperience === null || analysis.yearOfExperience === undefined
       ? ""
       : analysis.yearOfExperience;
@@ -1246,7 +1332,7 @@ async function autoFillWithLLM() {
     // jobLevel_review = analysis.jobLevel || "";
 
     // update UI
-    renderManualSelectedStacks();
+    await renderManualSelectedStacks();
 
     const manualYoeInput = document.getElementById("manual-yoe-input");
     if (manualYoeInput) {

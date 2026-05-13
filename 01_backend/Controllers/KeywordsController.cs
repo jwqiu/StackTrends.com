@@ -56,10 +56,11 @@ namespace StackTrends.Controllers
             await _conn.OpenAsync();
             var sql = @"
                 INSERT INTO tech_stacks_list (category, raw_keyword, normalized_keyword)
-                VALUES (@category, @rawKeyword, @normalizedKeyword);";
+                VALUES (@category, @rawKeyword, @normalizedKeyword)
+                ON CONFLICT ((LOWER(raw_keyword))) DO NOTHING;";
             await using var cmd = new NpgsqlCommand(sql, _conn);
             cmd.Parameters.AddWithValue("category", stack.Category ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("rawKeyword", stack.StackName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("rawKeyword", stack.StackName?.Trim() ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("normalizedKeyword", stack.NormalizedStackName ?? (object)DBNull.Value);
             await cmd.ExecuteNonQueryAsync();
             await _conn.CloseAsync();
@@ -202,6 +203,34 @@ namespace StackTrends.Controllers
             return Ok(new { count }); 
         }
 
+        // this endpoint checks whether a given keyword already exists in the database, either in the raw_keyword column or the normalized_keyword column, and returns true or false accordingly
+        [HttpGet("exists")]
+        public async Task<IActionResult> KeywordExists([FromQuery] string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return BadRequest(new { error = "Keyword is required." });
+            }
+
+            await _conn.OpenAsync();
+
+            var sql = @"
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM tech_stacks_list
+                    WHERE LOWER(raw_keyword) = LOWER(@kw)
+                    OR LOWER(normalized_keyword) = LOWER(@kw)
+                )";
+
+            await using var cmd = new NpgsqlCommand(sql, _conn);
+            cmd.Parameters.AddWithValue("kw", keyword.Trim());
+
+            var exists = (bool)(await cmd.ExecuteScalarAsync() ?? false);
+
+            await _conn.CloseAsync();
+
+            return Ok(new { exists });
+        }
         
     }
 }
