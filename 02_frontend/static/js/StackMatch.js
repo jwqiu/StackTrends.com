@@ -982,9 +982,10 @@ function openJobReviewModal(jobId) {
     const buttonLevel = button.dataset.level;
 
     button.classList.remove(
-      "text-purple-500",
+      "text-white",
       "border-purple-500", 
-      "hover:bg-purple-100"
+      "bg-purple-500",
+      "hover:bg-purple-600"
 
     );
 
@@ -994,9 +995,10 @@ function openJobReviewModal(jobId) {
 
     if (buttonLevel === job.jobLevel) {
       button.classList.add(
-        "text-purple-500",
+        "text-white",
+        "bg-purple-500",
         "border-purple-500",
-        "hover:bg-purple-100"
+        "hover:bg-purple-600"
       );
 
       button.classList.remove(
@@ -1473,7 +1475,8 @@ function setupJobLevelReviewClickEvent() {
       jobLevelButtons.forEach(btn => {
         btn.classList.remove(
           "border-purple-500",
-          "text-purple-500"
+          "text-white",
+          "bg-purple-500"
          
         );
 
@@ -1482,11 +1485,12 @@ function setupJobLevelReviewClickEvent() {
 
       this.classList.add(
         "border-purple-500",
-        "text-purple-500"
+        "text-white",
+        "bg-purple-500"
 
       );
 
-      this.classList.remove("border-gray-300");
+      this.classList.remove("border-gray-300", "hover:bg-purple-50");
 
       console.log("Current Job Level review:", jobLevel_review);
     });
