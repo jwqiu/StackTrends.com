@@ -14,6 +14,8 @@ let currentTab = 'jobs';
 let jobLevel_review = "";
 let yoe_review = "";
 let currentReviewJobId = null;
+let jobLevelEvidence = [];
+
 
 // when the page loads, the following functions will be executed
 document.addEventListener("DOMContentLoaded", () => {
@@ -979,9 +981,9 @@ function openJobReviewModal(jobId) {
     const buttonLevel = button.dataset.level;
 
     button.classList.remove(
-      "text-blue-500",
-      "border-blue-500", 
-      "hover:bg-blue-100"
+      "text-purple-500",
+      "border-purple-500", 
+      "hover:bg-purple-100"
 
     );
 
@@ -991,22 +993,31 @@ function openJobReviewModal(jobId) {
 
     if (buttonLevel === job.jobLevel) {
       button.classList.add(
-        "text-blue-500",
-        "border-blue-500",
-        "hover:bg-blue-100"
+        "text-purple-500",
+        "border-purple-500",
+        "hover:bg-purple-100"
       );
 
       button.classList.remove(
         "border-gray-300",
-        "hover:bg-blue-50"
+        "hover:bg-purple-50"
       );
     }
   });
   checkConfirmReviewPermission();
+  highlightExtractedValuesInJobDescription();
 }
 
 function closeJobReviewModal() {
   document.getElementById('jobReviewModal').classList.add('hidden');
+
+  selectedStacks_review = [];
+  jobLevel_review = "";
+  yoe_review = "";
+  currentReviewJobId = null;
+  jobLevelEvidence = [];
+
+  clearJobDescriptionHighlights();
 }
 
 function showSuggestionsReviewSection(e) {
@@ -1247,6 +1258,8 @@ async function autoFillWithLLM() {
     `.job-level-btn[data-level="${analysis.jobLevel}"]`
     );
 
+    jobLevelEvidence = analysis.jobLevelEvidence || [];
+
     if (targetButton) {
       targetButton.click();
     }
@@ -1261,6 +1274,7 @@ async function autoFillWithLLM() {
     confirmReviewBtn.disabled = false;
     confirmReviewBtn.classList.remove("bg-gray-300", "cursor-not-allowed");
     confirmReviewBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
+    highlightExtractedValuesInJobDescription();
   }
 }
 
@@ -1274,9 +1288,8 @@ function setupJobLevelReviewClickEvent() {
 
       jobLevelButtons.forEach(btn => {
         btn.classList.remove(
-          "font-bold",
-          "border-blue-500",
-          "text-blue-500"
+          "border-purple-500",
+          "text-purple-500"
          
         );
 
@@ -1284,9 +1297,8 @@ function setupJobLevelReviewClickEvent() {
       });
 
       this.classList.add(
-        "font-bold",
-        "border-blue-500",
-        "text-blue-500"
+        "border-purple-500",
+        "text-purple-500"
 
       );
 
@@ -1295,4 +1307,168 @@ function setupJobLevelReviewClickEvent() {
       console.log("Current Job Level review:", jobLevel_review);
     });
   });
+}
+
+function highlightExtractedValuesInJobDescription() {
+  const jobDescriptionEl = document.getElementById("jobDescription");
+  clearJobDescriptionHighlights();
+
+  const jobLevelEvidenceValues = Array.isArray(jobLevelEvidence)
+  ? jobLevelEvidence
+      .filter(value => value !== null && value !== undefined)
+      .map(value => String(value).trim())
+      .filter(value => value !== "")
+  : [];
+
+  const valuesToHighlight = [
+    jobLevel_review,
+    yoe_review === null || yoe_review === undefined ? "" : String(yoe_review),
+    ...selectedStacks_review,
+    ...jobLevelEvidenceValues
+  ]
+    .filter(value => value !== null && value !== undefined)
+    .map(value => String(value).trim())
+    .filter(value => value !== "");
+
+  if (valuesToHighlight.length === 0) return;
+
+  valuesToHighlight.sort((a, b) => b.length - a.length);
+
+  const techStackValues = selectedStacks_review
+  .filter(value => value !== null && value !== undefined)
+  .map(value => String(value).trim())
+  .filter(value => value !== "");
+
+  const yoeValue =
+    yoe_review === null || yoe_review === undefined ? "" : String(yoe_review).trim();
+
+  const yoeWordsMap = {
+    "1": "one",
+    "2": "two",
+    "3": "three",
+    "4": "four",
+    "5": "five",
+    "6": "six",
+    "7": "seven",
+    "8": "eight",
+    "9": "nine",
+    "10": "ten"
+  };
+
+  const yoeWordValue = yoeWordsMap[yoeValue] || "";
+
+  const jobLevelValue =
+    jobLevel_review === null || jobLevel_review === undefined ? "" : String(jobLevel_review).trim();
+
+  const escapeRegExp = (text) => {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  };
+
+  const pattern = valuesToHighlight
+    .map(value => {
+      const escapedValue = escapeRegExp(value);
+
+      if (value === yoeValue) {
+        const yoePatterns = [
+          `${escapedValue}\\+?`
+        ];
+
+        if (yoeWordValue) {
+          yoePatterns.push(`${escapeRegExp(yoeWordValue)}\\+?`);
+        }
+
+        if (yoeValue === "0") {
+          yoePatterns.push(`[1-9]\\s+months?`);
+          yoePatterns.push(`10\\s+months?`);
+        }
+
+        return `(?<![A-Za-z0-9+#.])(?:${yoePatterns.join("|")})(?![A-Za-z0-9+#.])`;
+      }
+
+      return `(?<![A-Za-z0-9+#.])${escapedValue}(?![A-Za-z0-9+#.])`;
+    })
+    .join("|");
+
+  const regex = new RegExp(`(${pattern})`, "gi");
+
+  const walker = document.createTreeWalker(
+    jobDescriptionEl,
+    NodeFilter.SHOW_TEXT,
+    null
+  );
+
+  const textNodes = [];
+
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+
+  textNodes.forEach(textNode => {
+    const text = textNode.nodeValue;
+
+    if (!regex.test(text)) return;
+
+    regex.lastIndex = 0;
+
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+
+    text.replace(regex, (match, p1, offset) => {
+      fragment.appendChild(
+        document.createTextNode(text.slice(lastIndex, offset))
+      );
+
+      const span = document.createElement("span");
+
+      span.setAttribute("data-highlight", "true");
+
+      const isJobLevelEvidence = jobLevelEvidenceValues.some(
+        value => value.toLowerCase() === match.toLowerCase()
+      );
+      // Tailwind CSS classes
+      if (techStackValues.some(value => value.toLowerCase() === match.toLowerCase())) {
+        span.className = "bg-blue-200 rounded px-1";
+      } else if (
+         yoeValue &&
+        (
+          match.replace("+", "").toLowerCase() === yoeValue.toLowerCase() ||
+          match.replace("+", "").toLowerCase() === yoeWordValue.toLowerCase() ||
+          (yoeValue === "0" && /^[1-9]\s+months?$/i.test(match)) ||
+          (yoeValue === "0" && /^10\s+months?$/i.test(match))
+        )
+      ) {
+        span.className = "bg-gray-500 text-white rounded px-1";
+      } else if (
+        (jobLevelValue && match.toLowerCase() === jobLevelValue.toLowerCase()) ||
+        isJobLevelEvidence
+      ) {
+        span.className = "bg-purple-200 rounded px-1";
+      } else {
+        span.className = "bg-gray-200 rounded px-1";
+      }
+
+      span.textContent = match;
+      fragment.appendChild(span);
+
+      lastIndex = offset + match.length;
+    });
+
+    fragment.appendChild(
+      document.createTextNode(text.slice(lastIndex))
+    );
+
+    textNode.parentNode.replaceChild(fragment, textNode);
+  });
+}
+
+function clearJobDescriptionHighlights() {
+  const jobDescriptionEl = document.getElementById("jobDescription");
+
+  const highlightedSpans = jobDescriptionEl.querySelectorAll("span[data-highlight='true']");
+
+  highlightedSpans.forEach(span => {
+    span.replaceWith(document.createTextNode(span.textContent));
+  });
+
+  jobDescriptionEl.normalize();
 }

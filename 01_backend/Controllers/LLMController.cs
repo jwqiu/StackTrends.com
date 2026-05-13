@@ -27,7 +27,8 @@ public class LlmController : ControllerBase
                 {
                 "requiredSkills": [],
                 "yearOfExperience": null,
-                "jobLevel": ""
+                "jobLevel": "",
+                "jobLevelEvidence": []
                 }
 
                 Field rules:
@@ -77,18 +78,21 @@ public class LlmController : ControllerBase
                 - "React and Vue" -> include ["React", "Vue"]
 
                 2. yearOfExperience
-                Extract the candidate's overall experience requirement as a number.
+                Extract the candidate's experience requirement and return it as a number.
 
                 Priority rules:
                 - First, look for an overall/general professional experience requirement.
                 - If an overall experience requirement exists, use that value.
                 - If no overall experience requirement exists, use the most important technical/domain-specific experience requirement mentioned in the JD.
+                - If the JD mentions months of experience and it is less than 12 months, return 0.
+                - If the JD does not mention any clear experience duration, return null.
 
                 Examples:
-                - "5+ years of software development experience" -> 5
-                - "3+ years of commercial experience building web applications" -> 3
-                - "3 years of Python experience" -> 3 (if no overall experience requirement is mentioned)
-                - "5 years overall experience and 2 years of React experience" -> 5
+                - "2+ years of professional experience" => 2
+                - "At least 3 years of software development experience" => 3
+                - "6 months of commercial experience" => 0
+                - "Some experience with Python" => null
+                - "Experience with React is preferred" => null
 
                 If no experience requirement can be inferred, return null.
 
@@ -102,7 +106,7 @@ public class LlmController : ControllerBase
 
                 Decision priority:
 
-                1. First, check whether the JD directly states the level.
+                1) First, check whether the JD directly states the level.
                 Examples:
                 - junior
                 - graduate
@@ -113,12 +117,12 @@ public class LlmController : ControllerBase
                 - lead
                 - principal
 
-                2. If the level is not directly stated, infer primarily from the experience requirement:
+                2) If the level is not directly stated, infer primarily from the experience requirement:
                 - 0-2 years -> Junior
                 - 3-5 years -> Intermediate
                 - 6+ years -> Senior
 
-                3. If experience requirement is unclear or missing, infer from:
+                3) If experience requirement is unclear or missing, infer from:
                 - salary range
                 - responsibilities
                 - technical complexity
@@ -134,11 +138,40 @@ public class LlmController : ControllerBase
 
                 If uncertain, choose the most likely level based on the full JD.
 
+                4. jobLevelEvidence
+                Return up to 3 pieces of evidence from the original job description that strongly support the jobLevel classification.
+
+                Rules:
+                - Each evidence item must be copied from the original job description.
+                - Do not create new wording.
+                - Do not explain the evidence.
+                - Evidence can be:
+                - a single word, such as "senior", "graduate", "lead"
+                - a short phrase, such as "3 years experience"
+                - part of a sentence
+                - a short sentence fragment
+                - Evidence does not need to be a full sentence.
+                - Include the strongest evidence first.
+                - Return fewer than 3 items if there are not enough strong evidence items.
+                - If no clear evidence can be found, return an empty array.
+
+                Good examples:
+                - "senior"
+                - "graduate developer"
+                - "3+ years of commercial experience"
+                - "mentor junior developers"
+                - "own technical design decisions"
+                - "work under the guidance of senior developers"
+
+                Important:
+                - The evidence must come directly from the original JD text.
+
                 Example output:
                 {
                 "requiredSkills": ["Python", "SQL", "React", "Azure"],
                 "yearOfExperience": 5,
-                "jobLevel": "Senior"
+                "jobLevel": "Senior",
+                "jobLevelEvidence": ["5 years experience", "senior", "mentor junior developers"]
                 }
 
                 Return JSON only.
@@ -172,11 +205,6 @@ public class LlmController : ControllerBase
     }
 }
 
-public class JobDescriptionRequest
-{
-    public string JobDescription { get; set; } = "";
-}
-
 public class JobAnalysisResult
 {
     public List<string>? requiredSkills { get; set; } = new();
@@ -184,4 +212,11 @@ public class JobAnalysisResult
     public int? yearOfExperience { get; set; }
 
     public string jobLevel { get; set; } = "";
+
+    public List<string>? jobLevelEvidence { get; set; } = new();
+}
+
+public class JobDescriptionRequest
+{
+    public string JobDescription { get; set; } = "";
 }
