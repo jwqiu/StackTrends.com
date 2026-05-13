@@ -203,6 +203,96 @@ public class LlmController : ControllerBase
         }
 
     }
+
+    [HttpPost("explain-tech-keyword")]
+    public async Task<IActionResult> ExplainTechKeyword([FromBody] TechKeywordExplainRequest request)
+    {
+        if (request == null || string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            return BadRequest(new
+            {
+                error = "Keyword is required."
+            });
+        }
+
+        try
+        {
+            var keyword = request.Keyword.Trim();
+
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage("""
+                You judge whether a tech keyword represents a practical and concrete software developer skill requirement.
+
+                A practical and concrete developer skill requirement can be a technology, tool, platform, framework, programming language, database, coding practice, technical standard, or similar item that may reasonably appear in:
+                - a job seeker's resume tech stack section
+                - a software developer job description requirement
+
+                Return ONLY valid JSON.
+
+                Output format:
+                {
+                "keyword": "",
+                "explanation": ""
+                }
+
+                Rules:
+                - In the explanation, clearly say whether the answer is Yes or No.
+                - Use Yes if the keyword represents a practical and concrete software developer skill requirement.
+                - Use No if the keyword is too broad, abstract, business-oriented, vague, or not a specific developer skill.
+                - Briefly explain why in simple English.
+                - The explanation must be under 80 words.
+                - Focus on software development, IT jobs, resume tech stack sections, and job description requirements.
+                - Do not decide whether the keyword should be added to the database.
+                - Do not include markdown.
+                - Do not include extra fields.
+                """),
+
+                new UserChatMessage($"""
+                Judge this tech keyword:
+
+                {keyword}
+                """)
+            };
+
+            var response = await _chatClient.CompleteChatAsync(messages);
+
+            var explanationText = response.Value.Content[0].Text;
+            Console.WriteLine("Raw explanationText:");
+            Console.WriteLine(explanationText);
+            var result = JsonSerializer.Deserialize<TechKeywordExplainResult>(
+                explanationText,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
+            return Ok(new
+            {
+                analysis = result
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                error = ex.Message
+            });
+        }
+    }
+
+}
+
+public class TechKeywordExplainRequest
+{
+    public string Keyword { get; set; } = "";
+}
+
+public class TechKeywordExplainResult
+{
+    public string Keyword { get; set; } = "";
+    public string Explanation { get; set; } = "";
 }
 
 public class JobAnalysisResult

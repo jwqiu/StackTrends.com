@@ -15,6 +15,7 @@ let jobLevel_review = "";
 let yoe_review = "";
 let currentReviewJobId = null;
 let jobLevelEvidence = [];
+const techKeywordExplanationCache = {};
 
 
 // when the page loads, the following functions will be executed
@@ -1098,6 +1099,69 @@ async function checkKeywordExists(keyword) {
   return data.exists;
 }
 
+async function getTechKeywordExplanation(keyword) {
+  const cacheKey = keyword.trim().toLowerCase();
+
+  if (techKeywordExplanationCache[cacheKey]) {
+    return techKeywordExplanationCache[cacheKey];
+  }
+
+  const response = await fetch(`${window.API_BASE}/api/llm/explain-tech-keyword`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      keyword: keyword
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Explain keyword API failed:", response.status, errorText);
+    throw new Error(`Failed to explain keyword. Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log("Explain keyword response:", data);
+  const explanation = data.analysis?.explanation || "No explanation available.";
+
+  techKeywordExplanationCache[cacheKey] = explanation;
+
+  return explanation;
+}
+
+function showTechKeywordTooltip(div, text) {
+  document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
+
+  const tooltip = document.createElement("div");
+
+  tooltip.className = `
+    tech-keyword-tooltip
+    fixed
+    w-64 bg-gray-900 text-white text-xs
+    px-3 py-2 rounded-lg shadow-lg z-[9999]
+    leading-relaxed pointer-events-none
+  `;
+
+  tooltip.textContent = text;
+  document.body.appendChild(tooltip);
+
+  const rect = div.getBoundingClientRect();
+
+  tooltip.style.left = `${rect.left + rect.width / 2}px`;
+  tooltip.style.top = `${rect.bottom + 8}px`;
+  tooltip.style.transform = "translateX(-50%)";
+}
+
+function hideTechKeywordTooltip(div) {
+  const existingTooltip = document.querySelector(".tech-keyword-tooltip");
+
+  if (existingTooltip) {
+    tooltip.remove();
+  }
+}
+
 async function renderManualSelectedStacks() {
   const container = document.querySelector(".manual-tech-stacks");
   container.innerHTML = '';
@@ -1114,9 +1178,7 @@ async function renderManualSelectedStacks() {
 
     const div = document.createElement('div');
 
-    div.className = exists
-      ? "relative flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
-      : "relative flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
+    div.className = "relative cursor-pointer flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full";
 
     div.innerHTML = `
       ${!exists ? `
@@ -1128,6 +1190,38 @@ async function renderManualSelectedStacks() {
       ${name}
       <button class="remove-btn ml-2 ${exists ? 'text-blue-600' : 'text-blue-600'} hover:text-red-500" data-name="${name}">&times;</button>
     `;
+    
+    div.addEventListener("click", async (event) => {
+      event.stopPropagation();
+
+      if (event.target.classList.contains("remove-btn")) {
+        document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
+        removeTag(event.target);
+        return;
+      }
+
+      const existingTooltip = document.querySelector(".tech-keyword-tooltip");
+
+      // If already open, click again to close
+      if (existingTooltip) {
+        hideTechKeywordTooltip(div);
+        return;
+      }
+
+      // Close other open tooltips
+      document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
+
+      showTechKeywordTooltip(div, "Loading...");
+
+      try {
+        const explanation = await getTechKeywordExplanation(name);
+        showTechKeywordTooltip(div, explanation);
+      } catch (error) {
+        console.error("Tooltip explanation error:", error);
+        showTechKeywordTooltip(div, error.message);
+      }
+    });
+   
 
     if (exists) {
       container.insertBefore(div, firstNonExistingElement);
@@ -1140,6 +1234,10 @@ async function renderManualSelectedStacks() {
     }
   }
 }
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
+});
 
 function setupYoeReviewInputEvent() {
   const manualYoeInput = document.getElementById("manual-yoe-input");
