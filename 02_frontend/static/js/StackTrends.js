@@ -580,8 +580,7 @@ async function renderTopTechStackTableByLevel() {
 
   // render the table rows in order of predefined categories
   const categoryOrder = [
-    "Frontend","Backend","Coding Methods and Practices","Cloud Platforms",
-    "DevOps Tools","Database","AI"
+    "Frontend","Backend","Coding Methods and Practices","Cloud Platforms","Database","DevOps Tools",
   ];
   // first, rendering the table header, which is the job counts for each level
   let html = renderTechStackByLevelHeader(levels);
