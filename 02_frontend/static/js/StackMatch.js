@@ -1499,9 +1499,7 @@ async function autoFillWithLLM() {
     // restore button text
     autoFillBtn.innerHTML = "Auto-fill with AI";
     autoFillBtn.disabled = false;
-    confirmReviewBtn.disabled = false;
-    confirmReviewBtn.classList.remove("bg-gray-300", "cursor-not-allowed");
-    confirmReviewBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
+    checkConfirmReviewPermission();
     highlightExtractedValuesInJobDescription();
   }
 }
