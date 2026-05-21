@@ -16,6 +16,7 @@ let yoe_review = "";
 let currentReviewJobId = null;
 let jobLevelEvidence = [];
 const techKeywordExplanationCache = {};
+let pageScrollYBeforeReviewModal = 0;
 
 
 // when the page loads, the following functions will be executed
@@ -997,6 +998,11 @@ function openJobReviewModal(jobId) {
   const job = allJobs.find(j => j.jobId === jobId);
   currentReviewJobId = jobId;
 
+  pageScrollYBeforeReviewModal = window.scrollY;
+
+  // lock page scroll so wheel only scrolls modal content
+  document.body.style.overflow = 'hidden';
+
   document.getElementById('jobReviewModal').classList.remove('hidden');
   // document.getElementById("jobTitle").innerText = job.jobTitle;
   // document.getElementById("company").innerText = job.companyName;
@@ -1053,6 +1059,10 @@ function openJobReviewModal(jobId) {
 
 function closeJobReviewModal() {
   document.getElementById('jobReviewModal').classList.add('hidden');
+
+  // restore page scroll after modal closes
+  document.body.style.overflow = '';
+  window.scrollTo({ top: pageScrollYBeforeReviewModal, behavior: 'auto' });
 
   selectedStacks_review = [];
   jobLevel_review = "";
