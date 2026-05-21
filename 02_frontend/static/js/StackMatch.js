@@ -63,6 +63,20 @@ document.addEventListener("DOMContentLoaded", () => {
   //--------------------------------
   setupYoeReviewInputEvent();
   setupJobLevelReviewClickEvent();
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
+  });
+  document.getElementById("confirmReviewBtn").addEventListener("click", function () {
+    console.log("Confirm Review button clicked");
+
+    if (!currentReviewJobId) {
+      alert("No job selected.");
+      return;
+    }
+
+    confirmJobReview(currentReviewJobId);
+  });
+  document.getElementById("autoFillWithLlmBtn").addEventListener("click", autoFillWithLLM);
 
 });
 
@@ -328,22 +342,12 @@ async function loadJobs() {
 // functions to display and render jobs
 // ======================================================
 
-// this function will be called after the jobs data is loaded from the backend API
-function renderJobs() {
+function getJobCardHtml(job, includeAnimation = false) {
+  const stacks = highlightMatches(job.requiredStacks, selectedStacks);
 
-  const jobList = document.getElementById('job-list');
-  jobList.innerHTML = ""; // 清空旧内容
-
-  const jobsToShow = allJobs;
-
-  jobsToShow.forEach(job => {
-
-    // get the HTML for the job's tech requirements with highlighted stacks
-    const stacks = highlightMatches(job.requiredStacks, selectedStacks);
-
-    const html = `
-      <div onclick='openJobReviewModal(${job.jobId})' class="block no-underline text-inherit cursor-pointer">
-        <div class="${currentPage === 1 ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
+  return `
+      <div data-job-id="${job.jobId}" onclick='openJobReviewModal(${job.jobId})' class="block no-underline text-inherit cursor-pointer">
+        <div class="${includeAnimation ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
         <h3 class="font-bold text-xl text-grey-700 mr-3">${job.jobTitle}</h3>
           
           <div class="flex justify-between items-center">
@@ -401,6 +405,18 @@ function renderJobs() {
         </div>
       </div>        
     `;
+}
+
+// this function will be called after the jobs data is loaded from the backend API
+function renderJobs() {
+
+  const jobList = document.getElementById('job-list');
+  jobList.innerHTML = ""; // 清空旧内容
+
+  const jobsToShow = allJobs;
+
+  jobsToShow.forEach(job => {
+    const html = getJobCardHtml(job, currentPage === 1);
     // insert the job HTML at the end of the job list container
     jobList.insertAdjacentHTML('beforeend', html);
   });
@@ -412,6 +428,22 @@ function renderJobs() {
     }, 1000);
   }
 
+}
+
+function refreshReviewedJobCard(jobId) {
+  const job = allJobs.find(j => j.jobId === jobId);
+  if (!job) return;
+
+  const oldCard = document.querySelector(`[data-job-id="${jobId}"]`);
+  if (!oldCard) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = getJobCardHtml(job, false).trim();
+
+  const newCard = wrapper.firstElementChild;
+  if (newCard) {
+    oldCard.replaceWith(newCard);
+  }
 }
 
 
@@ -938,6 +970,10 @@ function setupAdminLinkClickEvent() {
 }
 
 // ========================================================================
+// legacy modal helpers
+// ========================================================================
+
+// ========================================================================
 // these two functions below are no longer used, but i keep them here for future reference
 // ========================================================================
 
@@ -951,6 +987,10 @@ function closeModal() {
 
 // ========================================================================
 // functions for handling job review modal display and data population
+// ========================================================================
+
+// ========================================================================
+// job review modal interactions and analysis helpers
 // ========================================================================
 
 function openJobReviewModal(jobId) {
@@ -1237,9 +1277,9 @@ async function renderManualSelectedStacks() {
   }
 }
 
-document.addEventListener("click", () => {
-  document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
-});
+// ========================================================================
+// job review input and permission handlers
+// ========================================================================
 
 function setupYoeReviewInputEvent() {
   const manualYoeInput = document.getElementById("manual-yoe-input");
@@ -1253,6 +1293,10 @@ function setupYoeReviewInputEvent() {
   });
 }
 
+
+// ========================================================================
+// job review confirmation controls
+// ========================================================================
 
 function checkConfirmReviewPermission() {
   const isAdmin = sessionStorage.getItem('isAdmin');
@@ -1277,24 +1321,13 @@ function checkConfirmReviewPermission() {
     confirmReviewBtn.disabled = false;
 
     // restore button style
-    confirmReviewBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+    confirmReviewBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
     confirmReviewBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
 
     // hide hint text
     confirmReviewHint.classList.add('hidden');
   }
 }
-
-document.getElementById("confirmReviewBtn").addEventListener("click", function () {
-  console.log("Confirm Review button clicked");
-
-  if (!currentReviewJobId) {
-    alert("No job selected.");
-    return;
-  }
-
-  confirmJobReview(currentReviewJobId);
-});
 
 async function confirmJobReview(jobId) {
   const payload = {
@@ -1358,13 +1391,12 @@ async function confirmJobReview(jobId) {
     job.requiredStacks = payload.techStacks;
   }
 
+  refreshReviewedJobCard(jobId);
+
   alert("Job attributes updated successfully.");
 
   closeJobReviewModal();
-  await loadJobs();
 }
-
-document.getElementById("autoFillWithLlmBtn").addEventListener("click", autoFillWithLLM);
 
 async function autoFillWithLLM() {
   const jobDescription = document.getElementById("jobDescription").innerText;
@@ -1496,6 +1528,11 @@ function setupJobLevelReviewClickEvent() {
     });
   });
 }
+
+
+// ========================================================================
+// job review highlight rendering
+// ========================================================================
 
 function highlightExtractedValuesInJobDescription() {
   const jobDescriptionEl = document.getElementById("jobDescription");
