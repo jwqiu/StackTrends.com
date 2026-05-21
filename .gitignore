@@ -24,3 +24,4 @@ python_scraper/python_packages/
 
 __pycache__/
 *.pyc
+01_backend/StackTrends.csproj.lscache

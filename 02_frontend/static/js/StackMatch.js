@@ -173,8 +173,6 @@ function removeTag(button) {
     selectedStacks = selectedStacks.filter(n => n !== name);
     renderSelectedStacks();
     searchBtn.click();
-    selectedStacks_review = selectedStacks_review.filter(n => n !== name);
-    renderManualSelectedStacks();
   } else if (currentTab === 'companies') {
     const name = button.dataset.name;
     const searchBtn = document.querySelector('.apply-filters-btn--companies-section')
@@ -184,6 +182,12 @@ function removeTag(button) {
   }
 
   scrollToTop();
+}
+
+function removeReviewTag(button) {
+  const name = button.dataset.name;
+  button.parentElement.remove();
+  selectedStacks_review = selectedStacks_review.filter(n => n !== name);
 }
 
 async function normalizeKeyword(rawKeyword) {
@@ -1248,7 +1252,7 @@ async function renderManualSelectedStacks() {
 
       if (event.target.classList.contains("remove-btn")) {
         document.querySelectorAll(".tech-keyword-tooltip").forEach(t => t.remove());
-        removeTag(event.target);
+        removeReviewTag(event.target);
         return;
       }
 
