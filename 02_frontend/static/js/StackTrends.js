@@ -566,10 +566,21 @@ function renderTechStackByLevelHeader(levels){
   let html = `
     <thead class=" border-none text-gray-700">
       <tr>
-        <th class="px-0 py-2"></th>
+        <th class="px-2 py-2 "></th>
          ${levels.map(l => {
             const count = levelCounts.find(c => (c.level ?? c.Level).toLowerCase() === l.key)?.count || 0;
-            return `<th class="px-4 font-normal py-2 text-lg text-center">${l.label}<br> <span class="text-sm text-gray-400">(${count} jobs)</span></th>`;
+            return `
+              <th class="px-4 font-normal py-6 text-lg text-center">
+                <div class="inline-flex items-center justify-center gap-2">
+                  <span class="grid size-12 place-items-center rounded-xl bg-white text-xl ring-1 ring-blue-100">${l.icon}</span>
+                  <div class="flex flex-col items-start justify-center">
+
+                    <span class="font-bold">${l.title}</span>
+                    <span class="text-sm text-gray-400">${count} jobs</span>
+                  </div>
+                </div>
+              </th>
+            `;
           }).join("")}
       </tr>
     </thead>
@@ -581,9 +592,9 @@ function renderTechStackByLevelHeader(levels){
 async function renderTopTechStackTableByLevel() {
   
   const levels = [
-    { key: "junior",        label: "🧑‍🎓 Junior&Graduate" },
-    { key: "intermediate",  label: "👨‍💻 Intermediate"    },
-    { key: "senior",        label: "👨‍💼 Senior"          }
+    { key: "junior",        icon: "🧑‍🎓", title: "Junior" },
+    { key: "intermediate",  icon: "👨‍💻", title: "Intermediate"    },
+    { key: "senior",        icon: "👨‍💼", title: "Senior"          }
   ];
 
   // call API in parallel to get ranking data for each level
@@ -641,7 +652,7 @@ async function renderTopTechStackTableByLevel() {
   categoryOrder.forEach(cat => {
     // render the first column, which is the category name with a circle 
     html += `<tr class="">
-      <td class="px-4 py-2">
+      <td class="px-12 py-2 ">
         <div class="relative w-16 h-16 flex items-center justify-center ">
           <span class="relative text-lg font-bold text-gray-600 z-10">${cat}</span>
           <span class="absolute inset-0 bg-gray-200 rounded-full"></span>
@@ -658,16 +669,16 @@ async function renderTopTechStackTableByLevel() {
             const label = `${capitalize(val.tech)}`;            
 
             return `
-              <span class="relative group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group  px-0 mb-2 py-2 ">
-                <span class="absolute left-0 top-0 h-full  rounded-md bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100" style="width: ${width};"></span>
-                <span class="px-2 z-10  text-sm text-gray-700 text-shadow    opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <span class="relative min-w-[200px] group hover:bg-gradient-to-r hover:from-gray-300 hover:to-gray-100 hover:to-gray-100 hover:scale-105 block bg-white flex justify-between rounded-md group  px-2 mb-2 py-2 ">
+                <span class="absolute left-0 top-0 h-full rounded-md bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100" style="width: ${width};"></span>
+                <span class="px-2 z-10 text-sm text-gray-700 text-shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   ${width}
                 </span>
-                <span class=" z-10 inline-block text-right group-hover:font-semibold text-gray-500 px-2">${label}</span>
+                <span class=" z-10 inline-block group-hover:font-semibold  text-gray-500 ">${label}</span>
               </span>
             `;
         });
-        return `<td class="px-4 py-2 text-center">${displayArr.length ? displayArr.join('') : '-'}</td>`;
+        return `<td class="px-8 py-2">${displayArr.length ? displayArr.join('') : '-'}</td>`;
       }).join("")}
     </tr>`;
   });

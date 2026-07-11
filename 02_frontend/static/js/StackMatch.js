@@ -907,13 +907,13 @@ function showSection(id) {
 
     if (active) {
       btn.setAttribute('aria-selected', 'true');
-      btn.classList.add('text-blue-600');
-      btn.classList.remove('text-gray-400','text-md');
+      btn.classList.add('text-blue-600', 'bg-white', 'shadow-sm', 'ring-1', 'ring-blue-100');
+      btn.classList.remove('text-gray-400', 'text-slate-400', 'text-md', 'bg-transparent', 'hover:bg-white/70', 'hover:text-slate-600');
 
     } else {
       btn.setAttribute('aria-selected', 'false');
-      btn.classList.add('text-gray-400','text-md');
-      btn.classList.remove('text-blue-600');
+      btn.classList.add('text-slate-400', 'bg-transparent', 'hover:bg-white/70', 'hover:text-slate-600');
+      btn.classList.remove('text-blue-600', 'bg-white', 'shadow-sm', 'ring-1', 'ring-blue-100');
     }
 
     const icon = btn.querySelector('.selected-icon');
