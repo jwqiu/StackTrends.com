@@ -67,13 +67,13 @@
     <!-- main content -->
     <div>
       <!-- Ranking of Most-Mentioned Tech Skills -->
-      <div class="w-full bg-gradient-to-r from-white to-blue-200 p-8 md:p-16 xl:p-24">
+      <div class="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 p-8 md:p-16 xl:p-24">
         <div class="mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px] ">
           <!-- section header, including title and filters -->
-          <div class=" rounded-lg flex  gap-x-4 mb-4 justify-between items-center">
+          <div class=" rounded-lg flex  gap-x-4 mb-6 justify-between items-center">
             <div class="md:mb-6 flex flex-col">
-                <span class="text-2xl md:text-4xl  font-bold mb-2">Ranking of Most-Mentioned Tech Skills </span>
-                <span class="text-gray-400  text-sm  mb-0 ">
+                <span class="text-2xl md:text-4xl  font-bold mb-2 text-slate-950">Ranking of Most-Mentioned Tech Skills </span>
+                <span class="text-slate-500  text-sm  mb-0 ">
                   *in 
                   <span class=" " id="job-count">
                     # 
@@ -90,20 +90,20 @@
             <div class="w-full mx-auto mt-0">
               <div class="flex lg:flex-row flex-col gap-y-8 lg:justify-between   lg:gap-x-8  ">
                 <!-- bar chart on the left -->
-                <div class="lg:w-1/2 bg-white shadow-lg rounded-lg px-12 py-8 min-h-[400px] border  " >
+                <div class="lg:w-1/2 bg-white/95 shadow-xl shadow-slate-900/10 rounded-xl px-8 py-8 min-h-[400px] border border-white/80 backdrop-blur" >
                   <canvas id="myChart" class="mb-1"  style="display:block"></canvas>
                 </div>
                 <!-- table on the right -->
                 <div class="lg:w-1/2 w-full ">
-                  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                  <div class="bg-white/95 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden border border-white/80 backdrop-blur">
                     <div class="max-h-[600px] overflow-auto">
-                      <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm text-left">
-                        <thead class="sticky top-0 z-10 bg-gray-100">
-                          <tr class="border">
-                            <th class="border px-4 py-2 font-semibold">Category</th>
-                            <th class="border px-4 py-2 font-semibold text-nowrap">Tech Skill</th>
-                            <th class="border px-4 py-2 font-semibold">Mentions</th>
-                            <th class="border px-4 py-2 font-semibold">Percentage</th>
+                      <table class="min-w-full table-auto border-separate border-spacing-0 text-sm text-left">
+                        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+                          <tr>
+                            <th class="border-b border-slate-200 px-5 py-3 font-bold text-slate-700">Category</th>
+                            <th class="border-b border-slate-200 px-5 py-3 font-bold text-slate-700 text-nowrap">Tech Skill</th>
+                            <th class="border-b border-slate-200 px-5 py-3 font-bold text-slate-700">Mentions</th>
+                            <th class="border-b border-slate-200 px-5 py-3 font-bold text-slate-700">Percentage</th>
                           </tr>
                         </thead>
                         <tbody id="techTable">
@@ -122,7 +122,7 @@
       <div class="w-full bg-white p-8 md:p-16 xl:p-24">
         <div class="mx-auto xl:max-w-[1150px]  2xl:max-w-[1300px]">
           <!-- section header and legend -->
-          <div class="rounded-lg  mb-6">
+          <div class="rounded-lg  mb-16">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-0 ">
               <div class="flex flex-col md:mb-0 mb-4 ">
                   <span class="text-2xl md:text-4xl font-bold mb-0 md:mb-2">Top 5 Tech Skills in Each Category</span>
@@ -154,27 +154,35 @@
           </div>
           <!-- Top 5 Tech Skills by Category -->
           <div class="">
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-10">
               <!-- the first card to show tech skill ranking related to coding -->
-              <div class="flex flex-col gap-y-3 bg-white border shadow-lg rounded-lg opacity-0 js-fade-in p-8 ">
-                <h1 class="text-xl  text-center font-semibold mb-4">🧑‍💻 Coding Skills</h1>
-                <div class="flex flex-row grid grid-cols-3 gap-3">
-                  <div >
-                      <div class="flex flex-col items-center justify-center h-12 mb-4">
+              <div class="flex flex-col gap-y-8 opacity-0 js-fade-in">
+                <div class="flex items-center justify-between gap-4 px-1">
+                  <div class="flex items-center gap-3">
+                    <div class="grid size-10 place-items-center rounded-xl bg-blue-50 text-xl ring-1 ring-blue-100">🧑‍💻</div>
+                    <div>
+                      <h1 class="text-xl font-bold text-slate-900">Coding Skills</h1>
+                      <p class="text-sm text-slate-400">Frontend, backend, and engineering practices</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-5">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                      <div class="flex flex-col items-center justify-center h-10 mb-4">
                           <p class=" font-mono text-center text-gray-500  ">Frontend</p>
                       </div>
                       <div class="flex  flex-col gap-y-3" id="Frontend">
                       </div>
                   </div>
-                  <div>
-                    <div class="flex flex-col items-center justify-center h-12 mb-4">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                    <div class="flex flex-col items-center justify-center h-10 mb-4">
                       <p class=" font-mono text-gray-500 text-center   ">Backend</p>
                     </div>
                     <div class="flex  flex-col gap-y-3" id="Backend">
                     </div>
                   </div>
-                  <div>
-                    <div class="flex flex-col items-center justify-center h-12 mb-4">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                    <div class="flex flex-col items-center justify-center h-10 mb-4">
                       <p class=" font-mono text-gray-500 text-center lg:truncate ">Practices</p>
                     </div>
                     <div class="flex  flex-col gap-y-3" id="Coding Methods and Practices">
@@ -185,11 +193,19 @@
 
               </div>
               <!-- the second card to show tech skill ranking related to platforms and tools -->
-              <div class=" flex flex-col gap-y-3 bg-white border  shadow-lg rounded-lg opacity-0 js-fade-in p-8 "> 
-                <h1 class="text-xl text-center font-semibold mb-4">🛠️ Platforms & Tools</h1>
-                <div class="flex flex-row grid grid-cols-3 gap-3">
-                  <div >
-                    <div class="flex flex-col items-center justify-center h-12 mb-4">
+              <div class=" flex flex-col gap-y-8 opacity-0 js-fade-in">
+                <div class="flex items-center justify-between gap-4 px-1">
+                  <div class="flex items-center gap-3">
+                    <div class="grid size-10 place-items-center rounded-xl bg-blue-50 text-xl ring-1 ring-blue-100">🛠️</div>
+                    <div>
+                      <h1 class="text-xl font-bold text-slate-900">Platforms & Tools</h1>
+                      <p class="text-sm text-slate-400">Cloud, database, and DevOps demand</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-5">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                    <div class="flex flex-col items-center justify-center h-10 mb-4">
                       <p class="mb-2 font-mono text-gray-500 text-center lg:truncate ">Platforms</p>
                     </div>
                     <div class="flex  flex-col gap-y-3" id="Cloud Platforms">
@@ -197,16 +213,16 @@
                       
                     </div>
                   </div>
-                  <div>
-                    <div class="flex flex-col items-center justify-center h-12 mb-4">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                    <div class="flex flex-col items-center justify-center h-10 mb-4">
                       <p class="mb-2 font-mono text-gray-500 text-center   ">Database</p>
                     </div>
                     <div class="flex  flex-col gap-y-3" id="Database">
                       
                     </div>
                   </div>
-                  <div>
-                    <div class="flex flex-col items-center justify-center h-12 mb-4">
+                  <div class="rounded-xl bg-gradient-to-r from-gray-200 to-white p-6 shadow-lg transition-transform duration-300 hover:from-blue-300 hover:to-white hover:scale-105">
+                    <div class="flex flex-col items-center justify-center h-10 mb-4">
                       <p class="mb-2 font-mono text-gray-500 text-center  lg:truncate ">DevOps</p>
                     </div>
                     <div class="flex  flex-col gap-y-3" id="DevOps Tools">

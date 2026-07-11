@@ -96,14 +96,53 @@ function initChart(labels, data) {
   topChart?.destroy(); 
   console.log(labels);
 
-  const barThickness = 50;            // 和 options 一致
-  const padding = 32;                 // 可根据实际调整
+  const barThickness = 42;            // 和 options 一致
+  const padding = 36;                 // 可根据实际调整
   const height = labels.length * barThickness + padding;
   const canvas = document.getElementById('myChart');
   canvas.height = height;
   canvas.style.height = height + 'px'; 
 
   const ctx = canvas.getContext('2d');
+  const chartFont = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  let hoveredIndex = -1;
+  const baseColors = [
+    '#60a5fa',
+    '#93c5fd',
+    '#bfdbfe',
+    '#e8edf3',
+    '#e8edf3',
+    '#e8edf3',
+    '#e8edf3',
+    '#e8edf3',
+    '#e8edf3',
+    '#e8edf3'
+  ];
+  const hoverBorderPlugin = {
+    id: 'hoverBorder',
+    afterDatasetsDraw(chart) {
+      if (hoveredIndex < 0) return;
+
+      const meta = chart.getDatasetMeta(0);
+      const bar = meta.data[hoveredIndex];
+      if (!bar) return;
+
+      const { ctx } = chart;
+      const props = bar.getProps(['x', 'y', 'base', 'height'], true);
+      const left = Math.min(props.base, props.x);
+      const width = Math.abs(props.x - props.base);
+      const height = props.height;
+      const top = props.y - height / 2;
+
+      ctx.save();
+      ctx.strokeStyle = hoveredIndex < 3 ? '#2563eb' : '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(left, top, width, height, 8);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
 
   topChart = new Chart(ctx, {
     type: 'bar',
@@ -112,22 +151,11 @@ function initChart(labels, data) {
       datasets: [{
         data: data,
         borderWidth: 0,
-        barPercentage: 1,      // 条在分类格子里占80%高度
-        categoryPercentage: 0.80, // 每个分类格子本身占用可用空间的80%
+        barPercentage: 0.82,      // 条在分类格子里占80%高度
+        categoryPercentage: 0.82, // 每个分类格子本身占用可用空间的80%
         // barThickness: barThickness,        // 绝对高度，直接控制条的“粗细”
 
-        backgroundColor: [
-          '#60a5fa', // Azure - 深蓝
-          '#93c5fd', // AWS - 中深蓝
-          '#bfdbfe', // React - 中蓝
-          '#e5e7eb', // .NET - 浅灰
-          '#e5e7eb', // .NET - 浅灰
-          '#e5e7eb', // .NET - 浅灰
-          '#e5e7eb', // TypeScript - 浅灰
-          '#e5e7eb', // Python - 浅灰
-          '#e5e7eb', // Git - 浅灰
-          '#e5e7eb'  // CSS - 浅灰
-        ]
+        backgroundColor: baseColors
 
       
       }]
@@ -136,8 +164,15 @@ function initChart(labels, data) {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,     // ← 这一行打开
+      onHover: function(event, elements, chart) {
+        const nextIndex = elements.length ? elements[0].index : -1;
+        if (nextIndex !== hoveredIndex) {
+          hoveredIndex = nextIndex;
+          chart.update('none');
+        }
+      },
       layout: {
-        padding: { left: 0, top: 0, bottom: 0 }
+        padding: { left: 0, top: 4, right: 8, bottom: 4 }
       },
       scales: {
         y: {
@@ -158,11 +193,15 @@ function initChart(labels, data) {
             drawTicks: false,
             // align: 'start',
             font: {
-              size: 15,        // ✅ 字体大小
-              family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+              size: 14,        // ✅ 字体大小
+              weight: function(context) {
+                return context.index === hoveredIndex ? '700' : '400';
+              },
+              family: chartFont
             },
-            crossAlign: 'far',
-            padding: 4,
+            color: '#4b5563',
+            crossAlign: 'near',
+            padding: 10,
             autoSkip: false,
             
           },
@@ -205,11 +244,20 @@ function initChart(labels, data) {
           padding: { top: 10, bottom: 20 }
         },
         tooltip: {
-          backgroundColor: '#1e3a8a', // 深蓝色背景
+          backgroundColor: '#111827', // 深色背景
           titleColor: '#fff',
           bodyColor: '#f9fafb',
-          cornerRadius: 4,
-          padding: 8,
+          cornerRadius: 8,
+          padding: 10,
+          displayColors: false,
+          titleFont: {
+            family: chartFont,
+            weight: '400'
+          },
+          bodyFont: {
+            family: chartFont,
+            weight: '400'
+          },
           callbacks: {
             label: function(context) {
               const value = context.raw;
@@ -226,9 +274,13 @@ function initChart(labels, data) {
           offset: 4,
           clip: false,
           font: {
-            size: 12
+            size: 12,
+            weight: function(context) {
+              return context.dataIndex === hoveredIndex ? '700' : '400';
+            },
+            family: chartFont
           },
-          color: '#374151', // text-gray-800
+          color: '#334155', // slate-700
           formatter: function(value) {
             return `${(value * 100).toFixed(2)}%`;
           },
@@ -238,7 +290,7 @@ function initChart(labels, data) {
       },
       elements: {
         bar: {
-          borderRadius: 5, // ✅ 圆角柱状条
+          borderRadius: 8, // ✅ 圆角柱状条
           borderSkipped: false,
           barThickness: barThickness // 控制柱子宽度
         }
@@ -259,7 +311,8 @@ function initChart(labels, data) {
           tension: false
         }
       }
-    }
+    },
+    plugins: [hoverBorderPlugin]
    
   });
   // window.dispatchEvent(new Event('resize'));
@@ -272,14 +325,15 @@ async function renderTechTableRows(data, limit) {
   // if limit is provided, only render up to that number of rows, if not, render all
   (limit ? data.slice(0, limit) : data).forEach(item => {
     const tr = document.createElement('tr');
+    tr.className = 'transition-colors hover:bg-blue-50/50';
     tr.innerHTML = `
-      <td class="border px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">${item.category ?? item.Category}</td>
-      <td class="border px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">${
+      <td class="border-b border-slate-100 px-5 py-3 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] text-slate-600">${item.category ?? item.Category}</td>
+      <td class="border-b border-slate-100 px-5 py-3 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] font-semibold text-slate-900">${
         (item.technology ?? item.Technology)
           .charAt(0).toUpperCase() + (item.technology ?? item.Technology).slice(1)
       }</td>
-      <td class="border px-4 py-2">${item.mentions ?? item.Mentions}</td>
-      <td class="border px-4 py-2">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
+      <td class="border-b border-slate-100 px-5 py-3 text-slate-700">${item.mentions ?? item.Mentions}</td>
+      <td class="border-b border-slate-100 px-5 py-3 font-semibold text-slate-900">${((item.percentage ?? item.Percentage) * 100).toFixed(2)}%</td>
     `;
     tbody.appendChild(tr);
   });
@@ -292,7 +346,7 @@ async function renderFiltersOptions() {
   // create a dropdown button/trigger
   const trigger = document.createElement('div');
   trigger.className =
-    'flex max-w-[220px] overflow-hidden items-center px-8 py-2 text-lg text-gray-600 rounded-lg cursor-pointer bg-white   ';
+    'flex max-w-[220px] overflow-hidden items-center justify-between gap-3 px-6 py-3 text-base font-semibold text-slate-700 rounded-xl cursor-pointer bg-white/90 border border-white shadow-lg shadow-slate-900/10 backdrop-blur transition hover:bg-white';
   
   // build the dropdown trigger content, label + icon
   const triggerLabel = document.createElement('span');
@@ -311,13 +365,13 @@ async function renderFiltersOptions() {
   // filter options menu
   const menu = document.createElement('div');
   menu.className =
-    'absolute right-0 mt-2 w-60 p-4 flex flex-col gap-y-2 bg-white rounded-xl shadow-xl hidden flex flex-col z-40';
+    'absolute right-0 mt-2 w-60 p-3 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-100 hidden flex flex-col gap-y-1 z-40';
 
   // factory function: create buttons for each filter option
   const makeBtn = (label) => {
     const btn = document.createElement('button');
     btn.className =
-      'filter-btn bg-white text-left rounded-lg px-3 py-1 text-lg hover:bg-blue-100';
+      'filter-btn bg-white text-left rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition';
     btn.dataset.filter = label;
     btn.textContent = label;
     // close the menu and filter the table when clicking this button
@@ -463,14 +517,11 @@ function renderRankingsByCategory(data) {
 
       html += `
         <div class="">
-          <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105   relative">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r group-hover:from-gray-300 group-hover:to-gray-100 from-white to-white"></div>
-            <div class="absolute top-0 left-0 h-full bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-200 from-blue-500 to-blue-100 rounded-md" style="width: ${percentage}"></div>
+          <div class="py-3 w-full rounded-md overflow-hidden group transition-transform duration-300 hover:scale-105 relative shadow-lg">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white to-white"></div>
+            <div class="absolute top-0 left-0 h-full rounded-md bg-gradient-to-r from-blue-500 to-blue-200" style="width: ${percentage}"></div>
             <div class="relative z-10 flex items-center group-hover:justify-center h-full px-2">
-              <span class="text-sm text-gray-600 text-shadow font-bold  hidden group-hover:inline group-hover:opacity-100 transition-opacity duration-200">
-                ${percentage}
-              </span>
-              <span class="w-full text-md text-center  group-hover:font-bold group-hover:hidden truncate text-sm text-gray-600  " title="${name}">
+              <span class="w-full text-md text-center group-hover:font-bold truncate text-sm text-gray-600" title="${name}">
                 ${name}
               </span>
             </div>
