@@ -290,7 +290,8 @@ def get_jobs_data():
         tech_tags TEXT,         
         job_des_origin TEXT,
         job_des TEXT,
-        job_level TEXT
+        job_level VARCHAR(20),
+        year_of_experience INTEGER
     );
     """
     cur.execute(create_sql)

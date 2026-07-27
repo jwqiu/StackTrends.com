@@ -396,7 +396,7 @@ function getJobCardHtml(job, includeAnimation = false) {
                   ${
                     job.yearOfExperience === 0
                       ? "< 1 yr"
-                      : job.yearOfExperience
+                      : job.yearOfExperience > 0
                         ? `${job.yearOfExperience} yrs exp`
                         : "Exp not specified"
                   }
@@ -1020,7 +1020,9 @@ function openJobReviewModal(jobId) {
   const manualYoeInput = document.getElementById("manual-yoe-input");
   if (manualYoeInput) {
     manualYoeInput.value =
-      job.yearOfExperience === null || job.yearOfExperience === undefined
+      job.yearOfExperience === null ||
+      job.yearOfExperience === undefined ||
+      job.yearOfExperience === -1
         ? ""
         : job.yearOfExperience;
   }
@@ -1345,7 +1347,7 @@ function checkConfirmReviewPermission() {
 
 async function confirmJobReview(jobId) {
   const payload = {
-    yearOfExperience: yoe_review === "" ? null : Number(yoe_review),
+    yearOfExperience: yoe_review === "" ? -1 : Number(yoe_review),
     jobLevel: jobLevel_review,
     techStacks: selectedStacks_review
   };
@@ -1471,7 +1473,10 @@ async function autoFillWithLLM() {
       }
     }
 
-    yoe_review = analysis.yearOfExperience === null || analysis.yearOfExperience === undefined
+    yoe_review =
+      analysis.yearOfExperience === null ||
+      analysis.yearOfExperience === undefined ||
+      analysis.yearOfExperience === -1
       ? ""
       : analysis.yearOfExperience;
 
@@ -1559,7 +1564,9 @@ function highlightExtractedValuesInJobDescription() {
 
   const valuesToHighlight = [
     jobLevel_review,
-    yoe_review === null || yoe_review === undefined ? "" : String(yoe_review),
+    yoe_review === null || yoe_review === undefined || yoe_review === -1
+      ? ""
+      : String(yoe_review),
     ...selectedStacks_review,
     ...jobLevelEvidenceValues
   ]
@@ -1577,7 +1584,9 @@ function highlightExtractedValuesInJobDescription() {
   .filter(value => value !== "");
 
   const yoeValue =
-    yoe_review === null || yoe_review === undefined ? "" : String(yoe_review).trim();
+    yoe_review === null || yoe_review === undefined || yoe_review === -1
+      ? ""
+      : String(yoe_review).trim();
 
   const yoeWordsMap = {
     "1": "one",

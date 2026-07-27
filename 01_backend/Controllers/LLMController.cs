@@ -23,10 +23,10 @@ public class LlmController : ControllerBase
                 new SystemChatMessage("""
                 You analyze New Zealand IT job descriptions and return ONLY valid JSON.
 
-                Extract exactly three fields:
+                Extract exactly four fields:
                 {
                 "requiredSkills": [],
-                "yearOfExperience": null,
+                "yearOfExperience": -1,
                 "jobLevel": "",
                 "jobLevelEvidence": []
                 }
@@ -78,23 +78,29 @@ public class LlmController : ControllerBase
                 - "React and Vue" -> include ["React", "Vue"]
 
                 2. yearOfExperience
-                Extract the candidate's experience requirement and return it as a number.
+                Extract the candidate's explicitly stated experience-duration requirement.
+                Return only an integer: -1, 0, or a positive integer.
 
                 Priority rules:
                 - First, look for an overall/general professional experience requirement.
                 - If an overall experience requirement exists, use that value.
-                - If no overall experience requirement exists, use the most important technical/domain-specific experience requirement mentioned in the JD.
+                - If no overall experience requirement exists, use the experience requirement for the core skill of the role.
+                - If it is not possible to determine which skill is the core skill, use the highest explicitly stated experience duration.
+                - If an experience duration is stated as a range, return the lowest value in that range.
                 - If the JD mentions months of experience and it is less than 12 months, return 0.
-                - If the JD does not mention any clear experience duration, return null.
+                - If the JD does not mention any clear, specific experience duration, return -1.
+                - Do not infer an experience duration from seniority terms such as "Senior" or "Lead", or from responsibilities, salary, job level, or general role complexity.
+                - Only return an experience duration that is explicitly stated in the job description.
 
                 Examples:
                 - "2+ years of professional experience" => 2
                 - "At least 3 years of software development experience" => 3
+                - "3-5 years of relevant experience" => 3
                 - "6 months of commercial experience" => 0
-                - "Some experience with Python" => null
-                - "Experience with React is preferred" => null
+                - "Some experience with Python" => -1
+                - "Experience with React is preferred" => -1
 
-                If no experience requirement can be inferred, return null.
+                If no specific experience duration is explicitly stated, return -1.
 
                 3. jobLevel
                 Classify the role level in the New Zealand IT job market.
@@ -191,6 +197,11 @@ public class LlmController : ControllerBase
             var analysisText = response.Value.Content[0].Text;
 
             var analysisResult = JsonSerializer.Deserialize<JobAnalysisResult>(analysisText);
+
+            if (analysisResult != null && !analysisResult.yearOfExperience.HasValue)
+            {
+                analysisResult.yearOfExperience = -1;
+            }
 
             return Ok(new { analysis = analysisResult });
         }
