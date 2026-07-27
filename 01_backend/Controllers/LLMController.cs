@@ -90,7 +90,18 @@ public class LlmController : ControllerBase
                 - If the JD mentions months of experience and it is less than 12 months, return 0.
                 - If the JD does not mention any clear, specific experience duration, return -1.
                 - Do not infer an experience duration from seniority terms such as "Senior" or "Lead", or from responsibilities, salary, job level, or general role complexity.
-                - Only return an experience duration that is explicitly stated in the job description.
+                - Only return a duration when the JD explicitly states that it is a requirement for the candidate's professional, commercial, technical, or role-relevant work experience.
+                - Do not treat any of the following as an experience requirement:
+                  - security-clearance or background-check history
+                  - residency, citizenship, immigration, or work-eligibility duration
+                  - project, transformation, migration, or implementation duration
+                  - contract or fixed-term duration
+                  - company age or years in business
+                  - product, platform, or technology age
+                  - tenure, benefits, annual leave, or employment milestones
+                  - notice periods, working hours, office days, or scheduling information
+                - Apply the priority, highest-duration, and range rules only after excluding all durations that are not candidate work-experience requirements.
+                - Never select a duration merely because it is the largest duration mentioned in the JD.
 
                 Examples:
                 - "2+ years of professional experience" => 2
@@ -99,6 +110,13 @@ public class LlmController : ControllerBase
                 - "6 months of commercial experience" => 0
                 - "Some experience with Python" => -1
                 - "Experience with React is preferred" => -1
+                - "Approximately 10 years of background history must be verifiable for security clearance" => -1
+                - "You must have lived in New Zealand for the past 5 years" => -1
+                - "This is a 12-month fixed-term contract" => -1
+                - "Over the next 18 months, you will help deliver the migration" => -1
+                - "The company has operated for more than 20 years" => -1
+                - "5 weeks of annual leave after 2 years of tenure" => -1
+                - "3+ years of Azure engineering experience and 10 years of verifiable background history for security clearance" => 3
 
                 If no specific experience duration is explicitly stated, return -1.
 

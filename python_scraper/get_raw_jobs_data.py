@@ -291,7 +291,8 @@ def get_jobs_data():
         job_des_origin TEXT,
         job_des TEXT,
         job_level VARCHAR(20),
-        year_of_experience INTEGER
+        year_of_experience INTEGER,
+        job_level_evidence TEXT
     );
     """
     cur.execute(create_sql)
@@ -341,4 +342,3 @@ def count_jobs_by_month():
     conn.close()
 
     logging.info(f"jobs_count_by_month 表已更新。")
-

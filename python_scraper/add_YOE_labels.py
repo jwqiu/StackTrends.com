@@ -16,7 +16,7 @@ LLM_MAX_RETRIES = 3
 
 
 def load_job_data():
-    """Load only jobs that have not received a YOE value yet."""
+    """Load jobs that are missing either YOE or job level."""
     conn = get_conn()
     if conn is None:
         raise RuntimeError("Unable to connect to the database.")
@@ -25,9 +25,12 @@ def load_job_data():
         with conn.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT job_id, job_des
+                SELECT job_id, job_title, job_des,
+                       year_of_experience, job_level
                 FROM jobs
-                WHERE year_of_experience IS NULL
+                WHERE (year_of_experience IS NULL
+                       OR job_level IS NULL
+                       OR BTRIM(job_level) = '')
                   AND job_des IS NOT NULL
                   AND BTRIM(job_des) <> ''
                 ORDER BY listed_date DESC NULLS LAST, job_id DESC
@@ -38,8 +41,50 @@ def load_job_data():
         conn.close()
 
 
-def analyze_year_of_experience(job_description):
-    """Call the existing backend LLM endpoint and return only its YOE result."""
+def label_job_level_from_title(title):
+    """Apply the existing job-level keywords to the title only."""
+    if not isinstance(title, str):
+        return "Other"
+
+    normalized_title = title.lower()
+    senior_keywords = [
+        "senior",
+        "lead",
+        "principal",
+        "architect",
+        "head",
+        "manager",
+        "architecture",
+    ]
+    intermediate_keywords = [
+        "intermediate",
+        "mid-level",
+        "mid level",
+        "midlevel",
+        "experienced",
+    ]
+    junior_keywords = [
+        "junior",
+        "graduate",
+        "internship",
+        "entry-level",
+        "intern",
+        "entry level",
+        "entrylevel",
+        "associate",
+    ]
+
+    if any(keyword in normalized_title for keyword in senior_keywords):
+        return "Senior"
+    if any(keyword in normalized_title for keyword in intermediate_keywords):
+        return "Intermediate"
+    if any(keyword in normalized_title for keyword in junior_keywords):
+        return "Junior"
+    return "Other"
+
+
+def analyze_job(job_description):
+    """Return YOE, job level, and job-level evidence from the backend LLM."""
     if not job_description or not job_description.strip():
         raise ValueError("Job description is empty.")
 
@@ -55,7 +100,13 @@ def analyze_year_of_experience(job_description):
             response.raise_for_status()
 
             payload = response.json()
-            yoe = payload.get("analysis", {}).get("yearOfExperience")
+            analysis = payload.get("analysis")
+            if not isinstance(analysis, dict):
+                raise ValueError("LLM response does not contain an analysis object.")
+
+            yoe = analysis.get("yearOfExperience")
+            job_level = analysis.get("jobLevel")
+            job_level_evidence = analysis.get("jobLevelEvidence")
 
             # Keep compatibility with a deployed backend version that may still
             # return null when the JD has no explicit experience duration.
@@ -67,7 +118,26 @@ def analyze_year_of_experience(job_description):
             if isinstance(yoe, bool) or not isinstance(yoe, int) or yoe < -1:
                 raise ValueError(f"Invalid yearOfExperience returned by LLM: {yoe!r}")
 
-            return yoe
+            if job_level not in {"Junior", "Intermediate", "Senior"}:
+                raise ValueError(f"Invalid jobLevel returned by LLM: {job_level!r}")
+
+            if job_level_evidence is None:
+                job_level_evidence = []
+            if not isinstance(job_level_evidence, list) or any(
+                not isinstance(item, str) for item in job_level_evidence
+            ):
+                raise ValueError(
+                    "Invalid jobLevelEvidence returned by LLM: "
+                    f"{job_level_evidence!r}"
+                )
+
+            evidence_text = "\n---\n".join(
+                item.strip()
+                for item in job_level_evidence[:3]
+                if item.strip()
+            )
+
+            return yoe, job_level, evidence_text
         except (requests.RequestException, ValueError) as exc:
             last_error = exc
             if attempt < LLM_MAX_RETRIES:
@@ -78,9 +148,15 @@ def analyze_year_of_experience(job_description):
     )
 
 
-def update_year_of_experience():
+def analyze_year_of_experience(job_description):
+    """Backward-compatible helper for callers that only need YOE."""
+    yoe, _, _ = analyze_job(job_description)
+    return yoe
+
+
+def update_year_of_experience_and_job_level():
     jobs = load_job_data()
-    print(f"Total jobs with NULL YOE: {len(jobs)}")
+    print(f"Total jobs missing YOE or job level: {len(jobs)}")
 
     if not jobs:
         return
@@ -94,21 +170,69 @@ def update_year_of_experience():
 
     try:
         with conn.cursor() as cursor:
-            for job_id, job_description in jobs:
+            for (
+                job_id,
+                job_title,
+                job_description,
+                existing_yoe,
+                existing_job_level,
+            ) in jobs:
                 try:
-                    yoe = analyze_year_of_experience(job_description)
+                    llm_yoe, llm_job_level, llm_evidence = analyze_job(
+                        job_description
+                    )
+                    title_job_level = label_job_level_from_title(job_title)
+                    selected_job_level = (
+                        llm_job_level
+                        if title_job_level == "Other"
+                        else title_job_level
+                    )
+                    selected_evidence = (
+                        llm_evidence
+                        if title_job_level == "Other"
+                        else job_title.strip()
+                    )
+
+                    new_yoe = llm_yoe if existing_yoe is None else existing_yoe
+                    new_job_level = (
+                        selected_job_level
+                        if not existing_job_level or not existing_job_level.strip()
+                        else existing_job_level
+                    )
+
                     cursor.execute(
                         """
                         UPDATE jobs
-                        SET year_of_experience = %s
+                        SET year_of_experience = CASE
+                                WHEN year_of_experience IS NULL THEN %s
+                                ELSE year_of_experience
+                            END,
+                            job_level = CASE
+                                WHEN job_level IS NULL OR BTRIM(job_level) = ''
+                                    THEN %s
+                                ELSE job_level
+                            END,
+                            job_level_evidence = CASE
+                                WHEN job_level IS NULL OR BTRIM(job_level) = ''
+                                    THEN %s
+                                ELSE job_level_evidence
+                            END
                         WHERE job_id = %s
-                          AND year_of_experience IS NULL
+                          AND (
+                              year_of_experience IS NULL
+                              OR job_level IS NULL
+                              OR BTRIM(job_level) = ''
+                          )
                         """,
-                        (yoe, job_id),
+                        (new_yoe, new_job_level, selected_evidence, job_id),
                     )
                     updated_count += cursor.rowcount
                     conn.commit()
-                    print(f"Job {job_id}: year_of_experience = {yoe}")
+                    print(
+                        f"Job {job_id}: year_of_experience = {new_yoe}, "
+                        f"job_level = {new_job_level} "
+                        f"(title rule: {title_job_level}, LLM: {llm_job_level})"
+                    )
                 except Exception as exc:
                     conn.rollback()
                     failed_count += 1
@@ -116,8 +240,13 @@ def update_year_of_experience():
     finally:
         conn.close()
 
-    print(f"YOE updated: {updated_count}")
-    print(f"YOE failed: {failed_count}")
+    print(f"Jobs updated: {updated_count}")
+    print(f"Jobs failed: {failed_count}")
+
+
+def update_year_of_experience():
+    """Backward-compatible entry point for the combined enrichment process."""
+    update_year_of_experience_and_job_level()
 
 
 # Previous rule-based extraction logic (kept temporarily for reference):
