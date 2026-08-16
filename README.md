@@ -1,108 +1,43 @@
+# StackRadar
 
-# 1. Project Overview  
+## 1. The Problems
 
-StackRadar is designed to quantify technology demand in the New Zealand job market and visualize these insights through a full-stack web application. It aims to help developers make more informed learning decisions.
+StackRadar is a data-driven application built on more than 6,000 real-world job postings. It is designed to address two main real-world problems faced by IT students and job seekers.
 
+### 1.1 Problem 1
 
-# 2. Live Demo & Screenshots  
+There is a gap between the technical skills students learn at university and those employers are actually looking for. Students need clearer insight into employer expectations so they can make better-informed learning decisions outside of their coursework and prepare more effectively for the job market.
 
-1️⃣ **Live Site**
+### 1.2 Problem 2
 
-Click the link below to visit StackRadar
+Job seekers have to spend a significant amount of time reviewing job descriptions just to determine whether a role is suitable for them. Many roles eventually turn out not to be a good match because either the technical requirements or the seniority level do not fit their background, but job seekers often do not realize this until they have already spent time reading the full job description.
 
-[Visit StackRadar Online](https://www.stackradar.me)
+## 2. The Solutions
 
-2️⃣ **Screenshot**
+A data pipeline provides the foundation for solving both problems. It collects real-world job postings, cleans and transforms the raw data, enriches each posting with structured information, and stores the processed results in a database for downstream analysis and use. The same data then powers both the technology-demand insights and the job-screening features delivered through the full-stack application. The diagram below shows how data moves from collection and processing to storage, backend APIs, and the frontend.
 
-![Landing Page](./docs/stackradar_landing_page.jpg)
-![SkillsTrend Page](./docs/skillstrend.jpg)
+![StackRadar System Overview](./docs/system_overview.jpeg)
 
+### 2.1 Solution 1: Data-Driven Technology Demand Insights
 
-# 3. Tech Stack Used
+StackRadar identifies and normalizes technical skills mentioned in more than 6,000 real-world job postings, analyzes how frequently each skill appears, and visualizes technology demand across different job levels, companies, and technology categories. This helps students understand which technical skills employers are actually looking for and make better-informed learning decisions based on real job-market data.
 
-- **Frontend**: JavaScript, HTML, Tailwind CSS
-- **Backend**: C# · ASP.NET Core Web API (RESTful)
-- **Data pipeline**: Python, Requests, BeautifulSoup, Pandas
-- **Database**: PostgreSQL (Azure Database for PostgreSQL)
-- **Classification pipeline**: Sentence Transformers (embeddings), PyTorch MLP classifier
-- **Cloud**: Azure (App Service, Static Web App)
+![StackRadar Technology Demand Insights](./docs/skillstrend.jpg)
 
+### 2.2 Solution 2: AI-Powered Job Screening
 
-# 4. Technical Implementation
+StackRadar uses an LLM to analyze job descriptions and extract key requirements, including required technical skills, years of experience, job level, and supporting evidence. Job seekers can view each role’s technical requirements and seniority level at a glance, allowing them to quickly filter out unsuitable roles without reading every full job description first.
 
-## 4.1 System Overview 
+![StackRadar AI-Powered Job Screening](./docs/skillmatch.png)
 
-The system consists of three main components: 
-- a data pipeline that collects and processes publicly available job posting data
-- a multi-step job level classification pipeline that predicts job seniority, which is implemented in the data enrichment stage
-- a web-based application that visualizes technology demand insights and supports user interaction.
-
-The following diagram illustrates how these components interact within the system.
-
-![System Overview](./docs/system_overview.jpeg)
-
-## 4.2 Backend API Overview
-
-![API Endpoint Overview](./docs/API_Endpoint_Overview.png)
-
-## 4.3 Job Level Classification Pipeline
-
-### 4.3.1 Pipeline Overview
-
-This pipeline simulates human reasoning to predict the job level for each posting, using a hybrid approach that combines rule-based logic and machine learning. The pipeline consists of two main stages:
-
-- a rule-based keyword matching method applied to job titles to directly assign job levels when possible
-- an embedding-based machine learning pipeline that extracts key information from job descriptions and predicts job levels using sentence embeddings and an MLP classifier
+Beyond the LLM-powered workflow, I also built a two-stage job-level classification pipeline designed to imitate how humans infer seniority from a job posting. The pipeline first checks the job title for explicit seniority keywords. If no clear level is identified, it extracts relevant signals from the job description, converts them into sentence embeddings using a pretrained Sentence Transformer, and passes the embeddings to a custom-trained MLP classifier to predict the job level.
 
 ![Job Level Classification Pipeline](./docs/Classification_Pipeline_Flow.jpeg)
 
-### 4.3.2 Model Performance
+## 3. Tech Stack Used
 
-#### 1) Embedding Quality
-
-##### 1️⃣ Metrics
-
-The table below shows the best embedding quality I achieved, measured by the Silhouette Score and Calinski–Harabasz Score. These metrics measure how well points cluster within the same group and how well different groups are separated.
-
-| Metric                    | Score |
-|--------------------------|-------|
-| Silhouette Score         | 0.065 |
-| Calinski–Harabasz Score  | 17.2  |
-
-##### 2️⃣ Visualization
-
-The scatter plot below shows how the embeddings are distributed in a 2D space after dimensionality reduction (e.g., PCA or t-SNE). From this visualization, we can roughly observe three clusters forming, each corresponding to a job level. Points from the same level tend to group together, while different levels are relatively well separated, although some overlap still exists.
-
-![Embedding Visualization](./model_pipeline/local_experiments/emb_plots/TSNE_intfloat_e5-large-v2_2️⃣:_exp_num+exp.png)
-
-##### 3️⃣ Method
-
-This was achieved using the pretrained model **e5-large-v2**, with input sentences that contain both the keyword "experience" and a number, falling back to sentences containing the keyword "experience" if none are found.
-
-#### 2）Classification Performance
-
-The model achieves strong overall performance on the test set:
-
-- Accuracy: **0.90**
-- F1 Score (weighted): **0.90**  
-- F1 Score (macro): **0.87**  
-
-It performs particularly well on senior and intermediate roles.  
-Performance on junior roles is slightly lower, likely due to the smaller number of samples.
-
-# 5. Project Structure
-
-```bash
-STACKTRENDS.COM/
-├── 01_backend/                  # ASP.NET Core Web API serving processed job data and analytics results
-├── 02_frontend/                 # Web frontend that visualizes job listings and technology demand insights
-├── python_scraper/              # Data pipeline for collecting and processing job posting data
-├── scraper_entry.py             # Entry point for running the data collection and processing pipeline
-├── model_pipeline/              # Job level classification pipeline used in the data enrichment stage
-├── docs                         # Supporting files and assets for the README.md
-├── README.md
-└── StackTrends.sln      
-```
-
-
-
+- **LLM:** OpenAI API, LLM Integration, Prompt Engineering, Structured Data Extraction
+- **Natural Language Processing:** Sentence Transformers, Text Embeddings, Text Classification, Keyword-Based Sentence Filtering
+- **Machine Learning:** PyTorch, MLP Classifier, Classification Pipelines, Model Evaluation
+- **Data & Cloud:** Python, Pandas, ETL Pipelines, Data Processing, PostgreSQL, Azure
+- **Programming & Web:** C#, JavaScript, ASP.NET Core Web API, REST APIs, Tailwind CSS
