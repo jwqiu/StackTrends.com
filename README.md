@@ -41,3 +41,9 @@ Beyond the LLM-powered workflow, I also built a two-stage job-level classificati
 - **Machine Learning:** PyTorch, MLP Classifier, Classification Pipelines, Model Evaluation
 - **Data & Cloud:** Python, Pandas, ETL Pipelines, Data Processing, PostgreSQL, Azure
 - **Programming & Web:** C#, JavaScript, ASP.NET Core Web API, REST APIs, Tailwind CSS
+
+## 4. Live Demo
+
+Thanks for taking the time to explore this project. You can try StackRadar on the live site and see how it turns real-world job data into technology demand insights and faster job screening.
+
+**[Try StackRadar Live →](https://www.stackradar.me)**
