@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using OpenAI.Chat;
+using StackTrends.Services;
 
 // create a web application builder, like laying the foundation where we prepare everything(services, settings, tools) before building the web app
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +48,8 @@ builder.Services.AddCors(options =>
             "http://localhost:5500"
           )
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -108,6 +110,9 @@ builder.Services.AddSingleton(new ChatClient(
     model: "gpt-4.1-mini",
     apiKey: builder.Configuration["OpenAI:ApiKey"]
 ));
+builder.Services.AddScoped<ICvTextExtractor, CvTextExtractor>();
+builder.Services.AddScoped<ICoverLetterLlmService, CoverLetterLlmService>();
+builder.Services.AddScoped<ICoverLetterDocumentService, CoverLetterDocumentService>();
 
 // build the web application instance using the previously configured builder
 var app = builder.Build();
@@ -122,4 +127,3 @@ app.UseAuthorization();
 // register all controller endpoints so incoming requests can be correctly routed to the right controller functions
 app.MapControllers();
 app.Run();
-

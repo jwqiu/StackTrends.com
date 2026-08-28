@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded',  () => {
   enforceLogin(), // check login status first
   loadTechStacks(),
   setupMenu(),
+  setupCoverLetterGenerator(),
   loadCategories(),
   setupAddCategoryForm(),
   loadCategoryOptions(),
@@ -26,7 +27,8 @@ function setupMenu() {
   const mapping = {
     'menu-dashboard': 'dashboard-panel',
     'menu-category': 'category-panel',
-    'menu-stack': 'stack-keyword-panel'
+    'menu-stack': 'stack-keyword-panel',
+    'menu-cover-letter': 'cover-letter-panel'
   };
   
   // get menu items and panels by their IDs, store in arrays 
@@ -53,6 +55,240 @@ function setupMenu() {
   menuItems[0].classList.add('bg-blue-500','text-white');
   panels.forEach(p => p.style.display = 'none');
   document.getElementById(mapping[menuItems[0].id]).style.display = 'block';
+}
+
+function setupCoverLetterGenerator() {
+  const cvInput = document.getElementById('cover-letter-cv');
+  const cvName = document.getElementById('cover-letter-cv-name');
+  const cvError = document.getElementById('cover-letter-cv-error');
+  const jobSelect = document.getElementById('cover-letter-job');
+  const jobStatus = document.getElementById('cover-letter-job-status');
+  const listModeButton = document.getElementById('cover-letter-job-mode-list');
+  const manualModeButton = document.getElementById('cover-letter-job-mode-manual');
+  const listPanel = document.getElementById('cover-letter-job-list-panel');
+  const manualPanel = document.getElementById('cover-letter-job-manual-panel');
+  const manualTitle = document.getElementById('cover-letter-manual-title');
+  const manualDescription = document.getElementById('cover-letter-manual-description');
+  const manualDescriptionCount = document.getElementById('cover-letter-manual-description-count');
+  const extraPrompt = document.getElementById('cover-letter-extra-prompt');
+  const extraPromptCount = document.getElementById('cover-letter-extra-prompt-count');
+  const generateButton = document.getElementById('generate-cover-letter');
+  const generationStatus = document.getElementById('cover-letter-generation-status');
+
+  if (!cvInput || !cvName || !cvError || !jobSelect || !jobStatus
+    || !listModeButton || !manualModeButton || !listPanel || !manualPanel
+    || !manualTitle || !manualDescription || !manualDescriptionCount
+    || !extraPrompt || !extraPromptCount || !generateButton || !generationStatus) return;
+
+  let jobInputMode = 'list';
+
+  const updateGenerateButton = () => {
+    const hasJobDetails = jobInputMode === 'list'
+      ? Boolean(jobSelect.value)
+      : Boolean(manualTitle.value.trim() && manualDescription.value.trim());
+    const isReady = Boolean(cvInput.files?.[0] && hasJobDetails);
+    generateButton.disabled = !isReady;
+    generateButton.classList.toggle('cursor-not-allowed', !isReady);
+    generateButton.classList.toggle('bg-gray-300', !isReady);
+    generateButton.classList.toggle('opacity-80', !isReady);
+    generateButton.classList.toggle('bg-blue-600', isReady);
+    generateButton.classList.toggle('hover:bg-blue-700', isReady);
+  };
+
+  const setJobInputMode = mode => {
+    jobInputMode = mode;
+    const usesList = mode === 'list';
+
+    listPanel.classList.toggle('hidden', !usesList);
+    manualPanel.classList.toggle('hidden', usesList);
+    listModeButton.setAttribute('aria-pressed', String(usesList));
+    manualModeButton.setAttribute('aria-pressed', String(!usesList));
+
+    [listModeButton, manualModeButton].forEach((button, index) => {
+      const isActive = usesList ? index === 0 : index === 1;
+      button.classList.toggle('bg-white', isActive);
+      button.classList.toggle('text-blue-600', isActive);
+      button.classList.toggle('shadow-sm', isActive);
+      button.classList.toggle('text-gray-500', !isActive);
+    });
+
+    updateGenerateButton();
+  };
+
+  cvInput.addEventListener('change', () => {
+    const file = cvInput.files?.[0];
+    cvError.classList.add('hidden');
+
+    if (!file) {
+      cvName.textContent = 'No file selected';
+      updateGenerateButton();
+      return;
+    }
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'docx') {
+      cvInput.value = '';
+      cvName.textContent = 'No file selected';
+      cvError.textContent = 'Please choose a DOCX file.';
+      cvError.classList.remove('hidden');
+      updateGenerateButton();
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      cvInput.value = '';
+      cvName.textContent = 'No file selected';
+      cvError.textContent = 'The CV file must not exceed 5 MB.';
+      cvError.classList.remove('hidden');
+      updateGenerateButton();
+      return;
+    }
+
+    cvName.textContent = `${file.name} · ${formatFileSize(file.size)}`;
+    updateGenerateButton();
+  });
+
+  listModeButton.addEventListener('click', () => setJobInputMode('list'));
+  manualModeButton.addEventListener('click', () => setJobInputMode('manual'));
+  jobSelect.addEventListener('change', updateGenerateButton);
+  manualTitle.addEventListener('input', updateGenerateButton);
+  manualDescription.addEventListener('input', () => {
+    manualDescriptionCount.textContent = `${manualDescription.value.length} / 30000`;
+    updateGenerateButton();
+  });
+  extraPrompt.addEventListener('input', () => {
+    extraPromptCount.textContent = `${extraPrompt.value.length} / 2000`;
+  });
+
+  generateButton.addEventListener('click', async () => {
+    const cv = cvInput.files?.[0];
+    const usesMatchedJob = jobInputMode === 'list';
+    const jobId = usesMatchedJob ? jobSelect.value : '';
+    const pastedTitle = usesMatchedJob ? '' : manualTitle.value.trim();
+    const pastedDescription = usesMatchedJob ? '' : manualDescription.value.trim();
+    if (!cv || (usesMatchedJob ? !jobId : !pastedTitle || !pastedDescription)) return;
+
+    generateButton.disabled = true;
+    generateButton.classList.add('cursor-not-allowed', 'bg-gray-300', 'opacity-80');
+    generateButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    generationStatus.textContent = 'Crafting your tailored cover letter — this may take a moment...';
+    generationStatus.className = 'mt-3 text-center text-xs text-gray-500';
+
+    try {
+      const formData = new FormData();
+      formData.append('cv', cv);
+      if (usesMatchedJob) {
+        formData.append('jobId', jobId);
+      } else {
+        formData.append('jobTitle', pastedTitle);
+        formData.append('jobDescription', pastedDescription);
+      }
+      if (extraPrompt.value.trim()) {
+        formData.append('extraPrompt', extraPrompt.value.trim());
+      }
+
+      const response = await fetch(`${window.API_BASE}/api/cover-letter/generate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('jwt')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        throw new Error(errorPayload.error || `Generation failed (${response.status}).`);
+      }
+
+      const documentBlob = await response.blob();
+      const downloadUrl = URL.createObjectURL(documentBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = getDownloadFileName(
+        response.headers.get('Content-Disposition'),
+        usesMatchedJob
+          ? jobSelect.options[jobSelect.selectedIndex]?.textContent
+          : pastedTitle
+      );
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+
+      generationStatus.textContent = '';
+      generationStatus.className = 'hidden';
+      cvInput.value = '';
+      cvName.textContent = 'No file selected';
+      cvError.textContent = '';
+      cvError.classList.add('hidden');
+      jobSelect.value = '';
+      manualTitle.value = '';
+      manualDescription.value = '';
+      manualDescriptionCount.textContent = '0 / 30000';
+      extraPrompt.value = '';
+      extraPromptCount.textContent = '0 / 2000';
+      setJobInputMode('list');
+    } catch (error) {
+      generationStatus.textContent = error.message || 'Unable to generate the cover letter.';
+      generationStatus.className = 'mt-3 text-center text-xs text-red-500';
+    } finally {
+      updateGenerateButton();
+    }
+  });
+
+  loadCoverLetterJobs(jobSelect, jobStatus, updateGenerateButton);
+}
+
+async function loadCoverLetterJobs(jobSelect, jobStatus, updateGenerateButton) {
+  try {
+    const response = await fetch(`${window.API_BASE}/api/cover-letter/jobs`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('jwt')}`
+      }
+    });
+
+    if (!response.ok) throw new Error(`Unable to load jobs (${response.status}).`);
+
+    const jobs = await response.json();
+    jobSelect.innerHTML = '<option value="">Select a job</option>';
+
+    jobs.forEach(job => {
+      const option = document.createElement('option');
+      option.value = job.jobId;
+      option.textContent = `${job.jobTitle} — ${job.companyName || 'Unknown company'}`;
+      jobSelect.appendChild(option);
+    });
+
+    jobSelect.disabled = false;
+    jobStatus.textContent = `${jobs.length} matched job${jobs.length === 1 ? '' : 's'} available.`;
+    jobStatus.className = 'mt-2 text-xs text-gray-400';
+    updateGenerateButton();
+  } catch (error) {
+    jobSelect.innerHTML = '<option value="">Unable to load jobs</option>';
+    jobStatus.textContent = error.message || 'Unable to load matched jobs.';
+    jobStatus.className = 'mt-2 text-xs text-red-500';
+  }
+}
+
+function getDownloadFileName(contentDisposition, selectedJobLabel) {
+  if (contentDisposition) {
+    const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf8Match) return decodeURIComponent(utf8Match[1]);
+
+    const fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+    if (fileNameMatch) return fileNameMatch[1];
+  }
+
+  const fallbackName = (selectedJobLabel || 'Cover Letter')
+    .replace(/[^a-z0-9 _-]/gi, '_')
+    .trim();
+  return `${fallbackName || 'Cover Letter'}.docx`;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function renderAdminUI() {
@@ -653,4 +889,3 @@ function setupToggleBtnClickEvent(){
   });
 
 }
-

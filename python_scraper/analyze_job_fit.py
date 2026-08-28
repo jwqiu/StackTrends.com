@@ -111,8 +111,35 @@ def _load_new_junior_jobs(job_ids):
         conn.close()
 
 
+def _save_job_fit_results(job_fit_results):
+    """Save successful analyses; unanalysed or failed jobs remain NULL."""
+    if not job_fit_results:
+        return
+
+    conn = get_conn()
+    try:
+        with conn.cursor() as cursor:
+            cursor.executemany(
+                """
+                UPDATE jobs
+                SET "isMatch" = %s
+                WHERE job_id = %s
+                """,
+                [
+                    (is_match, job_id)
+                    for job_id, is_match in job_fit_results
+                ],
+            )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def analyze_new_junior_job_fit(job_ids):
-    """Analyze this run's Junior jobs without changing the database."""
+    """Analyze this run's Junior jobs and save successful fit decisions."""
     jobs = _load_new_junior_jobs(job_ids)
     print(f"Junior jobs waiting for career-direction analysis: {len(jobs)}")
 
@@ -128,6 +155,7 @@ def analyze_new_junior_job_fit(job_ids):
     matched_count = 0
     failed_count = 0
     matched_jobs = []
+    job_fit_results = []
 
     for (
         job_id,
@@ -140,6 +168,7 @@ def analyze_new_junior_job_fit(job_ids):
         try:
             result = analyze_job_fit(job_title, job_description)
             analyzed_count += 1
+            job_fit_results.append((job_id, result["is_match"]))
             if result["is_match"]:
                 matched_count += 1
                 matched_jobs.append(
@@ -163,6 +192,8 @@ def analyze_new_junior_job_fit(job_ids):
         except Exception as error:
             failed_count += 1
             print(f"Job {job_id}: career-direction analysis failed - {error}")
+
+    _save_job_fit_results(job_fit_results)
 
     print(f"Career-direction jobs analyzed: {analyzed_count}")
     print(f"Career-direction matches: {matched_count}")

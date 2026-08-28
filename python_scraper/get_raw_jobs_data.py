@@ -292,8 +292,11 @@ def get_jobs_data():
         job_des TEXT,
         job_level VARCHAR(20),
         year_of_experience INTEGER,
-        job_level_evidence TEXT
+        job_level_evidence TEXT,
+        "isMatch" BOOLEAN DEFAULT NULL
     );
+    ALTER TABLE jobs
+        ADD COLUMN IF NOT EXISTS "isMatch" BOOLEAN DEFAULT NULL;
     """
     cur.execute(create_sql)
     conn.commit()

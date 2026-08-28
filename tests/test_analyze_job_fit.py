@@ -5,12 +5,14 @@ from python_scraper.analyze_job_fit import analyze_new_junior_job_fit
 
 
 class AnalyzeJobFitTests(unittest.TestCase):
+    @patch("python_scraper.analyze_job_fit._save_job_fit_results")
     @patch("python_scraper.analyze_job_fit.analyze_job_fit")
     @patch("python_scraper.analyze_job_fit._load_new_junior_jobs")
-    def test_matching_job_is_prepared_for_sheet_without_database_write(
+    def test_matching_job_is_saved_and_prepared_for_sheet(
         self,
         load_jobs,
         analyze_fit,
+        save_fit_results,
     ):
         load_jobs.return_value = [
             (
@@ -33,6 +35,7 @@ class AnalyzeJobFitTests(unittest.TestCase):
         self.assertEqual(summary["analyzed_count"], 1)
         self.assertEqual(summary["matched_count"], 1)
         self.assertEqual(summary["failed_count"], 0)
+        save_fit_results.assert_called_once_with([(456, True)])
         self.assertEqual(
             summary["matched_jobs"],
             [
