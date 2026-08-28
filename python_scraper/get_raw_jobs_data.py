@@ -302,15 +302,23 @@ def get_jobs_data():
         company_id, company_name, job_id, job_title, job_url, 
         sub_id, sub_name, location, listed_date, collected_date, listing_year_month, job_des_origin, job_des
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (job_id) DO NOTHING;
+    ON CONFLICT (job_id) DO NOTHING
+    RETURNING job_id;
     """
-    cur.executemany(insert_sql, jobs)
+    new_job_ids = []
+    for job in jobs:
+        cur.execute(insert_sql, job)
+        inserted_job = cur.fetchone()
+        if inserted_job is not None:
+            new_job_ids.append(inserted_job[0])
+
     conn.commit()
     cur.close()
     conn.close()
 
     logging.info(f"总共获取到 {total_job} 个 Job ID")
-    logging.info(f"本次新增写入 {cur.rowcount} 条数据到数据库。")
+    logging.info(f"本次新增写入 {len(new_job_ids)} 条数据到数据库。")
+    return new_job_ids
 
 # count jobs by listing year and month, and store the results in a separate table
 def count_jobs_by_month():

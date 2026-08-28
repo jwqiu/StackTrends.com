@@ -244,6 +244,31 @@ def update_year_of_experience_and_job_level():
     print(f"Jobs failed: {failed_count}")
 
 
+def count_junior_jobs(job_ids):
+    """Count Junior jobs among the jobs inserted by the current scraper run."""
+    if not job_ids:
+        return 0
+
+    conn = get_conn()
+    if conn is None:
+        raise RuntimeError("Unable to connect to the database.")
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM jobs
+                WHERE job_id = ANY(%s)
+                  AND LOWER(BTRIM(job_level)) = 'junior'
+                """,
+                (job_ids,),
+            )
+            return cursor.fetchone()[0]
+    finally:
+        conn.close()
+
+
 def update_year_of_experience():
     """Backward-compatible entry point for the combined enrichment process."""
     update_year_of_experience_and_job_level()

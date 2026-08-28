@@ -1,5 +1,8 @@
 .DS_Store
 
+# Local Codex configuration
+.codex/
+
 # .NET build artifacts
 **/bin/
 **/obj/
