@@ -3,6 +3,9 @@
 # Local Codex configuration
 .codex/
 
+# Local credentials
+secrets/
+
 # .NET build artifacts
 **/bin/
 **/obj/

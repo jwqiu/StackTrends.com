@@ -233,6 +233,143 @@ public class LlmController : ControllerBase
 
     }
 
+    [HttpPost("analyze-job-fit")]
+    public async Task<IActionResult> AnalyzeJobFit([FromBody] JobFitAnalysisRequest request)
+    {
+        if (request == null
+            || string.IsNullOrWhiteSpace(request.JobTitle)
+            || string.IsNullOrWhiteSpace(request.JobDescription))
+        {
+            return BadRequest(new
+            {
+                error = "Job title and job description are required."
+            });
+        }
+
+        try
+        {
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage("""
+                You assess whether a New Zealand junior-level job aligns with the target
+                career directions of a recent master's graduate.
+
+                The candidate is looking for a role in AT LEAST ONE of these directions:
+
+                1. Computer Vision
+                   Roles whose core work involves images or video, such as image
+                   recognition, object detection, segmentation, visual inspection,
+                   image processing, video analytics, or deploying vision models.
+
+                2. AI Automation
+                   Roles whose core work involves building AI-powered automation, such
+                   as LLM applications, AI agents, RAG systems, intelligent workflows,
+                   generative-AI integrations, or automating business processes with AI.
+                   Ordinary test automation, DevOps automation, scripting, RPA, or
+                   workflow automation without a meaningful AI component does not count.
+
+                3. Machine Learning
+                   Roles whose core work involves developing, training, evaluating,
+                   deploying, monitoring, or materially applying machine-learning or
+                   deep-learning models. Data analysis or conventional software
+                   engineering without meaningful model work does not count.
+
+                Decision rules:
+                - Use OR logic. A role is a match when at least one direction is a
+                  substantial part of the role's responsibilities or intended outcome.
+                - Judge the actual role, not the employer's general industry or products.
+                - A passing reference to AI, ML, Copilot, automation, data, or an AI
+                  product is not enough.
+                - Do not assume missing responsibilities and do not invent evidence.
+                - Because the input has already been classified as Junior, focus on
+                  career-direction alignment rather than reclassifying seniority.
+                - matchedDirections may contain only: "Computer Vision",
+                  "AI Automation", and "Machine Learning".
+                - If isMatch is true, matchedDirections must contain at least one item.
+                - If isMatch is false, matchedDirections must be empty.
+                - reason must be one concise sentence explaining the strongest evidence
+                  for the decision from the title or description.
+                """),
+                new UserChatMessage($"""
+                Assess this role for the candidate.
+
+                Job title:
+                {request.JobTitle}
+
+                Job description:
+                {request.JobDescription}
+                """)
+            };
+
+            ChatCompletionOptions options = new()
+            {
+                ResponseFormat = ChatResponseFormat.CreateJsonSchemaFormat(
+                    jsonSchemaFormatName: "job_fit_analysis",
+                    jsonSchema: BinaryData.FromBytes("""
+                        {
+                            "type": "object",
+                            "properties": {
+                                "isMatch": { "type": "boolean" },
+                                "matchedDirections": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Computer Vision",
+                                            "AI Automation",
+                                            "Machine Learning"
+                                        ]
+                                    }
+                                },
+                                "reason": { "type": "string" }
+                            },
+                            "required": ["isMatch", "matchedDirections", "reason"],
+                            "additionalProperties": false
+                        }
+                        """u8.ToArray()),
+                    jsonSchemaIsStrict: true)
+            };
+
+            var response = await _chatClient.CompleteChatAsync(messages, options);
+            var analysisText = response.Value.Content[0].Text;
+            var analysisResult = JsonSerializer.Deserialize<JobFitAnalysisResult>(
+                analysisText,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
+            if (analysisResult == null)
+            {
+                throw new InvalidOperationException("The LLM returned an empty job-fit result.");
+            }
+
+            if (analysisResult.isMatch && analysisResult.matchedDirections.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "A matching role must include at least one matched direction."
+                );
+            }
+
+            if (!analysisResult.isMatch && analysisResult.matchedDirections.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    "A non-matching role cannot include matched directions."
+                );
+            }
+
+            return Ok(new { analysis = analysisResult });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                error = ex.Message
+            });
+        }
+    }
+
     [HttpPost("explain-tech-keyword")]
     public async Task<IActionResult> ExplainTechKeyword([FromBody] TechKeywordExplainRequest request)
     {
@@ -338,4 +475,20 @@ public class JobAnalysisResult
 public class JobDescriptionRequest
 {
     public string JobDescription { get; set; } = "";
+}
+
+public class JobFitAnalysisRequest
+{
+    public string JobTitle { get; set; } = "";
+
+    public string JobDescription { get; set; } = "";
+}
+
+public class JobFitAnalysisResult
+{
+    public bool isMatch { get; set; }
+
+    public List<string> matchedDirections { get; set; } = new();
+
+    public string reason { get; set; } = "";
 }

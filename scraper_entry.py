@@ -2,6 +2,8 @@ from python_scraper.add_YOE_labels import (
     count_junior_jobs,
     update_year_of_experience_and_job_level,
 )
+from python_scraper.analyze_job_fit import analyze_new_junior_job_fit
+from python_scraper.google_sheets import append_matching_jobs
 from python_scraper.get_raw_jobs_data import count_jobs_by_month, get_jobs_data
 from python_scraper.add_tech_stack_labels import add_tech_stack_labels
 from python_scraper.create_tech_stack_rank import create_tech_stack_rank
@@ -24,6 +26,15 @@ def main():
     junior_job_count = count_junior_jobs(new_job_ids)
     print(f"本次新增的 Junior jobs 数量: {junior_job_count}")
     print(1 if junior_job_count > 0 else 0)
+
+    if junior_job_count == 0:
+        return
+
+    fit_summary = analyze_new_junior_job_fit(new_job_ids)
+    print(f"符合求职方向的 Junior jobs 数量: {fit_summary['matched_count']}")
+
+    sheet_summary = append_matching_jobs(fit_summary["matched_jobs"])
+    print(f"写入 Google Sheet 的 jobs 数量: {sheet_summary['appended_count']}")
 
 
 if __name__ == "__main__":
