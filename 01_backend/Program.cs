@@ -48,8 +48,7 @@ builder.Services.AddCors(options =>
             "http://localhost:5500"
           )
         .AllowAnyHeader()
-        .AllowAnyMethod()
-        .WithExposedHeaders("Content-Disposition");
+        .AllowAnyMethod();
     });
 });
 
@@ -110,12 +109,16 @@ builder.Services.AddSingleton(new ChatClient(
     model: "gpt-4.1-mini",
     apiKey: builder.Configuration["OpenAI:ApiKey"]
 ));
+builder.Services.AddSingleton<ICoverLetterPromptProvider, CoverLetterPromptProvider>();
 builder.Services.AddScoped<ICvTextExtractor, CvTextExtractor>();
 builder.Services.AddScoped<ICoverLetterLlmService, CoverLetterLlmService>();
 builder.Services.AddScoped<ICoverLetterDocumentService, CoverLetterDocumentService>();
 
 // build the web application instance using the previously configured builder
 var app = builder.Build();
+
+// Load and validate the cover-letter configuration during startup.
+_ = app.Services.GetRequiredService<ICoverLetterPromptProvider>();
 
 // use the CORS policy defined earlier to allow frontend requests
 app.UseCors("AllowFE");

@@ -59,7 +59,7 @@ namespace StackTrends.Controllers
             return NotFound("No landing summary found.");
         }
 
-        // return the total number of jobs matching the specified filters, including job level and keywords, used in tech match page
+        // return the total number of jobs matching the specified filters, including job level and keywords, used in Job Explorer
         [HttpGet("jobs/count")]
         public async Task<IActionResult> JobsCount(
             string? job_level = null,

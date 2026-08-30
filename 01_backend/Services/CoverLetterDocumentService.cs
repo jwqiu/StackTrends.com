@@ -12,6 +12,18 @@ public interface ICoverLetterDocumentService
 
 public sealed class CoverLetterDocumentService : ICoverLetterDocumentService
 {
+    private static readonly Regex MarkdownLinkRegex = new(
+        @"\[(?<label>[^\]\r\n]+)\]\((?<url>https://[^)\s]+)\)",
+        RegexOptions.Compiled
+    );
+
+    private readonly IReadOnlySet<string> _allowedProjectLinks;
+
+    public CoverLetterDocumentService(ICoverLetterPromptProvider promptProvider)
+    {
+        _allowedProjectLinks = promptProvider.AllowedProjectLinks;
+    }
+
     public byte[] CreateDocx(string coverLetter)
     {
         using var stream = new MemoryStream();
@@ -29,7 +41,7 @@ public sealed class CoverLetterDocumentService : ICoverLetterDocumentService
 
             foreach (var paragraphText in paragraphs)
             {
-                body.Append(CreateParagraph(paragraphText));
+                body.Append(CreateParagraph(mainPart, paragraphText));
             }
 
             body.Append(new SectionProperties(
@@ -52,7 +64,9 @@ public sealed class CoverLetterDocumentService : ICoverLetterDocumentService
         return stream.ToArray();
     }
 
-    private static Paragraph CreateParagraph(string paragraphText)
+    private Paragraph CreateParagraph(
+        MainDocumentPart mainPart,
+        string paragraphText)
     {
         var paragraph = new Paragraph(new ParagraphProperties(
             new Justification { Val = JustificationValues.Left },
@@ -63,26 +77,84 @@ public sealed class CoverLetterDocumentService : ICoverLetterDocumentService
 
         for (var index = 0; index < lines.Length; index++)
         {
-            var run = new Run(
-                new RunProperties(
-                    new RunFonts
-                    {
-                        Ascii = "Aptos",
-                        HighAnsi = "Aptos",
-                        EastAsia = "Aptos",
-                        ComplexScript = "Aptos"
-                    },
-                    new FontSize { Val = "22" },
-                    new FontSizeComplexScript { Val = "22" }
-                ),
-                new Text(lines[index]) { Space = SpaceProcessingModeValues.Preserve }
-            );
-            paragraph.Append(run);
+            AppendInlineContent(paragraph, mainPart, lines[index]);
 
             if (index < lines.Length - 1)
                 paragraph.Append(new Run(new Break()));
         }
 
         return paragraph;
+    }
+
+    private void AppendInlineContent(
+        Paragraph paragraph,
+        MainDocumentPart mainPart,
+        string text)
+    {
+        var currentIndex = 0;
+
+        foreach (Match match in MarkdownLinkRegex.Matches(text))
+        {
+            var url = match.Groups["url"].Value;
+            if (!_allowedProjectLinks.Contains(url)) continue;
+
+            if (match.Index > currentIndex)
+                paragraph.Append(CreateTextRun(text[currentIndex..match.Index]));
+
+            var relationship = mainPart.AddHyperlinkRelationship(new Uri(url), true);
+            paragraph.Append(new Hyperlink(
+                new Run(
+                    CreateRunProperties(isHyperlink: true),
+                    new Text(match.Groups["label"].Value)
+                    {
+                        Space = SpaceProcessingModeValues.Preserve
+                    }
+                ))
+            {
+                Id = relationship.Id,
+                History = OnOffValue.FromBoolean(true)
+            });
+
+            currentIndex = match.Index + match.Length;
+        }
+
+        if (currentIndex < text.Length)
+            paragraph.Append(CreateTextRun(text[currentIndex..]));
+    }
+
+    private static Run CreateTextRun(string text)
+    {
+        return new Run(
+            CreateRunProperties(isHyperlink: false),
+            new Text(text) { Space = SpaceProcessingModeValues.Preserve }
+        );
+    }
+
+    private static RunProperties CreateRunProperties(bool isHyperlink)
+    {
+        var properties = new RunProperties(
+            new RunFonts
+            {
+                Ascii = "Aptos",
+                HighAnsi = "Aptos",
+                EastAsia = "Aptos",
+                ComplexScript = "Aptos"
+            }
+        );
+
+        if (isHyperlink)
+        {
+            properties.Append(
+                new Color { Val = "467886" },
+                new Underline { Val = UnderlineValues.Single }
+            );
+        }
+
+        properties.Append(
+            new FontSize { Val = "22" },
+            new FontSizeComplexScript { Val = "22" }
+        );
+
+        return properties;
     }
 }

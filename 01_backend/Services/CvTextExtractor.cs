@@ -6,6 +6,11 @@ namespace StackTrends.Services;
 public interface ICvTextExtractor
 {
     Task<string> ExtractAsync(IFormFile file, CancellationToken cancellationToken);
+    Task<string> ExtractAsync(
+        IFormFile file,
+        string documentName,
+        int maximumExtractedCharacters,
+        CancellationToken cancellationToken);
 }
 
 public sealed class CvTextExtractor : ICvTextExtractor
@@ -16,6 +21,20 @@ public sealed class CvTextExtractor : ICvTextExtractor
         IFormFile file,
         CancellationToken cancellationToken)
     {
+        return await ExtractAsync(
+            file,
+            "CV",
+            MaximumExtractedCharacters,
+            cancellationToken
+        );
+    }
+
+    public async Task<string> ExtractAsync(
+        IFormFile file,
+        string documentName,
+        int maximumExtractedCharacters,
+        CancellationToken cancellationToken)
+    {
         await using var input = file.OpenReadStream();
         using var buffer = new MemoryStream();
         await input.CopyToAsync(buffer, cancellationToken);
@@ -24,7 +43,7 @@ public sealed class CvTextExtractor : ICvTextExtractor
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (extension != ".docx")
         {
-            throw new InvalidDataException("Only DOCX CV files are supported.");
+            throw new InvalidDataException($"Only DOCX {documentName} files are supported.");
         }
 
         string text;
@@ -43,7 +62,7 @@ public sealed class CvTextExtractor : ICvTextExtractor
         catch (Exception error)
         {
             throw new InvalidDataException(
-                "The CV file could not be read. Please upload a valid DOCX file.",
+                $"The {documentName} file could not be read. Please upload a valid DOCX file.",
                 error
             );
         }
@@ -51,12 +70,14 @@ public sealed class CvTextExtractor : ICvTextExtractor
         text = NormalizeWhitespace(text);
         if (string.IsNullOrWhiteSpace(text))
         {
-            throw new InvalidDataException("No readable text was found in the DOCX CV.");
+            throw new InvalidDataException(
+                $"No readable text was found in the DOCX {documentName}."
+            );
         }
 
-        if (text.Length > MaximumExtractedCharacters)
+        if (text.Length > maximumExtractedCharacters)
         {
-            throw new InvalidDataException("The extracted CV text is too long.");
+            throw new InvalidDataException($"The extracted {documentName} text is too long.");
         }
 
         return text;

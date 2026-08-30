@@ -68,19 +68,45 @@ function setupCoverLetterGenerator() {
   const listPanel = document.getElementById('cover-letter-job-list-panel');
   const manualPanel = document.getElementById('cover-letter-job-manual-panel');
   const manualTitle = document.getElementById('cover-letter-manual-title');
+  const manualCompany = document.getElementById('cover-letter-manual-company');
+  const christchurchLocationButton = document.getElementById('cover-letter-location-christchurch');
+  const elsewhereLocationButton = document.getElementById('cover-letter-location-elsewhere');
   const manualDescription = document.getElementById('cover-letter-manual-description');
   const manualDescriptionCount = document.getElementById('cover-letter-manual-description-count');
   const extraPrompt = document.getElementById('cover-letter-extra-prompt');
   const extraPromptCount = document.getElementById('cover-letter-extra-prompt-count');
+  const extraPromptToggle = document.getElementById('cover-letter-extra-prompt-toggle');
+  const extraPromptBody = document.getElementById('cover-letter-extra-prompt-body');
+  const extraPromptChevron = document.getElementById('cover-letter-extra-prompt-chevron');
+  const referenceInput = document.getElementById('cover-letter-reference');
+  const referenceName = document.getElementById('cover-letter-reference-name');
+  const referenceError = document.getElementById('cover-letter-reference-error');
   const generateButton = document.getElementById('generate-cover-letter');
   const generationStatus = document.getElementById('cover-letter-generation-status');
+  const preview = document.getElementById('cover-letter-preview');
+  const previewContent = document.getElementById('cover-letter-preview-content');
+  const previewFileName = document.getElementById('cover-letter-preview-file-name');
+  const downloadButton = document.getElementById('download-cover-letter');
 
   if (!cvInput || !cvName || !cvError || !jobSelect || !jobStatus
     || !listModeButton || !manualModeButton || !listPanel || !manualPanel
-    || !manualTitle || !manualDescription || !manualDescriptionCount
-    || !extraPrompt || !extraPromptCount || !generateButton || !generationStatus) return;
+    || !manualTitle || !manualCompany || !christchurchLocationButton
+    || !elsewhereLocationButton || !manualDescription || !manualDescriptionCount
+    || !extraPrompt || !extraPromptCount || !extraPromptToggle || !extraPromptBody
+    || !extraPromptChevron || !referenceInput || !referenceName
+    || !referenceError || !generateButton || !generationStatus
+    || !preview || !previewContent || !previewFileName || !downloadButton) return;
 
   let jobInputMode = 'list';
+  let manualJobLocation = 'Christchurch';
+  let generatedDocument = null;
+
+  const clearPreview = () => {
+    generatedDocument = null;
+    previewContent.textContent = '';
+    previewFileName.textContent = '';
+    preview.classList.add('hidden');
+  };
 
   const updateGenerateButton = () => {
     const hasJobDetails = jobInputMode === 'list'
@@ -110,9 +136,29 @@ function setupCoverLetterGenerator() {
       button.classList.toggle('text-blue-600', isActive);
       button.classList.toggle('shadow-sm', isActive);
       button.classList.toggle('text-gray-500', !isActive);
+      button.classList.toggle('hover:text-gray-700', !isActive);
     });
 
     updateGenerateButton();
+  };
+
+  const setManualJobLocation = location => {
+    manualJobLocation = location;
+    const isChristchurch = location === 'Christchurch';
+
+    christchurchLocationButton.setAttribute('aria-pressed', String(isChristchurch));
+    elsewhereLocationButton.setAttribute('aria-pressed', String(!isChristchurch));
+
+    [christchurchLocationButton, elsewhereLocationButton].forEach((button, index) => {
+      const isActive = isChristchurch ? index === 0 : index === 1;
+      button.classList.toggle('bg-white', isActive);
+      button.classList.toggle('text-blue-600', isActive);
+      button.classList.toggle('shadow-sm', isActive);
+      button.classList.toggle('text-gray-500', !isActive);
+      button.classList.toggle('hover:text-gray-700', !isActive);
+    });
+
+    clearPreview();
   };
 
   cvInput.addEventListener('change', () => {
@@ -121,6 +167,7 @@ function setupCoverLetterGenerator() {
 
     if (!file) {
       cvName.textContent = 'No file selected';
+      clearPreview();
       updateGenerateButton();
       return;
     }
@@ -131,6 +178,7 @@ function setupCoverLetterGenerator() {
       cvName.textContent = 'No file selected';
       cvError.textContent = 'Please choose a DOCX file.';
       cvError.classList.remove('hidden');
+      clearPreview();
       updateGenerateButton();
       return;
     }
@@ -140,24 +188,82 @@ function setupCoverLetterGenerator() {
       cvName.textContent = 'No file selected';
       cvError.textContent = 'The CV file must not exceed 5 MB.';
       cvError.classList.remove('hidden');
+      clearPreview();
       updateGenerateButton();
       return;
     }
 
     cvName.textContent = `${file.name} · ${formatFileSize(file.size)}`;
+    clearPreview();
     updateGenerateButton();
   });
 
-  listModeButton.addEventListener('click', () => setJobInputMode('list'));
-  manualModeButton.addEventListener('click', () => setJobInputMode('manual'));
-  jobSelect.addEventListener('change', updateGenerateButton);
-  manualTitle.addEventListener('input', updateGenerateButton);
+  listModeButton.addEventListener('click', () => {
+    setJobInputMode('list');
+    clearPreview();
+  });
+  manualModeButton.addEventListener('click', () => {
+    setJobInputMode('manual');
+    clearPreview();
+  });
+  jobSelect.addEventListener('change', () => {
+    clearPreview();
+    updateGenerateButton();
+  });
+  manualTitle.addEventListener('input', () => {
+    clearPreview();
+    updateGenerateButton();
+  });
+  manualCompany.addEventListener('input', clearPreview);
+  christchurchLocationButton.addEventListener('click', () => {
+    setManualJobLocation('Christchurch');
+  });
+  elsewhereLocationButton.addEventListener('click', () => {
+    setManualJobLocation('Outside Christchurch');
+  });
   manualDescription.addEventListener('input', () => {
     manualDescriptionCount.textContent = `${manualDescription.value.length} / 30000`;
+    clearPreview();
     updateGenerateButton();
   });
   extraPrompt.addEventListener('input', () => {
     extraPromptCount.textContent = `${extraPrompt.value.length} / 2000`;
+  });
+
+  extraPromptToggle.addEventListener('click', () => {
+    const isExpanded = extraPromptToggle.getAttribute('aria-expanded') === 'true';
+    extraPromptToggle.setAttribute('aria-expanded', String(!isExpanded));
+    extraPromptBody.classList.toggle('hidden', isExpanded);
+    extraPromptChevron.classList.toggle('rotate-180', !isExpanded);
+  });
+
+  referenceInput.addEventListener('change', () => {
+    const file = referenceInput.files?.[0];
+    referenceError.classList.add('hidden');
+
+    if (!file) {
+      referenceName.textContent = 'No file selected';
+      return;
+    }
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'docx') {
+      referenceInput.value = '';
+      referenceName.textContent = 'No file selected';
+      referenceError.textContent = 'Please choose a DOCX file.';
+      referenceError.classList.remove('hidden');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      referenceInput.value = '';
+      referenceName.textContent = 'No file selected';
+      referenceError.textContent = 'The reference cover letter must not exceed 5 MB.';
+      referenceError.classList.remove('hidden');
+      return;
+    }
+
+    referenceName.textContent = `${file.name} · ${formatFileSize(file.size)}`;
   });
 
   generateButton.addEventListener('click', async () => {
@@ -165,6 +271,7 @@ function setupCoverLetterGenerator() {
     const usesMatchedJob = jobInputMode === 'list';
     const jobId = usesMatchedJob ? jobSelect.value : '';
     const pastedTitle = usesMatchedJob ? '' : manualTitle.value.trim();
+    const pastedCompany = usesMatchedJob ? '' : manualCompany.value.trim();
     const pastedDescription = usesMatchedJob ? '' : manualDescription.value.trim();
     if (!cv || (usesMatchedJob ? !jobId : !pastedTitle || !pastedDescription)) return;
 
@@ -177,10 +284,16 @@ function setupCoverLetterGenerator() {
     try {
       const formData = new FormData();
       formData.append('cv', cv);
+      const referenceCoverLetter = referenceInput.files?.[0];
+      if (referenceCoverLetter) {
+        formData.append('referenceCoverLetter', referenceCoverLetter);
+      }
       if (usesMatchedJob) {
         formData.append('jobId', jobId);
       } else {
         formData.append('jobTitle', pastedTitle);
+        if (pastedCompany) formData.append('companyName', pastedCompany);
+        formData.append('jobLocation', manualJobLocation);
         formData.append('jobDescription', pastedDescription);
       }
       if (extraPrompt.value.trim()) {
@@ -200,34 +313,26 @@ function setupCoverLetterGenerator() {
         throw new Error(errorPayload.error || `Generation failed (${response.status}).`);
       }
 
-      const documentBlob = await response.blob();
-      const downloadUrl = URL.createObjectURL(documentBlob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = downloadUrl;
-      downloadLink.download = getDownloadFileName(
-        response.headers.get('Content-Disposition'),
-        usesMatchedJob
-          ? jobSelect.options[jobSelect.selectedIndex]?.textContent
-          : pastedTitle
+      const result = await response.json();
+      if (!result.coverLetter || !result.documentBase64 || !result.fileName) {
+        throw new Error('The generated cover letter response is incomplete.');
+      }
+
+      generatedDocument = {
+        base64: result.documentBase64,
+        contentType: result.contentType,
+        fileName: result.fileName
+      };
+      renderCoverLetterPreview(
+        previewContent,
+        result.coverLetter,
+        result.allowedProjectLinks
       );
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      downloadLink.remove();
-      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      previewFileName.textContent = result.fileName;
+      preview.classList.remove('hidden');
 
       generationStatus.textContent = '';
       generationStatus.className = 'hidden';
-      cvInput.value = '';
-      cvName.textContent = 'No file selected';
-      cvError.textContent = '';
-      cvError.classList.add('hidden');
-      jobSelect.value = '';
-      manualTitle.value = '';
-      manualDescription.value = '';
-      manualDescriptionCount.textContent = '0 / 30000';
-      extraPrompt.value = '';
-      extraPromptCount.textContent = '0 / 2000';
-      setJobInputMode('list');
     } catch (error) {
       generationStatus.textContent = error.message || 'Unable to generate the cover letter.';
       generationStatus.className = 'mt-3 text-center text-xs text-red-500';
@@ -236,7 +341,62 @@ function setupCoverLetterGenerator() {
     }
   });
 
+  downloadButton.addEventListener('click', () => {
+    if (!generatedDocument) return;
+
+    const binary = window.atob(generatedDocument.base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+
+    const documentBlob = new Blob([bytes], {
+      type: generatedDocument.contentType
+        || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+    const downloadUrl = URL.createObjectURL(documentBlob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = downloadUrl;
+    downloadLink.download = generatedDocument.fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+  });
+
   loadCoverLetterJobs(jobSelect, jobStatus, updateGenerateButton);
+}
+
+function renderCoverLetterPreview(container, coverLetter, projectLinks) {
+  const allowedProjectLinks = new Set(
+    Array.isArray(projectLinks)
+      ? projectLinks.filter(link => typeof link === 'string' && link.startsWith('https://'))
+      : []
+  );
+  const markdownLinkPattern = /\[([^\]\r\n]+)\]\((https:\/\/[^)\s]+)\)/g;
+  let currentIndex = 0;
+
+  container.textContent = '';
+
+  for (const match of coverLetter.matchAll(markdownLinkPattern)) {
+    if (!allowedProjectLinks.has(match[2])) continue;
+
+    container.append(document.createTextNode(
+      coverLetter.slice(currentIndex, match.index)
+    ));
+
+    const link = document.createElement('a');
+    link.href = match[2];
+    link.textContent = match[1];
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.className = 'text-blue-600 underline hover:text-blue-700';
+    container.append(link);
+
+    currentIndex = match.index + match[0].length;
+  }
+
+  container.append(document.createTextNode(coverLetter.slice(currentIndex)));
 }
 
 async function loadCoverLetterJobs(jobSelect, jobStatus, updateGenerateButton) {
@@ -268,21 +428,6 @@ async function loadCoverLetterJobs(jobSelect, jobStatus, updateGenerateButton) {
     jobStatus.textContent = error.message || 'Unable to load matched jobs.';
     jobStatus.className = 'mt-2 text-xs text-red-500';
   }
-}
-
-function getDownloadFileName(contentDisposition, selectedJobLabel) {
-  if (contentDisposition) {
-    const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
-    if (utf8Match) return decodeURIComponent(utf8Match[1]);
-
-    const fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
-    if (fileNameMatch) return fileNameMatch[1];
-  }
-
-  const fallbackName = (selectedJobLabel || 'Cover Letter')
-    .replace(/[^a-z0-9 _-]/gi, '_')
-    .trim();
-  return `${fallbackName || 'Cover Letter'}.docx`;
 }
 
 function formatFileSize(bytes) {

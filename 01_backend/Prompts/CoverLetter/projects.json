@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "id": "stackradar",
+      "name": "StackRadar",
+      "liveSite": "https://www.stackradar.me",
+      "github": "https://github.com/jwqiu/StackTrends.com",
+      "directions": [
+        "Applied AI",
+        "AI Automation"
+      ],
+      "positioning": "An AI-powered solution designed to reduce manual effort in a real job-search workflow.",
+      "verifiedFacts": [
+        "It uses LLMs to streamline repetitive parts of the job-search workflow.",
+        "It helps job seekers quickly screen newly posted roles for suitability and assists with cover letter drafting.",
+        "In Junwen's personal use, it reduced the time required for job screening and cover letter drafting by around 80%."
+      ]
+    },
+    {
+      "id": "egg-detection",
+      "name": "Automated Nematode Egg Detection",
+      "liveSite": "https://jwqiu.github.io/Automated-Nematode-Egg-Detection/",
+      "github": "https://github.com/jwqiu/Automated-Nematode-Egg-Detection",
+      "directions": [
+        "Computer Vision",
+        "Applied Machine Learning",
+        "AI Automation"
+      ],
+      "positioning": "A computer-vision solution designed to reduce manual effort in a real laboratory egg-counting workflow.",
+      "verifiedFacts": [
+        "Junwen developed and delivered a proof-of-concept web prototype that uses computer vision to automate part of a manual laboratory egg-counting workflow.",
+        "The solution keeps laboratory technicians in the review loop."
+      ]
+    }
+  ]
+}
