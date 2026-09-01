@@ -44,6 +44,7 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
     {
         string? previousDraft = null;
         IReadOnlyList<string> previousValidationErrors = Array.Empty<string>();
+        int? previousBodyWordCount = null;
         var validationOverrides = DetectValidationOverrides(additionalInstructions);
 
         for (var attempt = 1; attempt <= 3; attempt++)
@@ -83,9 +84,15 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
                     Environment.NewLine,
                     previousValidationErrors.Select(error => $"- {error}")
                 );
+                var lengthRevisionGuidance = BuildLengthRevisionGuidance(
+                    previousBodyWordCount,
+                    validationOverrides.Length
+                );
                 messages.Add(new UserChatMessage($"""
                     The previous draft did not satisfy these applicable format rules:
                     {validationFeedback}
+
+                    {lengthRevisionGuidance}
 
                     Rewrite it to fix these specific issues without dropping the Additional
                     Instructions. Only treat a default format rule as changed when the
@@ -112,6 +119,7 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
             );
             previousDraft = draft;
             previousValidationErrors = validation.Errors;
+            previousBodyWordCount = validation.BodyWordCount;
         }
 
         throw new InvalidOperationException(
@@ -127,7 +135,7 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         if (string.IsNullOrWhiteSpace(draft))
         {
             errors.Add("The response was empty.");
-            return new DraftValidationResult(false, errors);
+            return new DraftValidationResult(false, errors, null);
         }
 
         var sections = Regex.Split(draft.Trim(), @"\r?\n\s*\r?\n")
@@ -138,7 +146,7 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         if (sections.Length == 0)
         {
             errors.Add("The response did not contain any readable sections.");
-            return new DraftValidationResult(false, errors);
+            return new DraftValidationResult(false, errors, null);
         }
 
         // Greeting + opening + 1-3 project paragraphs + ending + sign-off.
@@ -171,7 +179,7 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         if (bodyEndIndex <= bodyStartIndex)
         {
             errors.Add("The draft did not contain a readable cover-letter body.");
-            return new DraftValidationResult(false, errors);
+            return new DraftValidationResult(false, errors, null);
         }
 
         var bodyParagraphs = sections[bodyStartIndex..bodyEndIndex];
@@ -182,9 +190,6 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
             );
         }
 
-        var projectWordCount = bodyParagraphs.Length >= 3
-            ? bodyParagraphs[1..^1].Sum(CountWords)
-            : 0;
         var bodyWordCount = bodyParagraphs.Sum(CountWords);
         if (!overrides.Length && bodyWordCount is < 200 or > 350)
         {
@@ -193,20 +198,38 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
             );
         }
 
-        if (!overrides.ProjectProportion
-            && bodyParagraphs.Length >= 3
-            && bodyWordCount > 0)
+        return new DraftValidationResult(errors.Count == 0, errors, bodyWordCount);
+    }
+
+    private static string BuildLengthRevisionGuidance(
+        int? bodyWordCount,
+        bool lengthRuleOverridden)
+    {
+        if (lengthRuleOverridden || !bodyWordCount.HasValue)
+            return string.Empty;
+
+        if (bodyWordCount > 350)
         {
-            var projectProportion = (double)projectWordCount / bodyWordCount;
-            if (projectProportion < 0.50)
-            {
-                errors.Add(
-                    $"Make the project-experience paragraphs at least 50% of the body. They were {projectProportion:P0} ({projectWordCount} of {bodyWordCount} words)."
-                );
-            }
+            return $"""
+                The previous body contained {bodyWordCount} words. Rewrite it to 280–310
+                words. Make the opening and ending more high-level: preserve their core
+                purpose, but summarise or remove unnecessary detail instead of repeating
+                specifics from the job description, CV, or project discussion. Preserve
+                the strongest role-relevant evidence in the project-experience section
+                and all explicitly requested content.
+                """;
         }
 
-        return new DraftValidationResult(errors.Count == 0, errors);
+        if (bodyWordCount < 200)
+        {
+            return $"""
+                The previous body contained {bodyWordCount} words. Expand it to 220–260
+                words using only relevant, verified evidence. Do not add generic filler or
+                invent candidate information.
+                """;
+        }
+
+        return string.Empty;
     }
 
     private static ValidationOverrides DetectValidationOverrides(
@@ -242,18 +265,11 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
             @"\b(?:word count|\d+\s*(?:-|to)?\s*words?|under\s+\d+\s+words?|over\s+\d+\s+words?)\b",
             @"\b(?:shorter|longer|length)\b",
             @"(?:字数|长度|更短|更长)");
-        var projectProportion = MatchesAny(text,
-            @"\bproject(?:s| experience| section| paragraphs?| content)?\b.{0,50}\b(?:percent|percentage|proportion|share|half|majority|brief|shorter|less|fewer)\b",
-            @"\b(?:less|fewer|brief|shorter)\b.{0,40}\bproject(?:s| experience| section| paragraphs?| content)?\b",
-            @"\b(?:instead of|rather than|over)\b.{0,30}\bproject(?:s| experience)?\b",
-            @"(?:项目经历|项目部分|项目段落).{0,30}(?:比例|占比|少写|缩短|简短|不到一半)");
-
         return new ValidationOverrides(
             greeting,
             signOff,
             structure,
             length,
-            projectProportion,
             omitGreeting,
             omitSignOff
         );
@@ -287,13 +303,13 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         bool SignOff = false,
         bool Structure = false,
         bool Length = false,
-        bool ProjectProportion = false,
         bool OmitGreeting = false,
         bool OmitSignOff = false
     );
 
     private sealed record DraftValidationResult(
         bool IsValid,
-        IReadOnlyList<string> Errors
+        IReadOnlyList<string> Errors,
+        int? BodyWordCount
     );
 }

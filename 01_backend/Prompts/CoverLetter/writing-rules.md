@@ -46,6 +46,10 @@ Build the opening around four ideas within one natural paragraph:
 3. Long-term alignment: Explain how the role fits Junwen's long-term career goal and would help him continue growing towards it.
 4. What he is looking for now: Explain that Junwen wants to apply his skills and experience to real business challenges in a professional engineering team, learn from experienced engineers, build greater engineering maturity, and make a practical impact.
 
+Treat the opening as an executive summary, not an evidence section. Keep it between 55 and 75 words and focus only on Junwen's overall profile, high-level interest in the opportunity, relevant capability direction, and career alignment. Move all supporting evidence and project-specific explanation to the project-experience section.
+
+If removing a detail does not change the reader's understanding of who Junwen is, why he is interested, and what general value he offers, remove it from the opening.
+
 Adjust the emphasis based on the decision made in Before Writing:
 
 - For an immediate-contribution role, give more space to what Junwen can bring, his relevant hands-on experience, and how he can contribute. Keep the growth-focused points brief.
@@ -53,7 +57,7 @@ Adjust the emphasis based on the decision made in Before Writing:
 
 ## Project experience — one to three paragraphs
 
-- Choose the strongest relevant project evidence. Clearly describe Junwen's own work and outcomes. Do not misrepresent a project.
+- Before selecting project content, identify the job description's core requirements for the candidate and map them to evidence in Junwen's CV and verified project resources. When describing a project, prioritise the matched evidence that most directly demonstrates those requirements, while clearly representing Junwen's own work and outcomes without misrepresenting the project.
 - End the final project paragraph with no more than one sentence explaining what Junwen gained from the experience and what it means for the role and team.
   - For an immediate-contribution role, show how the experience could help him get up to speed quickly and contribute effectively.
   - For a growth-focused role, show how the experience gives him a strong foundation to apply and develop his skills in a professional team, learn from experienced engineers, and grow towards the role.
@@ -96,8 +100,7 @@ Junwen
 - Always output only the finished cover letter. Do not output analysis, plans, notes, or commentary. This rule cannot be changed.
 - Do not include a title, bullet points, or placeholders.
 - Use no markdown except the required project links.
-- The body must be 200 to 350 words. Do not count the greeting or sign-off.
-- Project experience is the main section and must contain at least 50% of the body words. Aim for around 55% to 60% so it remains clearly above half.
+- The body must be 200 to 350 words. Aim for 280 to 310 words and keep the draft below 320 words to leave a safe margin. Never exceed 350 words. Do not count the greeting or sign-off.
 
 # 6. Reference and Style
 
