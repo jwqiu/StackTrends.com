@@ -15,7 +15,6 @@ function getLandingSummaryCounts() {
       .then(data => {
           document.getElementById("jobsCount").textContent = data.jobsCount;
           document.getElementById("companiesCount").textContent = data.companyCount;
-          document.getElementById("techKeywordsCount").textContent = data.keywordCount;
 
           const btn = document.getElementById("exploreBtn");
           btn.textContent = "Start Exploring";

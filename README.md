@@ -102,15 +102,19 @@ The job-level classification pipeline is designed around how people typically in
 
 ## Technology Stack
 
-| Layer | Technologies |
-| --- | --- |
-| AI and NLP | OpenAI API, structured LLM outputs, prompt engineering, Sentence Transformers, text embeddings |
-| Machine Learning | PyTorch, custom MLP classifier, PCA and t-SNE evaluation |
-| Data Pipeline | Python, Pandas, Beautiful Soup, automated ETL and enrichment workflows |
-| Backend | C#, .NET 8, ASP.NET Core Web API, JWT authentication |
-| Frontend | JavaScript, HTML, Tailwind CSS |
-| Data and Cloud | PostgreSQL, Azure Functions, Azure App Service, Azure Static Web Apps |
-| Document Processing | Open XML SDK, DOCX text extraction and generation |
+**LLM / NLP:** OpenAI API, structured LLM outputs, prompt engineering, Sentence Transformers, text embeddings
+
+**Machine Learning:** PyTorch, custom MLP classifier, PCA and t-SNE evaluation
+
+**Data Pipeline:** Python, Pandas, Beautiful Soup, automated ETL and enrichment workflows
+
+**Backend:** C#, .NET 8, ASP.NET Core Web API, JWT authentication
+
+**Frontend:** JavaScript, HTML, Tailwind CSS
+
+**Data and Cloud:** PostgreSQL, Azure Functions, Azure App Service, Azure Static Web Apps
+
+**Document Processing:** Open XML SDK, DOCX text extraction and generation
 
 ## Project Structure
 
