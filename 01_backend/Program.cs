@@ -1,5 +1,6 @@
 ﻿
 
+#pragma warning disable OPENAI001 // Responses API types are experimental in OpenAI .NET 2.10.0.
 using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using OpenAI.Chat;
+using OpenAI.Responses;
 using StackTrends.Services;
 
 // create a web application builder, like laying the foundation where we prepare everything(services, settings, tools) before building the web app
@@ -109,10 +111,15 @@ builder.Services.AddSingleton(new ChatClient(
     model: "gpt-4.1-mini",
     apiKey: builder.Configuration["OpenAI:ApiKey"]
 ));
+builder.Services.AddSingleton(new ResponsesClient(
+    apiKey: builder.Configuration["OpenAI:ApiKey"]
+));
 builder.Services.AddSingleton<ICoverLetterPromptProvider, CoverLetterPromptProvider>();
 builder.Services.AddScoped<ICvTextExtractor, CvTextExtractor>();
+builder.Services.AddScoped<ICompanyContextResearchService, CompanyContextResearchService>();
 builder.Services.AddScoped<ICoverLetterLlmService, CoverLetterLlmService>();
 builder.Services.AddScoped<ICoverLetterDocumentService, CoverLetterDocumentService>();
+#pragma warning restore OPENAI001
 
 // build the web application instance using the previously configured builder
 var app = builder.Build();

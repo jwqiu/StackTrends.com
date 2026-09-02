@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cover Letter Generator | StackRadar</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            #cover-letter-inputs:disabled button,
+            #cover-letter-inputs:disabled input,
+            #cover-letter-inputs:disabled select,
+            #cover-letter-inputs:disabled textarea,
+            #cover-letter-inputs:disabled label.cursor-pointer {
+                cursor: not-allowed !important;
+            }
+        </style>
+    </head>
+    <body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100">
+        <nav class="relative flex items-center justify-between bg-white py-6 shadow-lg">
+            <a href="index.html">
+                <div class="ms-8 flex items-center gap-x-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                    </svg>
+                    <div class="text-xl font-bold text-blue-600">StackRadar</div>
+                </div>
+            </a>
+            <button id="menu-toggle" class="me-4 text-gray-600 focus:outline-none lg:hidden" aria-label="Toggle navigation">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div id="menu" class="absolute left-0 top-full z-30 hidden w-full flex-row items-center justify-center gap-x-6 gap-y-4 border-t bg-white p-8 shadow-md lg:static lg:me-8 lg:flex lg:w-auto lg:border-none lg:p-0 lg:shadow-none">
+                <a href="StackTrends.html" class="text-gray-400">Tech Trends</a>
+                <a href="StackMatch.html" class="text-gray-400">Job Explorer</a>
+                <a href="CoverLetter.html" class="font-bold text-blue-500">Cover Letter</a>
+                <a id="adminLink" href="ManageTechStacks.html" class="text-gray-400">Log in</a>
+            </div>
+        </nav>
+
+        <main id="cover-letter-app" class="mx-auto w-full px-6 py-10 md:px-10 md:py-14 lg:px-12 lg:py-16 xl:max-w-[1150px] xl:px-0 2xl:max-w-[1300px]">
+            <header class="mb-8">
+                <h1 class="mb-2 text-2xl font-bold text-slate-950 md:text-4xl">Cover Letter Generator</h1>
+                <p class="mb-0 text-sm text-slate-500">Generate a tailored draft by connecting a selected role’s requirements with verified evidence from the uploaded CV and predefined candidate context.</p>
+            </header>
+
+            <section id="cover-letter-access-banner" class="mb-8 flex flex-col gap-5 rounded-lg border border-red-200 bg-white px-6 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between" role="status">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-xl font-bold text-red-600" aria-hidden="true">!</div>
+                    <div>
+                        <h2 class="font-semibold text-gray-800">Admin access required</h2>
+                        <p class="mt-1 max-w-3xl text-sm leading-5 text-gray-500">Sign in as admin to configure the application and generate a cover letter.</p>
+                    </div>
+                </div>
+                <button id="cover-letter-admin-login" type="button" class="shrink-0 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">Admin login</button>
+            </section>
+
+            <div class="grid items-start gap-8 lg:grid-cols-[minmax(400px,0.74fr)_minmax(0,1.26fr)]">
+            <div class="overflow-hidden rounded-lg bg-white shadow-lg">
+                <div class="flex min-h-[89px] flex-col justify-center border-b border-gray-200 bg-gray-50 px-6 py-5">
+                    <h2 class="text-xl font-semibold text-gray-700">Application inputs</h2>
+                    <p class="mt-1 text-sm text-gray-500">Set the target role and supporting evidence.</p>
+                </div>
+
+                <fieldset id="cover-letter-inputs" disabled class="space-y-4 p-5 md:p-6">
+                    <section class="border-b border-gray-100 px-1 py-5">
+                        <div class="flex items-start gap-4">
+                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">1</div>
+                            <div class="w-full min-w-0">
+                                <div>
+                                    <div>
+                                        <h2 class="font-semibold text-gray-700">Candidate evidence</h2>
+                                        <p class="mt-1 text-sm leading-2 text-gray-400">Upload the CV used as the factual source for skills, experience, and professional background. DOCX only.</p>
+                                    </div>
+                                    <div class="mt-4 min-w-0">
+                                        <label for="cover-letter-cv" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-500 bg-white px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0L8 8m4-4 4 4M5 15v4a1 1 0 001 1h12a1 1 0 001-1v-4" />
+                                            </svg>
+                                            Upload CV
+                                        </label>
+                                        <span id="cover-letter-cv-name" class="mt-2 block truncate text-xs text-gray-500">No CV selected</span>
+                                        <p id="cover-letter-cv-error" class="mt-2 hidden text-sm text-red-500"></p>
+                                    </div>
+                                </div>
+                                <input id="cover-letter-cv" type="file" class="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="border-b border-gray-100 px-1 py-6">
+                        <div class="flex items-start gap-4">
+                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">2</div>
+                            <div class="w-full min-w-0">
+                                <h2 class="font-semibold text-gray-700">Target role</h2>
+                                <p class="mt-2 text-sm leading-2 text-gray-400">Select a role identified by the screening workflow or provide a different job description.</p>
+
+                                <div class="mt-5 grid grid-cols-2 border-b border-gray-200" role="group" aria-label="Role source">
+                                    <button id="cover-letter-job-mode-list" type="button" aria-pressed="true" class="border-b-2 border-blue-600 px-3 py-3 text-sm font-semibold text-blue-600 transition">Screened role</button>
+                                    <button id="cover-letter-job-mode-manual" type="button" aria-pressed="false" class="border-b-2 border-transparent px-3 py-3 text-sm font-medium text-gray-400 transition hover:text-gray-600">Other role</button>
+                                </div>
+
+                                <div id="cover-letter-job-list-panel" class="mt-5">
+                                    <div class="relative">
+                                        <select id="cover-letter-job" disabled class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-wait disabled:bg-gray-50">
+                                            <option value="" selected>Loading screened roles...</option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p id="cover-letter-job-status" class="mt-3 text-sm leading-2 text-gray-400">Loading screened roles...</p>
+                                </div>
+
+                                <div id="cover-letter-job-manual-panel" class="mt-5 hidden space-y-5">
+                                    <div>
+                                        <label for="cover-letter-manual-title" class="mb-2 block text-sm font-medium text-gray-600">Job title</label>
+                                        <input id="cover-letter-manual-title" type="text" maxlength="300" class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    </div>
+                                    <div>
+                                        <label for="cover-letter-manual-company" class="mb-2 block text-sm font-medium text-gray-600">Company name <span class="font-normal text-gray-400">(optional)</span></label>
+                                        <input id="cover-letter-manual-company" type="text" maxlength="300" class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    </div>
+                                    <fieldset>
+                                        <legend class="mb-2 block text-sm font-medium text-gray-600">Job location</legend>
+                                        <div class="grid grid-cols-2 border-b border-gray-200" role="group" aria-label="Manual job location">
+                                            <button id="cover-letter-location-christchurch" type="button" aria-pressed="true" class="whitespace-nowrap border-b-2 border-blue-600 px-3 py-2.5 text-sm font-semibold text-blue-600 transition">Christchurch</button>
+                                            <button id="cover-letter-location-elsewhere" type="button" aria-pressed="false" class="whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-gray-400 transition hover:text-gray-600">Elsewhere</button>
+                                        </div>
+                                        <p class="mt-3 text-xs text-gray-400">Used to apply the predefined availability statement.</p>
+                                    </fieldset>
+                                    <div>
+                                        <label for="cover-letter-manual-description" class="mb-2 block text-sm font-medium text-gray-600">Job description</label>
+                                        <textarea id="cover-letter-manual-description" maxlength="30000" rows="8" class="block w-full resize-y rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                                        <div class="mt-2 text-right text-xs text-gray-400"><span id="cover-letter-manual-description-count">0 / 30000</span></div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 border-t border-gray-100 pt-5">
+                                    <label for="cover-letter-company-research" class="flex cursor-pointer items-start gap-3">
+                                        <input id="cover-letter-company-research" name="includeCompanyResearch" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="min-w-0">
+                                            <span class="block text-sm font-semibold text-gray-700">Research role-specific context <span class="font-normal text-gray-400">(optional)</span></span>
+                                            <span class="mt-1 block text-sm leading-2 text-gray-400">Find more context about products, projects, or teams mentioned in the job description on the company website and LinkedIn.</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="border-b border-gray-100 px-1 py-5">
+                        <div class="flex items-start gap-4">
+                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">3</div>
+                            <div class="w-full min-w-0">
+                                <button id="cover-letter-extra-prompt-toggle" type="button" aria-expanded="false" aria-controls="cover-letter-extra-prompt-body" class="flex w-full items-start justify-between gap-4 text-left">
+                                    <span>
+                                        <span class="block font-semibold text-gray-700">Application focus <span class="font-normal text-gray-400">(optional)</span></span>
+                                        <span class="mt-1 block text-sm leading-2 text-gray-400">Add role-specific points or evidence that should be emphasised.</span>
+                                    </span>
+                                    <svg id="cover-letter-extra-prompt-chevron" class="mt-1 h-5 w-5 shrink-0 text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div id="cover-letter-extra-prompt-body" class="hidden">
+                                    <label for="cover-letter-extra-prompt" class="sr-only">Application focus</label>
+                                    <textarea id="cover-letter-extra-prompt" maxlength="2000" rows="4" class="mt-4 block w-full resize-y rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                                    <div class="mt-2 flex justify-end text-xs text-gray-400">
+                                        <span id="cover-letter-extra-prompt-count">0 / 2000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="px-1 py-5">
+                        <div class="flex items-start gap-4">
+                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">4</div>
+                            <div class="w-full min-w-0">
+                                <div>
+                                    <div>
+                                        <h2 class="font-semibold text-gray-700">Writing reference <span class="font-normal text-gray-400">(optional)</span></h2>
+                                        <p class="mt-1 text-sm leading-2 text-gray-400">Upload a previous cover letter to guide style and framing—not candidate facts. DOCX only.</p>
+                                    </div>
+                                    <div class="mt-4 min-w-0">
+                                        <label for="cover-letter-reference" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-500 bg-white px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0L8 8m4-4 4 4M5 15v4a1 1 0 001 1h12a1 1 0 001-1v-4" />
+                                            </svg>
+                                            Upload reference
+                                        </label>
+                                        <span id="cover-letter-reference-name" class="mt-2 block truncate text-xs text-gray-500">No reference selected</span>
+                                        <p id="cover-letter-reference-error" class="mt-2 hidden text-sm text-red-500"></p>
+                                    </div>
+                                </div>
+                                <input id="cover-letter-reference" type="file" class="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="px-1 py-4">
+                        <button id="generate-cover-letter" type="button" disabled class="w-full cursor-not-allowed rounded-lg bg-gray-300 px-6 py-3 font-semibold text-white opacity-80 transition">Generate tailored draft</button>
+                        <div id="cover-letter-generation-status" class="hidden"></div>
+                    </section>
+                </fieldset>
+            </div>
+            <aside class="lg:sticky lg:top-6">
+                <div class="overflow-hidden rounded-lg bg-white shadow-lg">
+                    <div class="flex min-h-[89px] flex-col gap-3 border-b border-gray-200 bg-gray-50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700">Draft preview</h2>
+                            <p id="cover-letter-preview-file-name" class="mt-1 text-sm text-gray-500">Review the generated letter before downloading it as a DOCX.</p>
+                        </div>
+                        <button id="download-cover-letter" type="button" class="hidden rounded-lg border border-blue-500 bg-white px-5 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">Download DOCX</button>
+                    </div>
+
+                    <div id="cover-letter-preview-placeholder" class="relative min-h-[720px] overflow-hidden bg-white px-8 py-10" aria-live="polite">
+                        <div aria-hidden="true" class="select-none space-y-7 opacity-25 blur-[2px]">
+                            <div class="h-3 w-32 rounded-full bg-slate-400"></div>
+                            <div class="space-y-3">
+                                <div class="h-2.5 w-full rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[94%] rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[88%] rounded-full bg-slate-300"></div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-2.5 w-full rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[91%] rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[96%] rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[72%] rounded-full bg-slate-300"></div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-2.5 w-full rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[87%] rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[93%] rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-[63%] rounded-full bg-slate-300"></div>
+                            </div>
+                            <div class="space-y-3 pt-5">
+                                <div class="h-2.5 w-28 rounded-full bg-slate-300"></div>
+                                <div class="h-2.5 w-20 rounded-full bg-slate-300"></div>
+                            </div>
+                        </div>
+
+                        <div class="absolute inset-0 flex items-center justify-center bg-white/45 px-8 text-center backdrop-blur-[1px]">
+                            <div class="max-w-sm rounded-2xl border border-slate-200 bg-white/95 px-8 py-7 shadow-sm">
+                                <div class="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 text-xl text-blue-600">✦</div>
+                                <p class="font-semibold text-gray-700">Your cover letter will appear here</p>
+                                <p class="mt-2 text-sm leading-6 text-gray-500">Upload your CV, choose a role, and generate a tailored draft to preview it alongside your inputs.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cover-letter-preview" class="hidden min-h-[720px] bg-white">
+                        <div id="cover-letter-preview-content" class="whitespace-pre-wrap px-8 py-9 text-sm leading-7 text-gray-700"></div>
+                    </div>
+                </div>
+            </aside>
+            </div>
+        </main>
+
+        <div id="modalContainer"></div>
+        <script src="static/js/config.js?v=cover-letter-public-1"></script>
+        <script src="static/js/auth-utils.js?v=nav-login-1"></script>
+        <script src="static/js/CoverLetter.js?v=cover-letter-public-1"></script>
+    </body>
+</html>

@@ -1,7 +1,22 @@
-// when user clicks admin button, check login status
-// if logged in, redirect to admin page, otherwise show login modal
+function updateAdminNavLabel() {
+  const adminNav = document.getElementById('adminLink') || document.getElementById('adminTab');
+  if (!adminNav) return;
+
+  const isLoggedIn = Boolean(sessionStorage.getItem('jwt'))
+    && sessionStorage.getItem('isAdmin') === 'true';
+  adminNav.textContent = isLoggedIn ? 'Admin' : 'Log in';
+}
+
+document.addEventListener('DOMContentLoaded', updateAdminNavLabel);
+
+// Open the login modal when signed out; otherwise enter the admin page.
 async function checkAndEnterAdminPage() {
   const token = sessionStorage.getItem("jwt");
+
+  if (!token) {
+    document.getElementById("loginModal")?.classList.remove("hidden");
+    return;
+  }
 
   const res = await fetch(`${window.API_BASE}/api/account/check`, {
     method: "GET",
@@ -10,8 +25,12 @@ async function checkAndEnterAdminPage() {
     }
   });
 
-  if (res.status === 401) {
-    document.getElementById("loginModal").classList.remove("hidden");
+  if (!res.ok) {
+    sessionStorage.removeItem('jwt');
+    sessionStorage.removeItem('isAdmin');
+    sessionStorage.removeItem('Username');
+    updateAdminNavLabel();
+    document.getElementById("loginModal")?.classList.remove("hidden");
   } else {
     window.location.href = "ManageTechStacks.html";
   }
@@ -43,7 +62,12 @@ function submitLoginForm() {
       sessionStorage.setItem('isAdmin', 'true');
       sessionStorage.setItem('Username', formData.get('username'));
       closeLoginModal();
-        window.location.href = "ManageTechStacks.html";
+      updateAdminNavLabel();
+      if (typeof window.handleAdminLoginSuccess === 'function') {
+        window.handleAdminLoginSuccess();
+      } else {
+        window.location.href = 'ManageTechStacks.html';
+      }
     })
     .catch(err => {
       console.error("Login failed:", err);

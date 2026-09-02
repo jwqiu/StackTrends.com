@@ -35,12 +35,9 @@
             ">
                 <a href="StackTrends.html" class=" text-gray-400">Tech Trends</a>
                 <a href="StackMatch.html" class=" text-gray-400" >Job Explorer</a>
-   
-                <a href="TrackedKeywords.html" class=" text-gray-400">Keywords</a>
-                <a href="KeywordSearch.html" class=" text-gray-400">Search</a>
-                <a href="About.html" class=" text-gray-400">About</a>
+                <a href="CoverLetter.html" class=" text-gray-400">Cover Letter</a>
                 <div class="flex flex-col items-center">
-                    <a href="ManageTechStacks.html" class="font-bold text-blue-500" id="adminTab">🔒Admin</a>
+                    <a href="ManageTechStacks.html" class="font-bold text-blue-500" id="adminTab">Log in</a>
                     <!-- <div class="w-20 h-0.5 bg-blue-500 mt-1 rounded"></div> -->
                 </div>
 
@@ -76,13 +73,6 @@
                                         class="flex items-center px-4 py-2 rounded-lg  hover:bg-gray-100 transition"
                                     >Keywords</a>
                                 </li>
-                                <li>
-                                    <a
-                                        href="#"
-                                        id="menu-cover-letter"
-                                        class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-                                    >CL Generator</a>
-                                </li>
                             </ul>
                         </div>
                         <button class="btn bg-white border border-blue-300 text-blue-500 rounded px-3 py-1" onclick="logout()">Log out</button>
@@ -91,170 +81,6 @@
                 </div>
                 <!-- main panel -->
                 <div class="w-full md:w-[800px]">
-                    <!-- cover letter generator prototype panel -->
-                    <div id="cover-letter-panel" style="display:none">
-                        <div class="bg-white shadow-lg rounded-lg p-8 mb-8">
-                            <div class="mb-8">
-                                <h2 class="mb-2 text-2xl font-semibold text-gray-700">Cover Letter Generator</h2>
-                                <p class="text-sm text-gray-500">Create a tailored cover letter draft from your CV and a matched role.</p>
-                            </div>
-
-                            <div class="space-y-6">
-                                <section class="rounded-xl border border-gray-200 p-5">
-                                    <div class="flex items-start gap-4">
-                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">1</div>
-                                        <div class="w-full min-w-0">
-                                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-                                                <div>
-                                                    <h3 class="font-semibold text-gray-700">Upload your CV</h3>
-                                                    <p class="mt-1 text-sm text-gray-500">Upload one DOCX file.</p>
-                                                </div>
-                                                <div class="min-w-0 sm:w-56 sm:text-right">
-                                                    <label for="cover-letter-cv" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-500 bg-white px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">
-                                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0L8 8m4-4 4 4M5 15v4a1 1 0 001 1h12a1 1 0 001-1v-4" />
-                                                        </svg>
-                                                        Upload
-                                                    </label>
-                                                    <span id="cover-letter-cv-name" class="mt-2 block truncate text-xs text-gray-500">No file selected</span>
-                                                    <p id="cover-letter-cv-error" class="mt-2 hidden text-sm text-red-500"></p>
-                                                </div>
-                                            </div>
-                                            <input id="cover-letter-cv" type="file" class="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <section class="rounded-xl border border-gray-200 p-5">
-                                    <div class="flex items-start gap-4">
-                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">2</div>
-                                        <div class="w-full min-w-0">
-                                            <h3 class="font-semibold text-gray-700">Provide job details</h3>
-                                            <p class="mt-1 text-sm text-gray-500">Choose a matched job or paste another role manually.</p>
-
-                                            <div class="mt-4 grid grid-cols-2 rounded-lg bg-gray-100 p-1" role="group" aria-label="Job input method">
-                                                <button id="cover-letter-job-mode-list" type="button" aria-pressed="true" class="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-blue-600 shadow-sm transition">Matched job</button>
-                                                <button id="cover-letter-job-mode-manual" type="button" aria-pressed="false" class="rounded-md px-4 py-2.5 text-sm font-medium text-gray-500 transition hover:text-gray-700">Paste job details</button>
-                                            </div>
-
-                                            <div id="cover-letter-job-list-panel" class="mt-4">
-                                                <p class="mb-2 text-xs text-gray-500">Only jobs where isMatch is true are available.</p>
-                                                <div class="relative">
-                                                    <select id="cover-letter-job" disabled class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-wait disabled:bg-gray-50">
-                                                        <option value="" selected>Loading matched jobs...</option>
-                                                    </select>
-                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <p id="cover-letter-job-status" class="mt-2 text-xs text-gray-400">Loading jobs from the database...</p>
-                                            </div>
-
-                                            <div id="cover-letter-job-manual-panel" class="mt-4 hidden space-y-4">
-                                                <div>
-                                                    <label for="cover-letter-manual-title" class="mb-2 block text-sm font-medium text-gray-600">Job title</label>
-                                                    <input id="cover-letter-manual-title" type="text" maxlength="300" placeholder="For example: AI Engineer" class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400">
-                                                </div>
-                                                <div>
-                                                    <label for="cover-letter-manual-company" class="mb-2 block text-sm font-medium text-gray-600">Company name <span class="font-normal text-gray-400">(optional)</span></label>
-                                                    <input id="cover-letter-manual-company" type="text" maxlength="300" placeholder="For example: Acme AI" class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400">
-                                                </div>
-                                                <fieldset>
-                                                    <legend class="mb-2 block text-sm font-medium text-gray-600">Job location</legend>
-                                                    <div class="grid grid-cols-2 rounded-lg bg-gray-100 p-1" role="group" aria-label="Manual job location">
-                                                        <button id="cover-letter-location-christchurch" type="button" aria-pressed="true" class="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-blue-600 shadow-sm transition">Christchurch</button>
-                                                        <button id="cover-letter-location-elsewhere" type="button" aria-pressed="false" class="rounded-md px-4 py-2.5 text-sm font-medium text-gray-500 transition hover:text-gray-700">Outside Christchurch</button>
-                                                    </div>
-                                                    <p class="mt-2 text-xs text-gray-400">This determines whether the letter says you can start immediately or within two weeks.</p>
-                                                </fieldset>
-                                                <div>
-                                                    <label for="cover-letter-manual-description" class="mb-2 block text-sm font-medium text-gray-600">Job description</label>
-                                                    <textarea id="cover-letter-manual-description" maxlength="30000" rows="8" placeholder="Paste the complete job description here..." class="block w-full resize-y rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-                                                    <div class="mt-2 text-right text-xs text-gray-400"><span id="cover-letter-manual-description-count">0 / 30000</span></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <section class="rounded-xl border border-gray-200 p-5">
-                                    <div class="flex items-start gap-4">
-                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">3</div>
-                                        <div class="w-full min-w-0">
-                                            <button id="cover-letter-extra-prompt-toggle" type="button" aria-expanded="false" aria-controls="cover-letter-extra-prompt-body" class="flex w-full items-start justify-between gap-4 text-left">
-                                                <span>
-                                                    <span class="block font-semibold text-gray-700">Additional instructions <span class="font-normal text-gray-400">(optional)</span></span>
-                                                    <span class="mt-1 block text-sm text-gray-500">Add anything you want the draft to emphasise for this role.</span>
-                                                </span>
-                                                <svg id="cover-letter-extra-prompt-chevron" class="mt-1 h-5 w-5 shrink-0 text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-                                            <div id="cover-letter-extra-prompt-body" class="hidden">
-                                                <label for="cover-letter-extra-prompt" class="sr-only">Additional instructions</label>
-                                                <textarea
-                                                    id="cover-letter-extra-prompt"
-                                                    maxlength="2000"
-                                                    rows="4"
-                                                    placeholder="For example: Emphasise my computer vision project and keep the tone confident but conversational."
-                                                    class="mt-4 block w-full resize-y rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                ></textarea>
-                                                <div class="mt-2 flex justify-between text-xs text-gray-400">
-                                                    <span>Leave blank to use the standard prompt.</span>
-                                                    <span id="cover-letter-extra-prompt-count">0 / 2000</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <section class="rounded-xl border border-gray-200 p-5">
-                                    <div class="flex items-start gap-4">
-                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">4</div>
-                                        <div class="w-full min-w-0">
-                                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-                                                <div>
-                                                    <h3 class="font-semibold text-gray-700">Reference cover letter <span class="font-normal text-gray-400">(optional)</span></h3>
-                                                    <p class="mt-1 text-sm text-gray-500">Upload a previous DOCX to reuse relevant ideas, evidence framing, writing style, and tone.</p>
-                                                </div>
-                                                <div class="min-w-0 sm:w-56 sm:text-right">
-                                                    <label for="cover-letter-reference" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-500 bg-white px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">
-                                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0L8 8m4-4 4 4M5 15v4a1 1 0 001 1h12a1 1 0 001-1v-4" />
-                                                        </svg>
-                                                        Upload
-                                                    </label>
-                                                    <span id="cover-letter-reference-name" class="mt-2 block truncate text-xs text-gray-500">No file selected</span>
-                                                    <p id="cover-letter-reference-error" class="mt-2 hidden text-sm text-red-500"></p>
-                                                </div>
-                                            </div>
-                                            <input id="cover-letter-reference" type="file" class="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-                                    <div class="w-full">
-                                        <button id="generate-cover-letter" type="button" disabled class="w-full cursor-not-allowed rounded-lg bg-gray-300 px-6 py-3 font-semibold text-white opacity-80 transition">Generate Cover Letter</button>
-                                        <div id="cover-letter-generation-status" class="hidden"></div>
-
-                                        <div id="cover-letter-preview" class="mt-6 hidden overflow-hidden rounded-xl border border-gray-200 bg-white">
-                                            <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                                                <div>
-                                                    <h3 class="font-semibold text-gray-700">Cover letter preview</h3>
-                                                    <p id="cover-letter-preview-file-name" class="mt-1 text-xs text-gray-400"></p>
-                                                </div>
-                                                <button id="download-cover-letter" type="button" class="rounded-lg border border-blue-500 bg-white px-5 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50">Download DOCX</button>
-                                            </div>
-                                            <div id="cover-letter-preview-content" class="whitespace-pre-wrap px-6 py-6 text-sm leading-7 text-gray-700"></div>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                    </div>
                     <!-- tech keyword management panel -->
                     <div id="stack-keyword-panel"  style="display:none">
                         <form id="techStackForm" action="">
@@ -378,7 +204,7 @@
                         </div>
                     </div>
                     <!-- dashboard panel -->
-                    <div id="dashboard-panel" style="display:none" >
+                    <div id="dashboard-panel">
                         <div>
                             <div class="bg-white shadow-lg rounded-lg p-8 mb-8 ">
                                 <h2 class="text-xl font-semibold text-gray-600 mb-8">Dashboard</h2>
@@ -423,8 +249,8 @@
         <script src="static/js/config.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-        <script src="static/js/auth-utils.js"></script>
-        <script src="static/js/ManageTechStacks.js"></script>
+        <script src="static/js/auth-utils.js?v=nav-login-1"></script>
+        <script src="static/js/ManageTechStacks.js?v=cover-letter-moved-3"></script>
 
     </body>
 </html>

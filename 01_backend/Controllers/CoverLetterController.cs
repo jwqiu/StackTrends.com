@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 namespace StackTrends.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/cover-letter")]
 public sealed class CoverLetterController : ControllerBase
 {
@@ -21,22 +20,28 @@ public sealed class CoverLetterController : ControllerBase
 
     private readonly NpgsqlConnection _connection;
     private readonly ICvTextExtractor _cvTextExtractor;
+    private readonly ICompanyContextResearchService _companyContextResearchService;
     private readonly ICoverLetterLlmService _llmService;
     private readonly ICoverLetterDocumentService _documentService;
     private readonly ICoverLetterPromptProvider _promptProvider;
+    private readonly ILogger<CoverLetterController> _logger;
 
     public CoverLetterController(
         NpgsqlConnection connection,
         ICvTextExtractor cvTextExtractor,
+        ICompanyContextResearchService companyContextResearchService,
         ICoverLetterLlmService llmService,
         ICoverLetterDocumentService documentService,
-        ICoverLetterPromptProvider promptProvider)
+        ICoverLetterPromptProvider promptProvider,
+        ILogger<CoverLetterController> logger)
     {
         _connection = connection;
         _cvTextExtractor = cvTextExtractor;
+        _companyContextResearchService = companyContextResearchService;
         _llmService = llmService;
         _documentService = documentService;
         _promptProvider = promptProvider;
+        _logger = logger;
     }
 
     [HttpGet("jobs")]
@@ -69,6 +74,7 @@ public sealed class CoverLetterController : ControllerBase
     }
 
     [HttpPost("generate")]
+    [Authorize]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(MaximumCvBytes + MaximumReferenceCoverLetterBytes + 128 * 1024)]
     public async Task<IActionResult> Generate(
@@ -80,7 +86,8 @@ public sealed class CoverLetterController : ControllerBase
         [FromForm] string? jobLocation,
         [FromForm] string? jobDescription,
         [FromForm] string? extraPrompt,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromForm] bool includeCompanyResearch = false)
     {
         if (cv == null || cv.Length == 0)
             return BadRequest(new { error = "A CV file is required." });
@@ -206,6 +213,14 @@ public sealed class CoverLetterController : ControllerBase
             );
         }
 
+        if (includeCompanyResearch && string.IsNullOrWhiteSpace(job.CompanyName))
+        {
+            return BadRequest(new
+            {
+                error = "A company name is required when company research is enabled."
+            });
+        }
+
         try
         {
             var cvText = await _cvTextExtractor.ExtractAsync(cv, cancellationToken);
@@ -220,12 +235,38 @@ public sealed class CoverLetterController : ControllerBase
                 );
             }
 
+            string? companyContext = null;
+            string? companyResearchWarning = null;
+            if (includeCompanyResearch)
+            {
+                try
+                {
+                    companyContext = await _companyContextResearchService.ResearchAsync(
+                        job.CompanyName,
+                        job.JobTitle,
+                        job.JobDescription,
+                        cancellationToken
+                    );
+                }
+                catch (Exception error) when (error is not OperationCanceledException)
+                {
+                    _logger.LogWarning(
+                        error,
+                        "Company-and-role-context research failed for {CompanyName}",
+                        job.CompanyName
+                    );
+                    companyResearchWarning =
+                        "Company and role research was unavailable, so the draft was generated without it.";
+                }
+            }
+
             var coverLetter = await _llmService.GenerateAsync(
                 cvText,
                 job.JobTitle,
                 job.CompanyName,
                 job.JobLocation,
                 job.JobDescription,
+                companyContext,
                 referenceCoverLetterText,
                 extraPrompt,
                 cancellationToken
@@ -239,7 +280,9 @@ public sealed class CoverLetterController : ControllerBase
                 fileName,
                 contentType = DocxContentType,
                 documentBase64 = Convert.ToBase64String(documentBytes),
-                allowedProjectLinks = _promptProvider.AllowedProjectLinks
+                allowedProjectLinks = _promptProvider.AllowedProjectLinks,
+                companyResearchApplied = !string.IsNullOrWhiteSpace(companyContext),
+                companyResearchWarning
             });
         }
         catch (InvalidDataException error)

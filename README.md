@@ -33,7 +33,7 @@ Evaluate new Junior roles against predefined career directions
         ↓
 Flag aligned roles for manual follow-up
         ↓
-Combine a selected role with an uploaded CV and verified context
+Match the selected role's requirements with relevant CV and project evidence
         ↓
 Generate and validate a tailored cover letter
         ↓

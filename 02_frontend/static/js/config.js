@@ -15,4 +15,3 @@ window.API_BASE =
   host === "localhost" || host === "127.0.0.1"
     ? LOCAL_API
     : PROD_API;
-
