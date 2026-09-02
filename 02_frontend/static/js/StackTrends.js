@@ -339,6 +339,11 @@ async function renderTechTableRows(data, limit) {
   });
 }
 
+const inactiveFilterClasses =
+  'filter-btn w-full bg-transparent text-left rounded-xl px-4 py-2.5 text-base font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150';
+const activeFilterClasses =
+  'filter-btn w-full bg-blue-600 text-left rounded-xl px-4 py-2.5 text-base font-semibold text-white transition-colors duration-150';
+
 async function renderFiltersOptions() {
   const root = document.getElementById('category-filters');
   root.innerHTML = ''; 
@@ -365,14 +370,14 @@ async function renderFiltersOptions() {
   // filter options menu
   const menu = document.createElement('div');
   menu.className =
-    'absolute right-0 mt-2 w-60 p-3 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-100 hidden flex flex-col gap-y-1 z-40';
+    'absolute right-0 mt-2 w-60 p-3 bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 hidden flex flex-col gap-y-1 z-40';
 
   // factory function: create buttons for each filter option
   const makeBtn = (label) => {
     const btn = document.createElement('button');
-    btn.className =
-      'filter-btn bg-white text-left rounded-lg px-3 py-2 text-base font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition';
+    btn.className = inactiveFilterClasses;
     btn.dataset.filter = label;
+    btn.setAttribute('aria-selected', 'false');
     btn.textContent = label;
     // close the menu and filter the table when clicking this button
     btn.addEventListener('click', () => {
@@ -463,12 +468,12 @@ function filterTable(filterValue,clickedButton) {
 
   // remove the highlight from all buttons first, and then add highlight to the clicked button
   document.querySelectorAll('.filter-btn').forEach(b => {
-    b.classList.remove('bg-blue-500','text-white');
-    b.classList.add('bg-gray-200','text-gray-700');
+    b.className = inactiveFilterClasses;
+    b.setAttribute('aria-selected', 'false');
   });
 
-  clickedButton.classList.remove('bg-gray-200','text-gray-700');
-  clickedButton.classList.add('bg-blue-500','text-white');
+  clickedButton.className = activeFilterClasses;
+  clickedButton.setAttribute('aria-selected', 'true');
 }
 
 // ========================================================================

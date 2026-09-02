@@ -907,20 +907,13 @@ function showSection(id) {
 
     if (active) {
       btn.setAttribute('aria-selected', 'true');
-      btn.classList.add('text-blue-600', 'bg-white', 'shadow-sm', 'ring-1', 'ring-blue-100');
-      btn.classList.remove('text-gray-400', 'text-slate-400', 'text-md', 'bg-transparent', 'hover:bg-white/70', 'hover:text-slate-600');
+      btn.classList.add('bg-blue-600', 'text-white');
+      btn.classList.remove('bg-transparent', 'text-slate-500', 'hover:bg-blue-50', 'hover:text-blue-600');
 
     } else {
       btn.setAttribute('aria-selected', 'false');
-      btn.classList.add('text-slate-400', 'bg-transparent', 'hover:bg-white/70', 'hover:text-slate-600');
-      btn.classList.remove('text-blue-600', 'bg-white', 'shadow-sm', 'ring-1', 'ring-blue-100');
-    }
-
-    const icon = btn.querySelector('.selected-icon');
-
-    if (icon) {
-      icon.classList.toggle('hidden', !active);
-      icon.classList.toggle('block', active);
+      btn.classList.add('bg-transparent', 'text-slate-500', 'hover:bg-blue-50', 'hover:text-blue-600');
+      btn.classList.remove('bg-blue-600', 'text-white');
     }
 
   });

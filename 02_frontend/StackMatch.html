@@ -58,42 +58,23 @@
         </nav>
         <div class="flex flex-col max-w-[1050px] mx-auto gap-y-8">
             <!-- top tab bar -->
-            <div class="mt-8 inline-flex flex-col sm:flex-row gap-3 rounded-2xl  p-1.5  backdrop-blur mx-8 md:mx-0 self-start">
+            <div class="mt-8 inline-flex gap-2 rounded-3xl border border-blue-200 bg-white/50 p-3 mx-8 md:mx-0 self-start">
                 <button
-                    class="tab-btn rounded-xl px-4 py-2.5 text-sm font-semibold text-blue-600 bg-white shadow-sm ring-1 ring-blue-100 transition-all duration-200 hover:text-blue-600"
+                    class="tab-btn rounded-3xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200"
                     data-target="jobs-section"
                     aria-controls="jobs-section"
                     aria-selected="true"
                 >
-                    <div class="flex items-center gap-2">
-                        <span class="selected-icon block">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="size-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                            </svg>
-                        </span> 
-                        <span>
-                            Jobs Matching Your Skills
-                        </span>
-                    </div>
-                
+                    Matching Jobs
                 </button>
 
                 <button
-                    class="tab-btn rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-400 bg-transparent transition-all duration-200 hover:bg-white/70 hover:text-slate-600"
+                    class="tab-btn rounded-3xl bg-transparent px-4 py-2 text-sm font-semibold text-slate-500 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600"
                     data-target="companies-section"
                     aria-controls="companies-section"
                     aria-selected="false"
                 >
-                    <div class="flex items-center gap-2">
-                        <span class="selected-icon hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="size-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                            </svg>
-                        </span> 
-                        <span>
-                            Companies Matching Your Skills
-                        </span>
-                    </div>
+                    Matching Companies
                 </button>
             </div>
             <!-- job section -->
