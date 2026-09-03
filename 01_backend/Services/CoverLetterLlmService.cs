@@ -162,11 +162,11 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
             return new DraftValidationResult(false, errors, null);
         }
 
-        // Greeting + opening + 1-3 project paragraphs + ending + sign-off.
-        if (!overrides.Structure && sections.Length is < 5 or > 7)
+        // Greeting + opening + 2 project paragraphs + ending + sign-off.
+        if (!overrides.Structure && sections.Length != 6)
         {
             errors.Add(
-                $"Use 5 to 7 blank-line-separated sections: greeting, opening, 1 to 3 project paragraphs, ending, and sign-off. The draft had {sections.Length}."
+                $"Use exactly 6 blank-line-separated sections: greeting, opening, 2 project paragraphs, ending, and sign-off. The draft had {sections.Length}."
             );
         }
         if (!overrides.Greeting
@@ -196,18 +196,18 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         }
 
         var bodyParagraphs = sections[bodyStartIndex..bodyEndIndex];
-        if (!overrides.Structure && bodyParagraphs.Length is < 3 or > 5)
+        if (!overrides.Structure && bodyParagraphs.Length != 4)
         {
             errors.Add(
-                $"Use 3 to 5 body paragraphs: one opening, 1 to 3 project paragraphs, and one ending. The draft had {bodyParagraphs.Length}."
+                $"Use exactly 4 body paragraphs: one opening, 2 project paragraphs, and one ending. The draft had {bodyParagraphs.Length}."
             );
         }
 
         var bodyWordCount = bodyParagraphs.Sum(CountWords);
-        if (!overrides.Length && bodyWordCount is < 200 or > 350)
+        if (!overrides.Length && bodyWordCount > 320)
         {
             errors.Add(
-                $"Keep the body between 200 and 350 words. The draft had {bodyWordCount} words."
+                $"Keep the body at or below 320 words, aiming for fewer than 300 words. The draft had {bodyWordCount} words."
             );
         }
 
@@ -221,24 +221,15 @@ public sealed class CoverLetterLlmService : ICoverLetterLlmService
         if (lengthRuleOverridden || !bodyWordCount.HasValue)
             return string.Empty;
 
-        if (bodyWordCount > 350)
+        if (bodyWordCount > 320)
         {
             return $"""
-                The previous body contained {bodyWordCount} words. Rewrite it to 280–310
-                words. Make the opening and ending more high-level: preserve their core
+                The previous body contained {bodyWordCount} words. Rewrite it to fewer than
+                300 words. Make the opening and ending more high-level: preserve their core
                 purpose, but summarise or remove unnecessary detail instead of repeating
                 specifics from the job description, CV, or project discussion. Preserve
                 the strongest role-relevant evidence in the project-experience section
                 and all explicitly requested content.
-                """;
-        }
-
-        if (bodyWordCount < 200)
-        {
-            return $"""
-                The previous body contained {bodyWordCount} words. Expand it to 220–260
-                words using only relevant, verified evidence. Do not add generic filler or
-                invent candidate information.
                 """;
         }
 

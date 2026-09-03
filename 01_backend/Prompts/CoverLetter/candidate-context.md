@@ -12,7 +12,7 @@
 
 ## Long-Term Career Goal and Development Needs
 
-- Junwen's long-term goal is to become a well-rounded AI solution builder who can take a real-world problem from idea and solution design through implementation, evaluation, and delivery of a practical working solution.
+- Junwen's long-term goal is to become a well-rounded AI solution builder who can take a real-world problem from problem understanding and solution design through implementation, evaluation, and delivery of a practical working solution.
 - He already has hands-on experience building end-to-end AI solutions through individual and project-based work.
 - Most of his hands-on engineering experience has not yet been gained within a professional engineering team. His main development goal is to apply his skills to real engineering challenges, learn from experienced engineers, and build greater engineering maturity.
 
@@ -28,6 +28,7 @@ Junwen's current job search focuses on two main directions:
 - Junwen's main end-to-end AI projects are StackRadar and the automated nematode egg-counting system.
 - His strongest hands-on computer-vision experience comes from his laboratory role and the nematode egg-counting project he developed there.
 - His AI-automation experience comes mainly from StackRadar and the egg-counting project, as both were designed to use AI to reduce manual effort within a real workflow.
+- For additional project details, including technologies, implementation work, responsibilities, evaluation results, and outcomes, refer to the CV provided for the current application.
 
 ## Location, Work Rights, Relocation, and Availability
 

@@ -12,7 +12,6 @@ public interface ICoverLetterPromptProvider
 public sealed class CoverLetterPromptProvider : ICoverLetterPromptProvider
 {
     private const string CandidateContextPlaceholder = "{{CANDIDATE_CONTEXT}}";
-    private const string RoleStrategiesPlaceholder = "{{ROLE_STRATEGIES}}";
     private const string ProjectResourcesPlaceholder = "{{PROJECT_RESOURCES}}";
 
     public CoverLetterPromptProvider(IHostEnvironment environment)
@@ -28,9 +27,6 @@ public sealed class CoverLetterPromptProvider : ICoverLetterPromptProvider
         var writingRules = ReadRequiredFile(
             Path.Combine(promptDirectory, "writing-rules.md")
         );
-        var roleStrategies = ReadRequiredFile(
-            Path.Combine(promptDirectory, "role-strategies.md")
-        );
         var projectCatalogJson = ReadRequiredFile(
             Path.Combine(promptDirectory, "projects.json")
         );
@@ -44,7 +40,6 @@ public sealed class CoverLetterPromptProvider : ICoverLetterPromptProvider
         var projectResources = BuildProjectResources(projectCatalog.Projects);
         SystemPrompt = writingRules
             .Replace(CandidateContextPlaceholder, candidateContext, StringComparison.Ordinal)
-            .Replace(RoleStrategiesPlaceholder, roleStrategies, StringComparison.Ordinal)
             .Replace(ProjectResourcesPlaceholder, projectResources, StringComparison.Ordinal);
 
         if (SystemPrompt.Contains("{{", StringComparison.Ordinal))

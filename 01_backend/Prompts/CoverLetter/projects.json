@@ -6,8 +6,8 @@
       "liveSite": "https://www.stackradar.me",
       "github": "https://github.com/jwqiu/StackTrends.com",
       "directions": [
-        "Applied AI",
-        "AI Automation"
+        "AI Automation",
+        "LLM Applications"
       ],
       "positioning": "An AI-powered solution designed to reduce manual effort in a real job-search workflow.",
       "verifiedFacts": [
@@ -23,8 +23,7 @@
       "github": "https://github.com/jwqiu/Automated-Nematode-Egg-Detection",
       "directions": [
         "Computer Vision",
-        "Applied Machine Learning",
-        "AI Automation"
+        "Machine Learning"
       ],
       "positioning": "A computer-vision solution designed to reduce manual effort in a real laboratory egg-counting workflow.",
       "verifiedFacts": [
