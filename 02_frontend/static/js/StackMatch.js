@@ -972,6 +972,14 @@ function initSwitchTab() {
   } else {
     showSection('jobs-section'); // 默认显示 jobs panel
   }
+
+  // The default Jobs view should open at the true top of the page instead of
+  // being positioned at the jobs-section anchor.
+  if (hash !== 'companies-section') {
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    });
+  }
 }
 
 function showSection(id) {
@@ -1011,10 +1019,14 @@ function showSection(id) {
 
   });
 
-  // change the URL hash to match the current tab
-  // this let the browser remember the tab after a refresh
-  if (location.hash !== '#' + id) {
-    history.replaceState(null, '', '#' + id);
+  // Only the non-default Companies tab needs a hash. Keeping the default Jobs
+  // URL clean prevents browsers from treating jobs-section as a scroll target.
+  if (id === 'companies-section') {
+    if (location.hash !== '#companies-section') {
+      history.replaceState(null, '', '#companies-section');
+    }
+  } else if (location.hash) {
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
   }
 }
 
