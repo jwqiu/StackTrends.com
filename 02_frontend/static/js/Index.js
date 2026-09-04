@@ -2,6 +2,13 @@
 
 document.addEventListener("DOMContentLoaded" ,() => {
 
+    const exploreLink = document.getElementById("exploreLink");
+    exploreLink?.addEventListener("click", (event) => {
+      if (exploreLink.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+      }
+    });
+
     getLandingSummaryCounts();
     initParticles();
 
@@ -17,10 +24,11 @@ function getLandingSummaryCounts() {
           document.getElementById("companiesCount").textContent = data.companyCount;
 
           const btn = document.getElementById("exploreBtn");
-          btn.textContent = "Start Exploring";
-          btn.classList.remove("bg-gray-300", "cursor-not-allowed");
-          btn.classList.add("bg-blue-600", "hover:bg-blue-800", "hover:scale-105", "transition-colors", "duration-300", "hover:shadow-xl");
-          btn.removeAttribute("disabled");
+          const link = document.getElementById("exploreLink");
+          btn.textContent = "Start exploring";
+          link.classList.remove("bg-slate-300", "cursor-not-allowed");
+          link.classList.add("bg-blue-600", "hover:bg-blue-700", "hover:-translate-y-0.5", "hover:shadow-lg", "hover:shadow-blue-200");
+          link.removeAttribute("aria-disabled");
       
           const hint = document.getElementById("coldStartHint");
           if (hint) {
@@ -38,16 +46,16 @@ function initParticles() {
     },
     particles: {
       number: { value: 80 },
-      color: { value: "#6B7280" },
+      color: { value: "#475569" },
       shape: { type: "circle" },
-      opacity: { value: 0.5 },
-      size: { value: 3 },
-      move: { enable: true, speed: 1 },
+      opacity: { value: 0.45 },
+      size: { value: { min: 1, max: 3 } },
+      move: { enable: true, speed: 0.7 },
       links: {
         enable: true,
         distance: 150,
-        color: "#9CA3AF",
-        opacity: 0.4,
+        color: "#64748B",
+        opacity: 0.36,
         width: 1
       }
     },

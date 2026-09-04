@@ -28,7 +28,8 @@ namespace StackTrends.Controllers
             int page = 1,
             int size = 20,
             string? job_level = null,
-            [FromQuery] List<string>? keywords = null
+            [FromQuery] List<string>? keywords = null,
+            bool? is_match = null
         )
 
         {
@@ -39,6 +40,9 @@ namespace StackTrends.Controllers
             var whereConditions = new List<string>();
             if (!string.IsNullOrEmpty(job_level))
                 whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
+
+            if (is_match.HasValue)
+                whereConditions.Add("\"isMatch\" = @is_match");
 
             if (keywords != null && keywords.Count > 0)
             {   
@@ -73,7 +77,8 @@ namespace StackTrends.Controllers
                 company_id, company_name, job_id, job_title, job_url, sub_id, sub_name,
                 tech_tags as required_stacks,
                
-                listed_date, location, job_level, year_of_experience, job_des_origin"
+                listed_date, location, job_level, year_of_experience, job_des_origin,
+                ""isMatch"" as is_match"
                 // check if matchExpr is empty
             + (string.IsNullOrEmpty(matchExpr)
                 ? "" // if empty, do not add anything
@@ -98,6 +103,8 @@ namespace StackTrends.Controllers
             cmd.Parameters.AddWithValue("limit", size);
             if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
                 cmd.Parameters.AddWithValue("job_level", job_level);
+            if (is_match.HasValue)
+                cmd.Parameters.AddWithValue("is_match", is_match.Value);
 
             if (keywords != null && keywords.Count > 0)
             {
@@ -130,7 +137,8 @@ namespace StackTrends.Controllers
                     JobLocation = reader["location"] == DBNull.Value ? null : reader["location"].ToString(),
                     JobLevel = reader["job_level"] == DBNull.Value ? null : reader["job_level"].ToString(),
                     YearOfExperience = reader["year_of_experience"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["year_of_experience"]),
-                    JobDesOrigin = reader["job_des_origin"] == DBNull.Value ? null : reader["job_des_origin"].ToString()
+                    JobDesOrigin = reader["job_des_origin"] == DBNull.Value ? null : reader["job_des_origin"].ToString(),
+                    IsMatch = reader["is_match"] == DBNull.Value ? null : Convert.ToBoolean(reader["is_match"])
                 };
 
                 jobs.Add(job);

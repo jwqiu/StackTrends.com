@@ -1,7 +1,7 @@
 // import { renderTechStackByCompany } from './StackTrends.js';
 
 const API_BASE = window.API_BASE;
-let currentJobLevel = "ALL";
+let currentJobLevel = "junior";
 let allTechStacks = [];
 let selectedStacks = [];
 let selectedStacks_companies = [];
@@ -17,6 +17,10 @@ let currentReviewJobId = null;
 let jobLevelEvidence = [];
 const techKeywordExplanationCache = {};
 let pageScrollYBeforeReviewModal = 0;
+let showAiShortlistOnly = false;
+// Keep the review modal implementation available, while job cards currently
+// open the original posting directly. Set this to true to restore the modal.
+const JOB_CARD_OPENS_REVIEW_MODAL = false;
 
 
 // when the page loads, the following functions will be executed
@@ -30,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //----------------------------------------------------------------
   // fetch data used for this page and initialize event listeners
   //----------------------------------------------------------------
+  initAiShortlistFilter();
   loadJobs();
   loadTechStacks(); // input and add event listeners will be set up inside this function
 
@@ -58,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //--------------------------------
   setupToggleBtnClickEvent();
   initLoadMoreButton();
+  initTechSkillsToggle();
 
   //--------------------------------
   // functions related to job review modal
@@ -278,7 +284,7 @@ function handleJobLevelClick() {
     });
   });
 
-  const defaultBtn = document.querySelector('.filter[data-filter="ALL"]');
+  const defaultBtn = document.querySelector('.filter[data-filter="junior"]');
   if (defaultBtn) defaultBtn.click();
 
 }
@@ -287,6 +293,7 @@ function handleJobLevelClick() {
 // these two variables will be used in loadJobs function to determine what data to display
 function initApplyFiltersButton() {
     document.querySelector('.apply-filters-btn')?.addEventListener('click', async () => {
+    showAiShortlistOnly = document.getElementById('ai-shortlist-filter')?.checked ?? false;
     currentPage = 1;
     allJobs = [];
     await loadJobs();
@@ -295,9 +302,27 @@ function initApplyFiltersButton() {
   });
 }
 
+function initAiShortlistFilter() {
+  const checkbox = document.getElementById('ai-shortlist-filter');
+  if (!checkbox) return;
+
+  showAiShortlistOnly = false;
+  checkbox.checked = false;
+}
+
 async function getFilterResultsCount() {
 
   let url = `${API_BASE}/api/stats/jobs/count?job_level=${encodeURIComponent(currentJobLevel)}`;
+  const resultsContext = document.getElementById('results-context');
+  if (resultsContext) {
+    resultsContext.textContent = showAiShortlistOnly
+      ? 'Target roles matching your Tech Skills and Level'
+      : 'Results matching your Tech Skills and Level';
+  }
+
+  if (showAiShortlistOnly) {
+    url += '&is_match=true';
+  }
 
   if (selectedStacks.length > 0) {
     for (const kw of selectedStacks) {
@@ -323,6 +348,9 @@ async function loadJobs() {
   if (currentJobLevel && currentJobLevel.toLowerCase() !== 'all') {
     url += `&job_level=${encodeURIComponent(currentJobLevel)}`;
   }
+  if (showAiShortlistOnly) {
+    url += '&is_match=true';
+  }
   if (selectedStacks.length > 0) {
     for (const kw of selectedStacks) {
       if (kw.trim()) {
@@ -347,11 +375,35 @@ async function loadJobs() {
 // functions to display and render jobs
 // ======================================================
 
+function handleJobCardClick(jobId) {
+  if (JOB_CARD_OPENS_REVIEW_MODAL) {
+    openJobReviewModal(jobId);
+    return;
+  }
+
+  const job = allJobs.find(item => item.jobId === jobId);
+  if (!job?.jobUrl) {
+    console.warn(`No job posting URL found for job ${jobId}.`);
+    return;
+  }
+
+  window.open(job.jobUrl, '_blank', 'noopener,noreferrer');
+}
+
 function getJobCardHtml(job, includeAnimation = false) {
   const stacks = highlightMatches(job.requiredStacks, selectedStacks);
+  const isSelectedJobLevel =
+    currentJobLevel?.toLowerCase() !== 'all' &&
+    String(job.jobLevel ?? '').toLowerCase() === currentJobLevel?.toLowerCase();
+  const jobLevelTagColors = isSelectedJobLevel
+    ? 'bg-blue-500 text-white'
+    : 'bg-gray-100 text-gray-500';
+  const aiShortlistTagColors = showAiShortlistOnly
+    ? 'bg-blue-500 text-white'
+    : 'bg-gray-100 text-gray-500';
 
   return `
-      <div data-job-id="${job.jobId}" onclick='openJobReviewModal(${job.jobId})' class="block no-underline text-inherit cursor-pointer">
+      <div data-job-id="${job.jobId}" onclick='handleJobCardClick(${job.jobId})' class="block no-underline text-inherit cursor-pointer">
         <div class="${includeAnimation ? 'job-card' : ''} p-8 bg-white border border-gray-200 rounded-lg shadow hover:border-blue-500 hover:bg-blue-50 hover:border-2 hover:scale-105 transition-transform duration-300">
         <h3 class="font-bold text-xl text-grey-700 mr-3">${job.jobTitle}</h3>
           
@@ -371,42 +423,35 @@ function getJobCardHtml(job, includeAnimation = false) {
               </p>
             </div>
           </div>
-          <div class="border-l-4 border-blue-500 pl-4 mt-4 ">
+          <div class="flex flex-wrap items-center gap-2 mt-4 font-mono">
+            <span class="rounded-lg px-2 py-1 text-sm ${jobLevelTagColors}">${job.jobLevel ?? 'N/A'}</span>
+            ${job.isMatch === true ? `<span class="rounded-lg px-2 py-1 text-sm ${aiShortlistTagColors}">Matches my preferences</span>` : ''}
+            <span class="rounded-lg bg-gray-100 px-2 py-1 text-sm text-gray-500">
+              ${
+                job.yearOfExperience === 0
+                  ? "< 1 yr"
+                  : job.yearOfExperience > 0
+                    ? `${job.yearOfExperience} yrs exp`
+                    : "Exp not specified"
+              }
+            </span>
+          </div>
+          <div class="mt-4">
             <p class="inline-flex items-center text-sm text-gray-500 gap-1 mt-0">
-                 Tech Requirements:
+                 Tech skills:
             </p>
             <p class="required-tech-stacks font-mono flex flex-wrap gap-2 text-sm mt-2">
               ${stacks}
             </p>
           </div>
-          <div class="flex items-center ">
-            <div>
-              <p class="text-sm mt-5 text-gray-400 flex items-center gap-1 mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                  <path fillRule="evenodd" d="M4 1.75a.75.75 0 0 1 1.5 0V3h5V1.75a.75.75 0 0 1 1.5 0V3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2V1.75ZM4.5 6a1 1 0 0 0-1 1v4.5a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-7Z" clipRule="evenodd" />
-                </svg>
-                ${job.listedDate 
-                ? new Date(job.listedDate).toLocaleDateString('en-NZ') 
-                : 'N/A'}
-              </p>
-            </div>
-            <div class="flex items-center mt-5 ">
-              <div class=" border text-gray-500 px-3 py-1 mr-3 rounded text-sm">
-                <p>
-                  ${
-                    job.yearOfExperience === 0
-                      ? "< 1 yr"
-                      : job.yearOfExperience > 0
-                        ? `${job.yearOfExperience} yrs exp`
-                        : "Exp not specified"
-                  }
-                </p>
-              </div>
-              <div class=" border text-gray-500 px-3 py-1 rounded text-sm">
-                <p>${job.jobLevel ?? 'N/A'}</p>
-              </div>
-            </div>
-          </div>
+          <p class="text-sm mt-5 text-gray-400 flex items-center gap-1 mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+              <path fillRule="evenodd" d="M4 1.75a.75.75 0 0 1 1.5 0V3h5V1.75a.75.75 0 0 1 1.5 0V3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2V1.75ZM4.5 6a1 1 0 0 0-1 1v4.5a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-7Z" clipRule="evenodd" />
+            </svg>
+            ${job.listedDate
+            ? new Date(job.listedDate).toLocaleDateString('en-NZ')
+            : 'N/A'}
+          </p>
         </div>
       </div>        
     `;
@@ -467,8 +512,8 @@ function animateJobCards() {
 // and hightlights the ones that match the user's selected tech stacks
 // to use this code, simply insert it into the container where the job's tech requirements are displayed
 function highlightMatches(stacks, selected) {
-  
-  const clean = stacks
+
+  const clean = (stacks || [])
     // s && s.trim() means, s is not null/underfined/empty string, and after trimming, it is still not empty
     // note : this step doesn't actually change the original string, it only checks it
     // so we still need to call trim() again in the next step
@@ -479,12 +524,60 @@ function highlightMatches(stacks, selected) {
   //   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
   // }
 
-  const matched = clean.filter(s => selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
-  const unmatched = clean.filter(s => !selected.map(x => x.toLowerCase()).includes(s.toLowerCase()));
-  return [
-    ...matched.map(s => `<span class=" bg-blue-500 rounded-lg px-2 py-1 text-white">${s}</span>`),
-    ...unmatched.map(s => `<span class=" bg-blue-100 rounded-lg px-2 py-1 text-gray-500">${s}</span>`)
-  ].join('  ') || 'N/A';
+  const selectedSet = new Set(selected.map(x => x.toLowerCase()));
+  const matched = clean.filter(s => selectedSet.has(s.toLowerCase()));
+  const unmatched = clean.filter(s => !selectedSet.has(s.toLowerCase()));
+  const ordered = [...matched, ...unmatched];
+  const visible = ordered.slice(0, 6);
+  const hidden = ordered.slice(6);
+  const remainingCount = ordered.length - visible.length;
+
+  const renderSkillTag = (skill, extraClasses = '') => {
+    const isSelected = selectedSet.has(skill.toLowerCase());
+    const classes = isSelected
+      ? 'bg-blue-500 text-white'
+      : 'bg-gray-100 text-gray-500';
+    return `<span class="rounded-lg px-2 py-1 ${classes} ${extraClasses}">${skill}</span>`;
+  };
+
+  const tags = visible.map(skill => renderSkillTag(skill));
+  tags.push(...hidden.map(skill => renderSkillTag(skill, 'extra-tech-skill hidden')));
+
+  if (remainingCount > 0) {
+    tags.push(`
+      <button
+        type="button"
+        class="tech-skills-toggle ml-1 self-center text-xs font-medium text-gray-400 underline decoration-gray-300 underline-offset-4 transition hover:text-blue-600 hover:decoration-blue-400"
+        data-more-count="${remainingCount}"
+        aria-expanded="false"
+      >+${remainingCount} more</button>
+    `);
+  }
+
+  return tags.join('  ') || 'N/A';
+}
+
+function initTechSkillsToggle() {
+  document.addEventListener('click', event => {
+    const toggle = event.target.closest('.tech-skills-toggle');
+    if (!toggle) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const container = toggle.closest('.required-tech-stacks');
+    if (!container) return;
+
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    container.querySelectorAll('.extra-tech-skill').forEach(tag => {
+      tag.classList.toggle('hidden', isExpanded);
+    });
+
+    toggle.setAttribute('aria-expanded', String(!isExpanded));
+    toggle.textContent = isExpanded
+      ? `+${toggle.dataset.moreCount} more`
+      : 'Show less ↑';
+  }, true);
 }
 
 // when the page loads, add a click event listener to the load more button

@@ -63,13 +63,17 @@ namespace StackTrends.Controllers
         [HttpGet("jobs/count")]
         public async Task<IActionResult> JobsCount(
             string? job_level = null,
-            [FromQuery] List<string>? keywords = null)
+            [FromQuery] List<string>? keywords = null,
+            bool? is_match = null)
         {
             await _conn.OpenAsync();
 
             var whereConditions = new List<string>();
             if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
                 whereConditions.Add("LOWER(job_level) = LOWER(@job_level)");
+
+            if (is_match.HasValue)
+                whereConditions.Add("\"isMatch\" = @is_match");
 
             if (keywords != null && keywords.Count > 0)
             {
@@ -89,6 +93,8 @@ namespace StackTrends.Controllers
             await using var cmd = new NpgsqlCommand(sql, _conn);
             if (!string.IsNullOrEmpty(job_level) && job_level.ToLower() != "all")
                 cmd.Parameters.AddWithValue("job_level", job_level);
+            if (is_match.HasValue)
+                cmd.Parameters.AddWithValue("is_match", is_match.Value);
             if (keywords != null && keywords.Count > 0)
             {
                 for (int i = 0; i < keywords.Count; i++)

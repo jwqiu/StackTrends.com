@@ -27,6 +27,7 @@ namespace StackTrends.Models
         public string? JobLevel { get; set; } // 工作经验要求（如 Junior, Intermediate, Senior）
         public int? YearOfExperience { get; set; } // 工作年限要求
         public string? JobDesOrigin { get; set; } // 原始职位描述文本
+        public bool? IsMatch { get; set; } // AI screening result; null means not yet assessed
     }
 
     // TODO: the KeywordMatchStats and LevelMatchStats classes could be combined into a single class 
@@ -59,5 +60,4 @@ namespace StackTrends.Models
 
 
 }
-
 

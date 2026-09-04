@@ -2,69 +2,108 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>StackRadar</title>
-        <meta name="description" content="Discover the most in-demand tech skills in New Zealand from real job data.">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>StackRadar — Navigate the New Zealand tech job market</title>
+        <meta name="description" content="A personal AI job-search system combining New Zealand tech-market insight with automated role screening and targeted cover-letter drafting.">
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to   { opacity: 1; transform: translateY(0); }
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(18px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .reveal {
+                opacity: 0;
+                animation: fadeUp 1800ms cubic-bezier(.16,1,.3,1) forwards;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .reveal { opacity: 1; animation: none; }
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
-
     </head>
-    <body class="relative flex min-h-screen items-center justify-center bg-gradient-to-r from-gray-400 via-slate-50 to-slate-100 p-6 pt-20 sm:p-10 sm:pt-20 lg:p-16">
-        <!-- background container for the tsparticles animation -->
-        <div id="tsparticles" class="absolute inset-0 -z-10"></div>
-        <!-- main content container -->
-        <main class="relative z-10 mx-auto w-full max-w-[700px]">
-            <div class="w-full">
-                <section class="flex w-full flex-col gap-10 text-left">
-                    <h1 class="w-full text-4xl font-bold leading-tight text-blue-600 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.4s_forwards] sm:text-5xl lg:w-max lg:self-center lg:whitespace-nowrap lg:text-center lg:text-6xl">
-                        AI-Powered Job Search System
-                    </h1>
-                    <p class="w-full text-center text-base leading-7 text-gray-600 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.9s_forwards] lg:w-[850px] lg:self-center">
-                        StackRadar automatically collects new IT roles from SEEK each day. LLMs and ML analyse job descriptions to reveal technology demand, screen roles against predefined career directions, and generate tailored cover letters.
-                    </p>
+    <body class="min-h-screen bg-white text-slate-950 antialiased">
+        <main class="grid min-h-screen lg:grid-cols-[minmax(0,1.9fr)_minmax(390px,1fr)]">
+            <section class="relative isolate order-2 flex min-h-[56vh] items-center overflow-hidden bg-slate-200 px-6 py-20 sm:px-10 lg:order-1 lg:min-h-screen lg:px-12 xl:px-16" aria-label="StackRadar features">
+                <div id="tsparticles" class="absolute inset-0 -z-10" aria-hidden="true"></div>
+                <div class="absolute inset-0 -z-10 bg-gradient-to-br from-white/30 via-slate-200/15 to-blue-200/55" aria-hidden="true"></div>
 
-                    <aside class="grid w-full max-w-[620px] self-center grid-cols-3 py-2" aria-label="StackRadar dataset summary">
-                        <div class="flex justify-start border-r border-gray-300/70 pr-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.4s_forwards]">
-                            <div class="flex flex-col items-center justify-center text-center">
-                                <span class="text-2xl font-semibold text-blue-600">04/2025</span>
-                                <span class="mt-2 text-sm font-normal text-gray-500">Collection Started</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-center border-r border-gray-300/70 px-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_1.9s_forwards]">
-                            <div class="flex flex-col items-center justify-center text-center">
-                                <span class="text-2xl font-semibold text-blue-600" id="jobsCount">#</span>
-                                <span class="mt-2 text-sm font-normal text-gray-500">Job Posts Analysed</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-end pl-6 opacity-0 animate-[fadeIn_0.5s_ease-in-out_2.4s_forwards]">
-                            <div class="flex flex-col items-center justify-center text-center">
-                                <span class="text-2xl font-semibold text-blue-600" id="companiesCount">#</span>
-                                <span class="mt-2 text-sm font-normal text-gray-500">Companies Covered</span>
-                            </div>
-                        </div>
-                    </aside>
+                <div class="mx-auto w-full max-w-5xl">
+                    <p class="reveal mb-7 text-xs font-semibold uppercase tracking-[0.24em] text-blue-700" style="animation-delay: 500ms;">Three core features. One system.</p>
 
-                    <div class="relative text-center opacity-0 animate-[fadeIn_0.5s_ease-in-out_2.9s_forwards]">
-                        <a href="StackTrends.html" class="inline-block">
-                            <button id="exploreBtn" disabled class="cursor-not-allowed rounded-full bg-gray-300 px-9 py-3.5 font-bold text-white shadow-lg transition-colors duration-300 sm:text-lg">
-                                <span class="flex items-center gap-x-3">
-                                    <span class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-blue-500"></span>
-                                    <span>Loading data...</span>
-                                </span>
-                            </button>
+                    <div class="grid gap-4 sm:grid-cols-3 xl:gap-6">
+                        <a href="StackTrends.html" class="reveal group flex min-h-64 flex-col rounded-2xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_70px_rgba(37,99,235,0.14)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-4" style="animation-delay: 500ms;">
+                            <span class="mb-10 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" stroke-linecap="round"/><path d="m3 7 6-4 6 6 5-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <h2 class="text-xl font-semibold tracking-tight text-slate-900">Track the skills employers need</h2>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">Explore real demand across New Zealand tech roles and focus your learning where the market is moving.</p>
+                            <span class="mt-auto pt-7 text-sm font-semibold text-blue-700">Explore tech trends <span class="inline-block transition-transform group-hover:translate-x-1">→</span></span>
                         </a>
-                        <p id="coldStartHint" class="mt-4 text-sm italic text-gray-400 lg:absolute lg:left-1/2 lg:top-full lg:-translate-x-1/2 lg:whitespace-nowrap">Initial loading may take up to 1 minute due to Azure free tier limits</p>
+
+                        <a href="StackMatch.html" class="reveal group flex min-h-64 flex-col rounded-2xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_70px_rgba(37,99,235,0.14)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-4" style="animation-delay: 1000ms;">
+                            <span class="mb-10 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <h2 class="text-xl font-semibold tracking-tight text-slate-900">Automate role screening</h2>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">New junior-level listings are assessed against my predefined career directions, helping me focus on the roles that fit best.</p>
+                            <span class="mt-auto pt-7 text-sm font-semibold text-blue-700">View screened roles <span class="inline-block transition-transform group-hover:translate-x-1">→</span></span>
+                        </a>
+
+                        <a href="CoverLetter.html" class="reveal group flex min-h-64 flex-col rounded-2xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_70px_rgba(37,99,235,0.14)] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-4" style="animation-delay: 1500ms;">
+                            <span class="mb-10 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h9l3 3v15H6z" stroke-linejoin="round"/><path d="M14 3v4h4M9 12h6M9 16h4" stroke-linecap="round"/></svg>
+                            </span>
+                            <h2 class="text-xl font-semibold tracking-tight text-slate-900">Generate targeted cover letters</h2>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">For each shortlisted role, AI drafts a tailored cover letter grounded in my personal context and the role’s requirements.</p>
+                            <span class="mt-auto pt-7 text-sm font-semibold text-blue-700">Open cover letter workflow <span class="inline-block transition-transform group-hover:translate-x-1">→</span></span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="order-1 flex items-center border-b border-slate-200 bg-white px-7 py-12 sm:px-12 lg:order-2 lg:border-b-0 lg:border-l lg:px-10 lg:py-10 xl:px-12" aria-labelledby="hero-title">
+                <div class="reveal mx-auto w-full max-w-lg lg:mx-0" style="animation-delay: 2000ms;">
+                    <div class="flex items-center gap-2.5 text-sm font-bold tracking-tight text-slate-950">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-md shadow-blue-200" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17 10 7l4 8 2-4 3 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        StackRadar
                     </div>
 
-                </section>
-            </div>
+                    <h1 id="hero-title" class="mt-8 text-4xl font-bold leading-[1.06] tracking-[-0.04em] text-slate-950 sm:text-5xl lg:text-[2.7rem] xl:text-[2.85rem]">A personal AI job-search system.</h1>
+                    <p class="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Built on real New Zealand job data</p>
+                    <p class="mt-5 text-base leading-7 text-slate-600">StackRadar turns daily New Zealand job listings into market insight, then uses AI to automate my own workflow—from screening roles against defined career directions to drafting targeted cover letters.</p>
+
+                    <dl class="mt-7 grid grid-cols-3 divide-x divide-slate-200 border-y border-slate-200 py-4">
+                        <div class="pr-4">
+                            <dt class="text-xs leading-4 text-slate-500">Tracking since</dt>
+                            <dd class="mt-1 text-lg font-bold tracking-tight text-slate-950">Apr 2025</dd>
+                        </div>
+                        <div class="px-4">
+                            <dt class="text-xs leading-4 text-slate-500">Jobs analysed</dt>
+                            <dd id="jobsCount" class="mt-1 text-lg font-bold tracking-tight text-slate-950">—</dd>
+                        </div>
+                        <div class="pl-4">
+                            <dt class="text-xs leading-4 text-slate-500">Companies</dt>
+                            <dd id="companiesCount" class="mt-1 text-lg font-bold tracking-tight text-slate-950">—</dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-7">
+                        <a id="exploreLink" aria-disabled="true" class="inline-flex cursor-not-allowed items-center justify-center rounded-xl bg-slate-300 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition" href="StackTrends.html">
+                            <span id="exploreBtn" class="flex items-center gap-3">
+                                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/50 border-t-white"></span>
+                                Loading live data...
+                            </span>
+                        </a>
+                        <p id="coldStartHint" class="mt-3 text-xs leading-5 text-slate-400">The first load can take up to a minute while the data service wakes up.</p>
+                    </div>
+                </div>
+            </section>
         </main>
+
         <script src="static/js/config.js"></script>
         <script src="static/js/Index.js"></script>
     </body>
