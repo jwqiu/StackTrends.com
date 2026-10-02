@@ -1,18 +1,108 @@
+import json
 import os
 import time
+from pathlib import Path
 
 import requests
 
 from .connect import get_conn
 
 
-LLM_API_BASE = os.getenv(
-    "STACKTRENDS_API_BASE",
-    "https://stacktrends-api-v2-heh4cvffh3c4bwde.australiaeast-01.azurewebsites.net",
-).rstrip("/")
-LLM_ANALYZE_URL = f"{LLM_API_BASE}/api/llm/analyze-job-description"
+OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+OPENAI_MODEL = os.getenv("STACKTREND_OPENAI_MODEL", "gpt-4.1-mini")
 LLM_REQUEST_TIMEOUT_SECONDS = 120
 LLM_MAX_RETRIES = 3
+
+JOB_LEVEL_INSTRUCTIONS = """
+You analyze New Zealand IT job descriptions and return structured data for
+year-of-experience and job-level classification.
+
+yearOfExperience:
+- Return only an integer: -1, 0, or a positive integer.
+- First use an explicitly stated overall professional experience requirement.
+- Otherwise use the requirement for the role's core skill. If the core skill
+  cannot be determined, use the highest explicit work-experience duration.
+- For a range, return its lowest value. For less than 12 months, return 0.
+- Return -1 when no clear, specific experience duration is stated.
+- Never infer a duration from seniority, responsibilities, salary, role
+  complexity, security-clearance history, residency, citizenship, immigration,
+  project or contract duration, company or technology age, tenure, benefits,
+  notice periods, working hours, or scheduling information.
+
+jobLevel:
+- Must be exactly Junior, Intermediate, or Senior.
+- Prefer a directly stated level such as junior, graduate, entry-level,
+  intermediate, mid-level, senior, lead, or principal.
+- Otherwise infer primarily from experience: 0-2 years is Junior, 3-5 years is
+  Intermediate, and 6+ years is Senior.
+- If experience is unclear, infer from responsibilities, technical complexity,
+  ownership, salary, and leadership or mentoring expectations in the New
+  Zealand IT job market.
+
+jobLevelEvidence:
+- Return at most 3 short pieces of evidence copied verbatim from the original
+  job description, strongest first.
+- Do not explain or rewrite the evidence. Return an empty list if there is no
+  clear evidence.
+""".strip()
+
+JOB_LEVEL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "yearOfExperience": {"type": "integer", "minimum": -1},
+        "jobLevel": {
+            "type": "string",
+            "enum": ["Junior", "Intermediate", "Senior"],
+        },
+        "jobLevelEvidence": {
+            "type": "array",
+            "items": {"type": "string"},
+        },
+    },
+    "required": ["yearOfExperience", "jobLevel", "jobLevelEvidence"],
+    "additionalProperties": False,
+}
+
+
+def _load_openai_api_key():
+    """Load the key locally without depending on the deployed backend."""
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if api_key:
+        return api_key
+
+    # Transitional fallback: reuse the ignored local backend settings file so
+    # the existing scheduled scraper keeps working after Azure App Service is
+    # removed. OPENAI_API_KEY remains the preferred long-term configuration.
+    settings_path = (
+        Path(__file__).resolve().parents[1] / "01_backend" / "appsettings.json"
+    )
+    if settings_path.exists():
+        try:
+            settings = json.loads(settings_path.read_text(encoding="utf-8-sig"))
+            api_key = str(settings.get("OpenAI", {}).get("ApiKey", "")).strip()
+        except (OSError, ValueError, TypeError):
+            api_key = ""
+        if api_key:
+            return api_key
+
+    raise RuntimeError(
+        "OpenAI API key is not configured. Set the OPENAI_API_KEY environment "
+        "variable before running the scraper."
+    )
+
+
+def _extract_response_text(payload):
+    """Extract Structured Outputs text from an OpenAI Responses API payload."""
+    for output_item in payload.get("output", []):
+        if output_item.get("type") != "message":
+            continue
+        for content_item in output_item.get("content", []):
+            if content_item.get("type") == "output_text":
+                text = content_item.get("text")
+                if isinstance(text, str) and text.strip():
+                    return text
+
+    raise ValueError("OpenAI response does not contain structured output text.")
 
 
 def load_job_data():
@@ -84,36 +174,51 @@ def label_job_level_from_title(title):
 
 
 def analyze_job(job_description):
-    """Return YOE, job level, and job-level evidence from the backend LLM."""
+    """Return YOE, job level, and evidence directly from OpenAI."""
     if not job_description or not job_description.strip():
         raise ValueError("Job description is empty.")
 
+    api_key = _load_openai_api_key()
     last_error = None
 
     for attempt in range(1, LLM_MAX_RETRIES + 1):
         try:
             response = requests.post(
-                LLM_ANALYZE_URL,
-                json={"jobDescription": job_description},
+                OPENAI_RESPONSES_URL,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": OPENAI_MODEL,
+                    "instructions": JOB_LEVEL_INSTRUCTIONS,
+                    "input": (
+                        "Analyze this job description:\n\n"
+                        f"{job_description}"
+                    ),
+                    "text": {
+                        "format": {
+                            "type": "json_schema",
+                            "name": "job_level_analysis",
+                            "strict": True,
+                            "schema": JOB_LEVEL_SCHEMA,
+                        }
+                    },
+                    "store": False,
+                },
                 timeout=LLM_REQUEST_TIMEOUT_SECONDS,
             )
             response.raise_for_status()
 
             payload = response.json()
-            analysis = payload.get("analysis")
+            analysis = json.loads(_extract_response_text(payload))
             if not isinstance(analysis, dict):
-                raise ValueError("LLM response does not contain an analysis object.")
+                raise ValueError("OpenAI response is not a JSON object.")
 
             yoe = analysis.get("yearOfExperience")
             job_level = analysis.get("jobLevel")
             job_level_evidence = analysis.get("jobLevelEvidence")
 
-            # Keep compatibility with a deployed backend version that may still
-            # return null when the JD has no explicit experience duration.
-            if yoe is None:
-                yoe = -1
-
-            # The backend prompt permits only -1, 0, or a positive integer.
             # bool is excluded because it is a subclass of int in Python.
             if isinstance(yoe, bool) or not isinstance(yoe, int) or yoe < -1:
                 raise ValueError(f"Invalid yearOfExperience returned by LLM: {yoe!r}")
@@ -121,8 +226,6 @@ def analyze_job(job_description):
             if job_level not in {"Junior", "Intermediate", "Senior"}:
                 raise ValueError(f"Invalid jobLevel returned by LLM: {job_level!r}")
 
-            if job_level_evidence is None:
-                job_level_evidence = []
             if not isinstance(job_level_evidence, list) or any(
                 not isinstance(item, str) for item in job_level_evidence
             ):
