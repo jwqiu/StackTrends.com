@@ -5,10 +5,8 @@ from python_scraper.create_tech_stack_rank import create_tech_stack_rank
 from python_scraper.create_tech_stack_rank import create_tech_stack_rank_by_company
 from python_scraper.create_tech_stack_rank import update_landing_summary
 from python_scraper.create_tech_stack_rank import get_top_growing_and_declining_techs
-from python_scraper.azure_firewall import ensure_current_ip_allowed
 
 def main():
-    ensure_current_ip_allowed()
     get_jobs_data()
     count_jobs_by_month()
     update_year_of_experience_and_job_level()

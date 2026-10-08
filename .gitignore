@@ -6,13 +6,15 @@
 # Local credentials
 secrets/
 
+# Local database backups
+backups/
+
 # .NET build artifacts
 **/bin/
 **/obj/
 
 *.xlsx
 
-connect.py
 **/appsettings.json
 
 # 忽略 python_scraper 中的虚拟环境和缓存

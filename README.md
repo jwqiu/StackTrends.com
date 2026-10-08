@@ -104,3 +104,21 @@ Explore technology demand, discover relevant roles, and generate a tailored appl
 ## 10. License
 
 This project is available under the terms of the [LICENSE](./LICENSE) file.
+# Database switch
+
+The scraper and backend can use either Aiven or Azure PostgreSQL. Connection
+URIs stay in the ignored `secrets/` directory.
+
+```bash
+.venv/bin/python scripts/switch_database.py aiven
+.venv/bin/python scripts/switch_database.py azure
+```
+
+By default the command updates the local scraper, local backend configuration,
+and the deployed Azure App Service backend, then verifies the backend API.
+Use `--dry-run` to validate a target without changing configuration, or
+`--local-only` to avoid changing the deployed backend.
+
+The switch refuses to move to a target with a different `jobs` count. Sync the
+databases first; `--allow-data-mismatch` is available only when stale target
+data is explicitly acceptable.
